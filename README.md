@@ -1,1 +1,1 @@
-# ComputationalIntelligenceLab2020
+# Computational Intelligence Lab 2020
