@@ -1,4 +1,8 @@
 import os, sys, inspect, random, json
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0,parentdir)
+
 from utilities.general_utilities import get_args, create_dirs
 from utilities.config import process_config
 from comet_ml import Experiment
@@ -13,9 +17,7 @@ from pytorch_transformers.optimization import AdamW
 
 
 
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,parentdir)
+
 
 def setup_experiment(experiment, config):
     if config.use_comet_experiments:
