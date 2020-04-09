@@ -91,7 +91,7 @@ def main():
     optimizer = AdamW(model.parameters(), lr=config.learning_rate, correct_bias=False)
     Trainer = BertClassifierTrainer(config, device, optimizer, model, tokenizer, TextProcessor, train_dataset,
                 validation_dataset, test_dataset)
-    #Trainer.train_n_validate()
+    Trainer.train_n_validate()
     Trainer.test()
 
 if __name__ == '__main__':
