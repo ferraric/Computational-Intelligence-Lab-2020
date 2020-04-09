@@ -39,11 +39,11 @@ def parse_train_files(data_path: str, use_small_dataset: bool, use_large_dataset
         assert os.path.isfile(negative_train_file)
         assert os.path.isfile(negative_train_file_large)
 
-        positive_train_dataframe = create_dataframe_of_data_and_label(positive_train_file, sentiment=1, parsing_function=parsing_function)
-        positive_train_large_dataframe = create_dataframe_of_data_and_label(positive_train_file_large, sentiment=1, parsing_function=parsing_function)
-        negative_train_dataframe = create_dataframe_of_data_and_label(text_file_path=negative_train_file, sentiment=0, parsing_function=parsing_function)
-        negative_train_large_dataframe = create_dataframe_of_data_and_label(text_file_path=negative_train_file_large,
-                                                                            sentiment=0, parsing_function=parsing_function)
+        positive_train_dataframe = _create_dataframe_of_data_and_label(positive_train_file, sentiment=1, parsing_function=parsing_function)
+        positive_train_large_dataframe = _create_dataframe_of_data_and_label(positive_train_file_large, sentiment=1, parsing_function=parsing_function)
+        negative_train_dataframe = _create_dataframe_of_data_and_label(text_file_path=negative_train_file, sentiment=0, parsing_function=parsing_function)
+        negative_train_large_dataframe = _create_dataframe_of_data_and_label(text_file_path=negative_train_file_large,
+                                                                             sentiment=0, parsing_function=parsing_function)
 
         all_train_dataframe = positive_train_dataframe.append(positive_train_large_dataframe)
         all_train_dataframe = all_train_dataframe.append(negative_train_dataframe)
@@ -61,12 +61,12 @@ def parse_train_files(data_path: str, use_small_dataset: bool, use_large_dataset
     negative_train_file = os.path.join(data_path, negative_train_name)
     assert os.path.isfile(positive_train_file)
     assert os.path.isfile(negative_train_file)
-    positive_train_dataframe = create_dataframe_of_data_and_label(text_file_path=positive_train_file, sentiment=1, parsing_function=parsing_function)
-    negative_train_dataframe = create_dataframe_of_data_and_label(text_file_path=negative_train_file, sentiment=0, parsing_function=parsing_function)
+    positive_train_dataframe = _create_dataframe_of_data_and_label(text_file_path=positive_train_file, sentiment=1, parsing_function=parsing_function)
+    negative_train_dataframe = _create_dataframe_of_data_and_label(text_file_path=negative_train_file, sentiment=0, parsing_function=parsing_function)
     return positive_train_dataframe.append(negative_train_dataframe)
 
 
-def create_dataframe_of_data_and_label(text_file_path: str, sentiment: int, parsing_function=None):
+def _create_dataframe_of_data_and_label(text_file_path: str, sentiment: int, parsing_function=None):
     """
     Takes a text_file_path and generates a dataframe. The input text is parsed with parsing_function (if not None),
     and then put into a dataframe where each row corresponds to one line of the text file. The columns are retrievable
@@ -103,5 +103,13 @@ def create_dataframe_of_data_and_label(text_file_path: str, sentiment: int, pars
 
 
 def parse_test_file(data_path: str, parsing_function=None):
-    raise NotImplementedError()
+    assert os.path.isdir(data_path)
+    if (parsing_function != None):
+        assert callable(parsing_function)
 
+    test_file_path = os.path.join(data_path, "test_data.txt")
+    assert os.path.isfile(test_file_path)
+
+    # in order to no have to change the whole dataloaders etc. I will add a dummy label to the test dataset.
+    test_dataframe = _create_dataframe_of_data_and_label(text_file_path=test_file_path, sentiment=0, parsing_function=parsing_function)
+    return test_dataframe
