@@ -57,7 +57,7 @@ class BertClassifierTrainer():
                                 clf_tokens_mask=(inputs == self.tokenizer.vocab[self.TextProcessor.LABEL]),
                                 padding_mask=(batch == self.tokenizer.vocab[self.TextProcessor.PAD]))
         # we will now save the predicted labels to an output file.
-        predictions = torch.argmax(logits, axis=1).numpy()
+        predictions = torch.argmax(logits, axis=1).cpu().numpy()
         return predictions
 
     def on_test_iteration_completed(self, engine):
