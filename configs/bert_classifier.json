@@ -1,9 +1,9 @@
 {
   "exp_name": "bert_classifier",
   "max_sentence_length" : 100,
-  "num_epochs": 20,
+  "num_epochs": 10,
   "validation_percentage": 0.2,
-  "batch_size" : 4,
+  "batch_size" : 8,
   "dropout": 0.05,
   "n_warmup" : 10,
   "init_range" : 0.02,
@@ -15,7 +15,7 @@
   "comet_api_key" : "NVyYXH1De9UgyELocupO1Lge9",
   "comet_project_name" : "sentiment-analysis",
   "comet_workspace" : "jerry-crea",
-  "train_dataset_path" : "/Users/jeremyscheurer/Data/sentiment_analysis/twitter-datasets",
-  "test_dataset_path" : "/Users/jeremyscheurer/Data/sentiment_analysis/twitter-datasets",
-  "test_prediction_path": "/Users/jeremyscheurer/Data/sentiment_analysis/twitter-datasets/submission_predictions.csv"
+  "train_dataset_path" : "/cluster/home/jeremys/twitter-datasets",
+  "test_dataset_path" : "/cluster/home/jeremys/twitter-datasets",
+  "test_prediction_path": "/cluster/home/jeremys/twitter-datasets/submission_predictions.csv"
 }
