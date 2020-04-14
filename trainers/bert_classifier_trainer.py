@@ -25,17 +25,17 @@ class BertClassifierTrainer():
         self.model.train()
         inputs, labels = (t.to(self.device) for t in batch)
         inputs = inputs.transpose(0, 1).contiguous()  # [S, B]
-        _, loss = self.model(inputs,
+        _, loss, batch_accuracy = self.model(inputs,
                         clf_tokens_mask=(inputs == self.tokenizer.vocab[self.TextProcessor.LABEL]),
                         clf_labels=labels)
-        #loss = loss / self.config.gradient_acc_steps
+        loss = loss / self.config.gradient_acc_steps
         loss.backward()
 
         torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.config.max_norm)
-        #if engine.state.iteration % self.config.gradient_acc_steps == 0:
-        self.optimizer.step()
-        self.optimizer.zero_grad()
-        return loss.item()
+        if engine.state.iteration % self.config.gradient_acc_steps == 0:
+            self.optimizer.step()
+            self.optimizer.zero_grad()
+        return loss.item(), batch_accuracy
 
 
     def validation_inference(self, engine, batch):
@@ -46,6 +46,8 @@ class BertClassifierTrainer():
             logits = self.model(inputs,
                            clf_tokens_mask = (inputs == self.tokenizer.vocab[self.TextProcessor.LABEL]),
                            padding_mask = (batch == self.tokenizer.vocab[self.TextProcessor.PAD]))
+        # convert logits to labels
+        logits = torch.round(logits.view(-1)).int()
         return logits, labels
 
     def test_inference(self, engine, batch):
@@ -83,9 +85,13 @@ class BertClassifierTrainer():
                                     'lr', [(0, 0.0), (self.config.n_warmup, self.config.learning_rate),
                                                       (len(self.train_dataset) * self.config.num_epochs, 0.0)])
         trainer.add_event_handler(Events.ITERATION_STARTED, scheduler)
-        # add progressbar with loss
-        RunningAverage(output_transform=lambda x: x).attach(trainer, "loss")
+        # add progressbar with loss and batch_accuracy
+        RunningAverage(output_transform=lambda x: x[0]).attach(trainer, "loss")
+        RunningAverage(output_transform=lambda x: x[1]).attach(trainer, "batch_accuracy")
+
         ProgressBar(persist=True).attach(trainer, metric_names=['loss'])
+        ProgressBar(persist=True).attach(trainer, metric_names=['batch_accuracy'])
+
 
         # save checkpoints and finetuning config
         checkpoint_handler = ModelCheckpoint(self.config.summary_dir, 'config_checkpoint',

@@ -60,6 +60,10 @@ class TransformerWithClfHead(nn.Module):
                                        bert_config.num_max_positions, bert_config.num_heads, bert_config.num_layers,
                                        fine_tuning_config.dropout, causal=not bert_config.mlm)
         self.classification_head = torch.nn.Sequential(
+                                        #nn.Linear(bert_config.embed_dim, 200),
+                                        #nn.ReLU(),
+                                        #nn.Linear(200, 100),
+                                        #nn.ReLU(),
                                         nn.Linear(bert_config.embed_dim, 1),
                                         nn.Sigmoid()
                                     )
@@ -80,5 +84,9 @@ class TransformerWithClfHead(nn.Module):
         if clf_labels is not None:
             loss_function = nn.BCELoss()
             loss = loss_function(clf_logits.view(-1), clf_labels.view(-1).float())
-            return clf_logits, loss
+            predictions = torch.round(clf_logits.view(-1))
+            batch_size = clf_logits.view(-1).shape
+            correct_predicions = (predictions == clf_labels.float()).sum().item()
+            batch_accuracy = 100*(float(correct_predicions)/float(batch_size[0]))
+            return clf_logits, loss, batch_accuracy
         return clf_logits
