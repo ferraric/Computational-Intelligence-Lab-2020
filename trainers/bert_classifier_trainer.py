@@ -87,7 +87,7 @@ class BertClassifierTrainer():
                 previous_models = os.listdir(self.config.checkpoint_dir)
                 assert len(previous_models) == 1 or len(previous_models) == 0
                 if(len(previous_models)==1):
-                    os.remove(previous_models[0])
+                    os.remove(os.path.join(self.config.checkpoint_dir,previous_models[0]))
                 torch.save(self.model, self.config.checkpoint_dir + "model_acc_{}".format(self.best_validation_accuracy))
 
         scheduler = PiecewiseLinear(self.optimizer,
