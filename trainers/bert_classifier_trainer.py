@@ -66,12 +66,11 @@ class BertClassifierTrainer():
         return predictions
 
     def on_test_iteration_completed(self, engine):
-        predictions = np.where(engine.state.output == 0, -1, engine.state.output)
+        predictions = np.where(engine.state.output.cpu() == 0, -1, engine.state.output.cpu())
         if(self.test_predictions is None):
             self.test_predictions = predictions
         else:
             self.test_predictions = np.concatenate((self.test_predictions, predictions))
-            print(self.test_predictions)
             return
 
     def train_n_validate(self):
