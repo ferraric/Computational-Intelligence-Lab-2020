@@ -9,7 +9,7 @@ import pandas as pd
 
 class BertClassifierTrainer():
     def __init__(self, config, device, optimizer, model, tokenizer, TextProcessor,
-                 train_dataset, validation_dataset, test_dataset):
+                 train_dataset, validation_dataset, test_dataset, experiment):
         self.config = config
         self.device = device
         self.optimizer = optimizer
@@ -19,6 +19,7 @@ class BertClassifierTrainer():
         self.train_dataset = train_dataset
         self.validation_dataset = validation_dataset
         self.test_dataset = test_dataset
+        self.experiment = experiment
         self.test_predictions = None
 
     def learn(self, engine, batch):
@@ -35,6 +36,7 @@ class BertClassifierTrainer():
         if engine.state.iteration % self.config.gradient_acc_steps == 0:
             self.optimizer.step()
             self.optimizer.zero_grad()
+        self.experiment.log_metric("batch_accuracy",batch_accuracy)
         return loss.item(), batch_accuracy
 
 
