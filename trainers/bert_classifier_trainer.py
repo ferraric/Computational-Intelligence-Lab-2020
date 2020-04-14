@@ -5,7 +5,7 @@ from ignite.contrib.handlers import CosineAnnealingScheduler, PiecewiseLinear, c
 import torch
 import numpy as np
 import pandas as pd
-
+import os
 
 class BertClassifierTrainer():
     def __init__(self, config, device, optimizer, model, tokenizer, TextProcessor,
@@ -21,6 +21,7 @@ class BertClassifierTrainer():
         self.test_dataset = test_dataset
         self.experiment = experiment
         self.test_predictions = None
+        self.best_validation_accuracy = 0
 
     def learn(self, engine, batch):
         self.model.train()
@@ -78,10 +79,17 @@ class BertClassifierTrainer():
         evaluator = Engine(self.validation_inference)
         Accuracy().attach(evaluator, "validation_accuracy")
 
-        @trainer.on(Events.EPOCH_COMPLETED)
+        @trainer.on(Events.EPOCH_STARTED)
         def log_validation_results(engine):
             evaluator.run(self.validation_dataset)
             print(f"validation epoch: {engine.state.epoch} acc: {100 * evaluator.state.metrics['validation_accuracy']}")
+            if(evaluator.state.metrics['validation_accuracy'] > self.best_validation_accuracy):
+                self.best_validation_accuracy = evaluator.state.metrics['validation_accuracy']
+                previous_models = os.listdir(self.config.checkpoint_dir)
+                assert len(previous_models) == 1 or len(previous_models) == 0
+                if(len(previous_models)==1):
+                    os.remove(previous_models[0])
+                torch.save(self.model, self.config.checkpoint_dir + "model_acc_{}".format(self.best_validation_accuracy))
 
         scheduler = PiecewiseLinear(self.optimizer,
                                     'lr', [(0, 0.0), (self.config.n_warmup, self.config.learning_rate),
