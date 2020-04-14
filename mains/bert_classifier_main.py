@@ -6,7 +6,7 @@ sys.path.insert(0,parentdir)
 from utilities.general_utilities import get_args, create_dirs
 from utilities.config import process_config
 from comet_ml import Experiment
-from utilities.parse_data_files import parse_train_files, parse_test_file
+from utilities.parse_data_files import parse_train_files, parse_test_file, remove_line_index_and_comma_of_sentence
 from pytorch_transformers import BertTokenizer
 from data_loaders.bert_classifier_data_loader import TextPreprocessing, BertClassifierDataLoader
 from models.bert_classifier_model import TransformerWithClfHead
@@ -60,7 +60,7 @@ def main():
     # Create DataLoader and Model
     ############################
     train_dataframe = parse_train_files(config.train_dataset_path, True, False)
-    test_dataframe = parse_test_file(config.test_dataset_path)
+    test_dataframe = parse_test_file(config.test_dataset_path, remove_line_index_and_comma_of_sentence)
     tokenizer = BertTokenizer.from_pretrained("bert-base-cased", do_lower_case=False)
     TextProcessor = TextPreprocessing(tokenizer, config.max_sentence_length)
     DataLoader = BertClassifierDataLoader()

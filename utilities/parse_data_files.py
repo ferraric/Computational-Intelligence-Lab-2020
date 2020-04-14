@@ -112,4 +112,9 @@ def parse_test_file(data_path: str, parsing_function=None):
 
     # in order to no have to change the whole dataloaders etc. I will add a dummy label to the test dataset.
     test_dataframe = _create_dataframe_of_data_and_label(text_file_path=test_file_path, sentiment=0, parsing_function=parsing_function)
+    assert test_dataframe["text"][0][:2] != "1,"
     return test_dataframe
+
+
+def remove_line_index_and_comma_of_sentence(sentence:str):
+    return sentence[2:]
