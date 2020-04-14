@@ -28,13 +28,13 @@ class BertClassifierTrainer():
         _, loss = self.model(inputs,
                         clf_tokens_mask=(inputs == self.tokenizer.vocab[self.TextProcessor.LABEL]),
                         clf_labels=labels)
-        loss = loss / self.config.gradient_acc_steps
+        #loss = loss / self.config.gradient_acc_steps
         loss.backward()
 
         torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.config.max_norm)
-        if engine.state.iteration % self.config.gradient_acc_steps == 0:
-            self.optimizer.step()
-            self.optimizer.zero_grad()
+        #if engine.state.iteration % self.config.gradient_acc_steps == 0:
+        self.optimizer.step()
+        self.optimizer.zero_grad()
         return loss.item()
 
 

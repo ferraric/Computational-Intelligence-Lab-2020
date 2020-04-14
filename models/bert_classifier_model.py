@@ -59,8 +59,10 @@ class TransformerWithClfHead(nn.Module):
         self.transformer = Transformer(bert_config.embed_dim, bert_config.hidden_dim, bert_config.num_embeddings,
                                        bert_config.num_max_positions, bert_config.num_heads, bert_config.num_layers,
                                        fine_tuning_config.dropout, causal=not bert_config.mlm)
-
-        self.classification_head = nn.Linear(bert_config.embed_dim, fine_tuning_config.num_classes)
+        self.classification_head = torch.nn.Sequential(
+                                        nn.Linear(bert_config.embed_dim, 1),
+                                        nn.Sigmoid()
+                                    )
         self.apply(self.init_weights)
 
     def init_weights(self, module):
@@ -76,7 +78,7 @@ class TransformerWithClfHead(nn.Module):
         clf_logits = self.classification_head(clf_tokens_states)
 
         if clf_labels is not None:
-            loss_fct = nn.CrossEntropyLoss(ignore_index=-1)
-            loss = loss_fct(clf_logits.view(-1, clf_logits.size(-1)), clf_labels.view(-1))
+            loss_function = nn.BCELoss()
+            loss = loss_function(clf_logits.view(-1), clf_labels.view(-1).float())
             return clf_logits, loss
         return clf_logits
