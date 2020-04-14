@@ -38,5 +38,4 @@ typing-extensions==3.7.4.2
 update==0.0.1
 urllib3==1.25.8
 websocket==0.2.1
-websocket-client==0.57.0
 wurlitzer==2.0.0
