@@ -61,8 +61,8 @@ class BertClassifierTrainer():
             logits = self.model(inputs,
                                 clf_tokens_mask=(inputs == self.tokenizer.vocab[self.TextProcessor.LABEL]),
                                 padding_mask=(batch == self.tokenizer.vocab[self.TextProcessor.PAD]))
-        # we will now save the predicted labels to an output file.
-        predictions = torch.argmax(logits, axis=1).cpu().numpy()
+
+        predictions = torch.round(logits.view(-1)).int()
         return predictions
 
     def on_test_iteration_completed(self, engine):
@@ -79,7 +79,7 @@ class BertClassifierTrainer():
         evaluator = Engine(self.validation_inference)
         Accuracy().attach(evaluator, "validation_accuracy")
 
-        @trainer.on(Events.EPOCH_STARTED)
+        @trainer.on(Events.EPOCH_COMPLETED)
         def log_validation_results(engine):
             evaluator.run(self.validation_dataset)
             print(f"validation epoch: {engine.state.epoch} acc: {100 * evaluator.state.metrics['validation_accuracy']}")
