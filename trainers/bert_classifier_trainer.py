@@ -81,7 +81,10 @@ class BertClassifierTrainer():
         @trainer.on(Events.EPOCH_COMPLETED)
         def log_validation_results(engine):
             evaluator.run(self.validation_dataset)
-            print(f"validation epoch: {engine.state.epoch} acc: {100 * evaluator.state.metrics['validation_accuracy']}")
+            validation_accuracy = 100 * evaluator.state.metrics['validation_accuracy']
+
+            print(f"validation epoch: {engine.state.epoch} acc: {validation_accuracy}")
+            self.experiment.log_metric("validation_accuracy", validation_accuracy)
             if(evaluator.state.metrics['validation_accuracy'] > self.best_validation_accuracy):
                 self.best_validation_accuracy = evaluator.state.metrics['validation_accuracy']
                 previous_models = os.listdir(self.config.checkpoint_dir)
