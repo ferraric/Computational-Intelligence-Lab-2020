@@ -60,10 +60,10 @@ class TransformerWithClfHead(nn.Module):
                                        bert_config.num_max_positions, bert_config.num_heads, bert_config.num_layers,
                                        fine_tuning_config.dropout, causal=not bert_config.mlm)
         self.classification_head = torch.nn.Sequential(
-                                        #nn.Linear(bert_config.embed_dim, 200),
-                                        #nn.ReLU(),
-                                        #nn.Linear(200, 100),
-                                        #nn.ReLU(),
+                                        nn.Linear(bert_config.embed_dim, 200),
+                                        nn.ReLU(),
+                                        nn.Linear(200, 100),
+                                        nn.ReLU(),
                                         nn.Linear(bert_config.embed_dim, 1),
                                         nn.Sigmoid()
                                     )
