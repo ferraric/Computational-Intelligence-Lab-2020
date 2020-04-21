@@ -118,4 +118,6 @@ class BertClassifierTrainer():
         id = np.arange(1,self.test_predictions.shape[0]+1)
         prediction_dataframe = pd.DataFrame(id, columns=["Id"])
         prediction_dataframe["Prediction"] = self.test_predictions
-        prediction_dataframe.to_csv(self.config.test_prediction_path)
+        test_prediction_path_folder, test_prediction_path_filename = os.path.split(self.config.test_prediction_path)
+        test_prediction_path = os.path.join(test_prediction_path_folder, self.config.experiment_id + test_prediction_path_filename)
+        prediction_dataframe.to_csv(test_prediction_path)

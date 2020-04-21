@@ -25,6 +25,7 @@ def setup_experiment(experiment, config):
     else:
         experiment_id = str(random.randint(1, 1000000))
 
+    config.experiment_id = experiment_id
     config.summary_dir = os.path.join(
         "../experiments", os.path.join(config.exp_name, experiment_id), "summary/"
     )
