@@ -33,7 +33,7 @@ class TransformerExplainer:
                 logits = self.model(input,
                                     clf_tokens_mask=(input == self.tokenizer.vocab[self.TextPreprocessor.LABEL]),
                                     padding_mask=(batch == self.tokenizer.vocab[self.TextPreprocessor.PAD]))
-            class_prediction = logits[0][0].numpy()
+            class_prediction = logits[0][0].cpu().numpy()
             probabilities.append([1-class_prediction, class_prediction])
         return np.array(probabilities)
 
