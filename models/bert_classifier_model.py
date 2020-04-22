@@ -64,7 +64,7 @@ class TransformerWithClfHead(nn.Module):
                                         nn.ReLU(),
                                         nn.Linear(200, 100),
                                         nn.ReLU(),
-                                        nn.Linear(bert_config.embed_dim, 1),
+                                        nn.Linear(100, 1),
                                         nn.Sigmoid()
                                     )
         self.apply(self.init_weights)

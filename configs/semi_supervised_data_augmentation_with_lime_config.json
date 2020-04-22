@@ -1,0 +1,13 @@
+{
+  "exp_name": "semi_supervised_data_augmentation_with_lime",
+  "randomly_augment_sentences" : false,
+  "max_sentence_length" : 120,
+  "saved_model_path": "/Users/jeremyscheurer/Data/sentiment_analysis/results/model_acc_0.842425",
+  "train_dataset_path" : "/Users/jeremyscheurer/Data/sentiment_analysis/twitter-datasets",
+  "number_of_neighbourhood_samples" : 5000,
+  "number_of_features_of_explanation" : 10,
+  "max_number_of_augmented_sentences_per_old_sentence" : 10,
+  "mask_sentence_percentage": 0.2,
+  "important_word_threshold" : 0.1,
+  "output_folder": "/Users/jeremyscheurer/Data/sentiment_analysis/semi_supervised_data_augmentation"
+}
