@@ -1,25 +1,19 @@
 import tensorflow as tf
 import tensorflow_hub as hub
-import pandas as pd
 import numpy as np
 from bert.tokenization.bert_tokenization import FullTokenizer
 
 OUTPUT_DIR = './outputs'
 
-
 class BERT:
 
-    def __init__(self, layers, neurons, max_seq_length):
-        if neurons == 128:
-            bert_model_hub = "https://tfhub.dev/tensorflow/bert_uncased_L-{}_H-{}_A-2/1".format(layers, neurons)
-        elif neurons == 256:
-            bert_model_hub = "https://tfhub.dev/tensorflow/bert_uncased_L-{}_H-{}_A-4/1".format(layers, neurons)
-        elif neurons == 512:
-            bert_model_hub = "https://tfhub.dev/tensorflow/bert_uncased_L-{}_H-{}_A-8/1".format(layers, neurons)
-        elif neurons == 768:
-            bert_model_hub = "https://tfhub.dev/tensorflow/bert_en_uncased_L-{}_H-{}_A-12/1".format(layers, neurons)
+    def __init__(self, bert_model_size='bert_base', max_seq_length=128):
+        if bert_model_size == 'bert_base':
+            bert_model_hub = "https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/1"
+        elif bert_model_size == 'bert_large':
+            bert_model_hub = 'https://tfhub.dev/tensorflow/bert_en_uncased_L-24_H-1024_A-16/2'
         else:
-            raise ValueError("No BERT model available for {} neurons!".format(neurons))
+            raise ValueError("No BERT model available!")
         self.bert_layer = hub.KerasLayer(bert_model_hub, trainable=True)
         self.MAX_SEQ_LENGTH = max_seq_length
 
@@ -75,17 +69,17 @@ class BERT:
                 np.asarray(input_masks, dtype=np.int32),
                 np.asarray(input_segments, dtype=np.int32)]
 
-    def create_fc_model(self, dropout_rate, classes):
+    def create_fc_model(self, dropout_rate):
         input_word_ids = tf.keras.Input(shape=(self.MAX_SEQ_LENGTH,), dtype=tf.int32,
-                                               name="input_word_ids")
+                                        name="input_word_ids")
         input_mask = tf.keras.Input(shape=(self.MAX_SEQ_LENGTH,), dtype=tf.int32,
-                                           name="input_mask")
+                                    name="input_mask")
         segment_ids = tf.keras.Input(shape=(self.MAX_SEQ_LENGTH,), dtype=tf.int32,
-                                            name="segment_ids")
-        _, sequence_outputs = self.bert_layer([input_word_ids, input_mask, segment_ids])
-        dense = tf.keras.layers.Dense(64, activation='relu')(sequence_outputs)
-        pred = tf.keras.layers.Dense(1, activation=tf.nn.softmax)(dense)
+                                     name="segment_ids")
+        pooled_outputs, sequence_outputs = self.bert_layer([input_word_ids, input_mask, segment_ids])
+        logits = tf.keras.layers.Dropout(dropout_rate)(pooled_outputs)
+        prob = tf.keras.layers.Dense(2, activation='softmax')(logits)
 
-        model = tf.keras.models.Model(inputs=[input_word_ids, input_mask, segment_ids], outputs=pred)
+        model = tf.keras.models.Model(inputs=[input_word_ids, input_mask, segment_ids], outputs=prob)
 
         return model
