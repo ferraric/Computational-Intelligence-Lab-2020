@@ -13,7 +13,7 @@ def main():
     test_df['sentence'] = test_df['sentence'].apply(lambda text: "".join([c for c in text if c not in string.punctuation]))
 
     train_df['sentence'] = train_df['sentence'].apply(lambda text: text.replace('<user>', '').replace('<url>', ''))
-    test_df['sentence'] = test_df['sentence'].apply(lambda text: text.replace('<user>', '').repace('<url>', ''))
+    test_df['sentence'] = test_df['sentence'].apply(lambda text: text.replace('<user>', '').replace('<url>', ''))
     bert = BERT(bert_model_size='albert_base')
 
     tokenizer = bert.create_tokenizer_from_module()
