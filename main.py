@@ -31,10 +31,10 @@ def main():
 
     test_inputs = bert.transform_sentences(test_df['sentence'].to_numpy(), tokenizer)
 
-    predicted_labels = model.predict(x=test_inputs)
-    np.save('./outputs/results.npy', predicted_labels, allow_pickle=True)
+    predicted_labels = np.argmax(model.predict(x=test_inputs), axis=1)
+    predicted_labels[predicted_labels == 0] = -1
 
-    result = pd.DataFrame(data=np.argmax(predicted_labels, axis=1))
+    result = pd.DataFrame(data=predicted_labels)
     result.index += 1
     result.to_csv('./outputs/results.csv', index_label='Id', header=['Prediction'])
 
