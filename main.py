@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 import string
-from bs4 import BeautifulSoup
 
 
 def main():
@@ -13,9 +12,9 @@ def main():
     train_df['sentence'] = train_df['sentence'].apply(lambda text: "".join([c for c in text if c not in string.punctuation]))
     test_df['sentence'] = test_df['sentence'].apply(lambda text: "".join([c for c in text if c not in string.punctuation]))
 
-    train_df['sentence'] = train_df['sentence'].apply(lambda text: BeautifulSoup(text, "html.parser").get_text())
-    test_df['sentence'] = test_df['sentence'].apply(lambda text: BeautifulSoup(text,"html.parser").get_text())
-    bert = BERT(bert_model_size='bert_base')
+    train_df['sentence'] = train_df['sentence'].apply(lambda text: text.replace('<user>').replace('<url>'))
+    test_df['sentence'] = test_df['sentence'].apply(lambda text: text.replace('<user>').repace('<url>'))
+    bert = BERT(bert_model_size='albert_base')
 
     tokenizer = bert.create_tokenizer_from_module()
     inputs = bert.transform_sentences(train_df['sentence'].to_numpy(), tokenizer)
@@ -27,7 +26,7 @@ def main():
 
     print(model.summary())
 
-    model.fit(x=inputs, y=one_hot_labels, epochs=1, batch_size=32, validation_split=0.2)
+    model.fit(x=inputs, y=one_hot_labels, epochs=2, batch_size=32, validation_split=0.2)
 
     test_inputs = bert.transform_sentences(test_df['sentence'].to_numpy(), tokenizer)
 
