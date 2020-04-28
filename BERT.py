@@ -1,28 +1,39 @@
 import tensorflow as tf
 import tensorflow_hub as hub
 import numpy as np
-from bert.tokenization.bert_tokenization import FullTokenizer
+from bert import albert_tokenization
+from bert import bert_tokenization
 
 OUTPUT_DIR = './outputs'
+
 
 class BERT:
 
     def __init__(self, bert_model_size='bert_base', max_seq_length=128):
         if bert_model_size == 'bert_base':
-            bert_model_hub = "https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/1"
+            model_hub = "https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/1"
+            self.tokenizer_type = 'bert'
         elif bert_model_size == 'bert_large':
-            bert_model_hub = 'https://tfhub.dev/tensorflow/bert_en_uncased_L-24_H-1024_A-16/2'
+            model_hub = 'https://tfhub.dev/tensorflow/bert_en_uncased_L-24_H-1024_A-16/2'
+            self.tokenizer_type = 'bert'
+        elif bert_model_size == 'albert_base':
+            model_hub = 'https://tfhub.dev/tensorflow/albert_en_base/1'
+            self.tokenizer_type = 'albert'
+        elif bert_model_size == 'albert_large':
+            model_hub = 'https://tfhub.dev/tensorflow/albert_en_large/1'
         else:
-            raise ValueError("No BERT model available!")
-        self.bert_layer = hub.KerasLayer(bert_model_hub, trainable=True)
+            raise ValueError("No model available!")
+        self.bert_layer = hub.KerasLayer(model_hub, trainable=True)
         self.MAX_SEQ_LENGTH = max_seq_length
 
     def create_tokenizer_from_module(self):
-        vocab_file = self.bert_layer.resolved_object.vocab_file.asset_path.numpy()
-
-        do_lower_case = self.bert_layer.resolved_object.do_lower_case.numpy()
-
-        return FullTokenizer(vocab_file=vocab_file, do_lower_case=do_lower_case)
+        if self.tokenizer_type == 'bert':
+            do_lower_case = self.bert_layer.resolved_object.do_lower_case.numpy()
+            vocab_file = self.bert_layer.resolved_object.vocab_file.asset_path.numpy()
+            return bert_tokenization.FullTokenizer(vocab_file=vocab_file, do_lower_case=do_lower_case)
+        elif self.tokenizer_type == 'albert':
+            sp_model_file = self.bert_layer.resolved_object.sp_model_file.asset_path.numpy()
+            return albert_tokenization.FullTokenizer(vocab_file=None, spm_model_file=sp_model_file)
 
     def get_ids(self, tokens, tokenizer, max_seq_length):
         token_ids = tokenizer.convert_tokens_to_ids(tokens)
