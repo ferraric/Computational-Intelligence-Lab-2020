@@ -9,7 +9,7 @@ OUTPUT_DIR = './outputs'
 
 class BERT:
 
-    def __init__(self, bert_model_size='bert_base', max_seq_length=128):
+    def __init__(self, bert_model_size='bert_base', max_seq_length=140):
         if bert_model_size == 'bert_base':
             model_hub = "https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/1"
             self.tokenizer_type = 'bert'
@@ -21,6 +21,7 @@ class BERT:
             self.tokenizer_type = 'albert'
         elif bert_model_size == 'albert_large':
             model_hub = 'https://tfhub.dev/tensorflow/albert_en_large/1'
+            self.tokenizer_type = 'albert'
         else:
             raise ValueError("No model available!")
         self.bert_layer = hub.KerasLayer(model_hub, trainable=True)
