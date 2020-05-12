@@ -4,9 +4,13 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 import string
+from comet_ml import Experiment
 
 
 def main():
+    experiment = Experiment(api_key="DLxzM6ydqoaaoVKuemHt82NLS",
+                            project_name="sentiment-analysis", workspace="jerry-crea")
+
     dl = DataLoader('twitter-datasets')
     train_df, test_df = dl.load_twitter_dataset(full=False)
     train_df['sentence'] = train_df['sentence'].apply(lambda text: "".join([c for c in text if c not in string.punctuation]))
