@@ -7,11 +7,11 @@ from flair.datasets import CSVClassificationCorpus
 
 input_data_path = 'data'
 
-with open(os.path.join(input_data_path, "train_neg.txt")) as f:
+with open(os.path.join(input_data_path, "train_neg_full.txt")) as f:
     text_lines_neg = f.read().splitlines()
 train_neg = np.array(text_lines_neg)
 
-with open(os.path.join(input_data_path, "train_pos.txt")) as f:
+with open(os.path.join(input_data_path, "train_pos_full.txt")) as f:
     text_lines_pos = f.read().splitlines()
 train_pos = np.array(text_lines_pos)
 
@@ -24,16 +24,17 @@ y = np.concatenate((np.zeros(train_neg.shape[0]), np.ones(train_pos.shape[0])))
 df = pd.DataFrame(X, columns=["text"])
 df['label'] = y
 
+
 train_df = df.sample(frac=0.9, random_state=0)
 dev_df = df.drop(train_df.index)
 test_df = pd.DataFrame(X_test, columns=["text"])
 test_df['label'] = None
 
-flair_data_path = 'data/transformed_data'
+flair_data_path = 'data/transformed_data_full'
 
 train_df.to_csv(os.path.join(flair_data_path, 'train.csv'), index=False)
 dev_df.to_csv(os.path.join(flair_data_path, 'dev.csv'), index=False)
-#test_df.to_csv(os.path.join(flair_data_path, 'test.csv'), index=False)
+test_df.to_csv(os.path.join(flair_data_path, 'test.csv'), index=False)
 
 
 # column format indicating which columns hold the text and label(s)
