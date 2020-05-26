@@ -1,3 +1,9 @@
 flake8==3.8.2
 pre-commit==2.4.0
 pytest==5.4.3
+comet_ml
+torch
+pytorch-lightning
+bunch
+logging
+transformers
