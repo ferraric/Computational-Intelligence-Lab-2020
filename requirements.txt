@@ -1,2 +1,9 @@
 pre-commit
 pytest
+comet_ml
+torch
+pytorch-lightning
+bunch
+logging
+transformers
+nlp
