@@ -12,7 +12,7 @@ git clone https://github.com/ferraric/Computational-Intelligence-Lab-2020
 # install project   
 cd Computational-Intelligence-Lab-2020    
 pip install -r requirements.txt
- ```  
+
 We use pre-commit hooks to format our code to comply with black and pep8. If you want to contribute execute: 
 ```pre-commit install```
  
