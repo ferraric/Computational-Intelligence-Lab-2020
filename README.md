@@ -6,6 +6,7 @@ Specifically we are doing a sentiment classification of twitter data in to the s
 
 ## Setup 
 First, install dependencies   
+```
 # clone project   
 git clone https://github.com/ferraric/Computational-Intelligence-Lab-2020   
 
