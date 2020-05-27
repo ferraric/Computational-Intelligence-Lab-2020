@@ -4,16 +4,13 @@ from bunch import Bunch
 
 
 def get_args() -> argparse:
-    argparser = argparse.ArgumentParser(description=__doc__)
+    argparser = argparse.ArgumentParser()
     argparser.add_argument(
         "-c",
         "--config",
-        metavar="C",
-        default="None",
         help="Add the Configuration file that has all the relevant parameters",
     )
-    args = argparser.parse_args()
-    return args
+    return argparser.parse_args()
 
 
 def get_bunch_config_from_json(json_file: str) -> Bunch:
