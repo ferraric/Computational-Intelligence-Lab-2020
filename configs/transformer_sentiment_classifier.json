@@ -1,13 +1,14 @@
 {
+  "experiment_name": "initial_transformer_setup",
   "batch_size" : 8,
   "learning_rate" : 1e-2,
   "epochs": 10,
   "momentum" : 0.9,
   "max_sequence_length" : 32,
   "percent": 5,
-  "debug": true,
+  "debug": false,
   "transformer_model" : "bert-base-uncased",
-  "use_comet_experiments" : true,
+  "use_comet_experiments" : false,
   "comet_api_key" : "NVyYXH1De9UgyELocupO1Lge9",
   "comet_project_name" : "sentiment-analysis",
   "comet_workspace" : "jerry-crea"
