@@ -6,7 +6,6 @@ import logging
 import torch
 import transformers
 import pytorch_lightning as pl
-import nlp
 from utilities.general_utilities import get_args, get_bunch_config_from_json
 from bunch import Bunch
 
@@ -22,7 +21,6 @@ class TransformerSentimentClassifier(pl.LightningModule):
         self.model = transformers.BertForSequenceClassification.from_pretrained(
             config.transformer_model
         )
-        self.loss = torch.nn.CrossEntropyLoss(reduction="none")
 
     def prepare_data(self):
         pass
@@ -84,17 +82,9 @@ def main():
         )
         exit(0)
     comet_experiment = setup_comet_logger(config)
+    comet_experiment.log_parameters(config)
     comet_experiment.log_asset(args.config)
-    use_gpus = 1 if torch.cuda.is_available() else 0
-
-    model = TransformerSentimentClassifier(config)
-    trainer = pl.Trainer(
-        default_root_dir="logs",
-        gpus=use_gpus,
-        max_epochs=config.epochs,
-        fast_dev_run=config.debug,
-    )
-    trainer.fit(model)
+    # use_gpus = 1 if torch.cuda.is_available() else 0
 
 
 if __name__ == "__main__":

@@ -5,10 +5,9 @@
   "epochs": 10,
   "momentum" : 0.9,
   "max_sequence_length" : 32,
-  "percent": 5,
   "debug": false,
   "transformer_model" : "bert-base-uncased",
-  "use_comet_experiments" : false,
+  "use_comet_experiments" : true,
   "comet_api_key" : "NVyYXH1De9UgyELocupO1Lge9",
   "comet_project_name" : "sentiment-analysis",
   "comet_workspace" : "jerry-crea"
