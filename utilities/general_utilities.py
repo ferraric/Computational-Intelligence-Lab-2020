@@ -3,7 +3,7 @@ import json
 from bunch import Bunch
 
 
-def get_args() -> argparse:
+def get_args() -> argparse.Namespace:
     argparser = argparse.ArgumentParser()
     argparser.add_argument(
         "-c",
@@ -13,12 +13,12 @@ def get_args() -> argparse:
     return argparser.parse_args()
 
 
-def get_bunch_config_from_json(json_file: str) -> Bunch:
+def get_bunch_config_from_json(json_file_path: str) -> Bunch:
     """
-    Get the config from a json file and save it as a Bunch namespace object.
+    Get the config from a json file and save it as a Bunch object.
     :param json_file:
-    :return: config(namespace) or config(dictionary)
+    :return: config as Bunch object:
     """
-    with open(json_file, "r") as config_file:
+    with open(json_file_path, "r") as config_file:
         config_dict = json.load(config_file)
     return Bunch(config_dict)
