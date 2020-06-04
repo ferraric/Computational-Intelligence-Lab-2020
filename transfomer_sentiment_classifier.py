@@ -83,7 +83,6 @@ def main():
         exit(0)
     comet_experiment = setup_comet_logger(config)
     comet_experiment.log_parameters(config)
-    comet_experiment.log_asset(args.config)
     # use_gpus = 1 if torch.cuda.is_available() else 0
 
 
