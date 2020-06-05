@@ -3,7 +3,6 @@ import sys
 import inspect
 from comet_ml import Experiment
 import logging
-import torch
 import transformers
 import pytorch_lightning as pl
 from utilities.general_utilities import get_args, get_bunch_config_from_json
