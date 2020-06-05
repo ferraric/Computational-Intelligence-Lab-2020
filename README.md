@@ -2,7 +2,7 @@
 
 ## Description   
 This is a project that was done in the Computational Intelligence Lab 2020 at ETH Zurich (see [Course website](http://www.da.inf.ethz.ch/teaching/2020/CIL/)).
-Specifically we are doing a sentiment classification of twitter data in to the sentiments positive and negative (see [Kaggle competition](https://www.kaggle.com/c/cil-text-classification-2020)). 
+Specifically we are doing a sentiment analysis of twitter data and classify them into positive and negative sentiments (see [Kaggle competition](https://www.kaggle.com/c/cil-text-classification-2020)). 
 
 ## Setup 
 First, install dependencies   
