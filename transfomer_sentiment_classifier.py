@@ -8,7 +8,9 @@ import pytorch_lightning as pl
 from utilities.general_utilities import get_args, get_bunch_config_from_json
 from bunch import Bunch
 
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+currentdir = os.path.dirname(
+    os.path.abspath(inspect.getfile(inspect.currentframe()))  # type: ignore
+)
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
