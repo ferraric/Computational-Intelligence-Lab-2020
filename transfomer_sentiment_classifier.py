@@ -21,31 +21,31 @@ class TransformerSentimentClassifier(pl.LightningModule):
             config.transformer_model
         )
 
-    def prepare_data(self):
+    def prepare_data(self) -> None:
         pass
 
-    def forward(self, input_ids):
+    def forward(self, input_ids: None) -> None:
         pass
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch: None, batch_idx: None) -> None:
         pass
 
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch: None, batch_idx: None) -> None:
         pass
 
-    def validation_epoch_end(self, outputs):
+    def validation_epoch_end(self, outputs: None) -> None:
         pass
 
-    def train_dataloader(self):
+    def train_dataloader(self) -> None:
         pass
 
-    def validation_dataloader(self):
+    def validation_dataloader(self) -> None:
         pass
 
-    def test_data_loader(self):
+    def test_data_loader(self) -> None:
         pass
 
-    def configure_optimizers(self):
+    def configure_optimizers(self) -> None:
         pass
 
 
@@ -71,7 +71,7 @@ def setup_comet_logger(config: Bunch) -> Experiment:
     return comet_experiment
 
 
-def main():
+def main() -> None:
     try:
         args = get_args()
         config = get_bunch_config_from_json(args.config)
