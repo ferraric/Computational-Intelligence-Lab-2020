@@ -4,7 +4,6 @@ python:
 install:
   - pip install -r requirements.txt
 before_script:
-  - flake8
-  - mypy .
+  - pre-commit run --all-files
 script:
   - pytest
