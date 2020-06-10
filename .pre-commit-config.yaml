@@ -25,4 +25,11 @@ repos:
     rev: 4.3.21
     hooks:
     - id: isort
+-   repo: local
+    hooks:
+    - id: custom_pipreqs
+      name: custom_pipreqs
+      entry: utilities/custom_pipreqs_hook.sh
+      language: script
+      pass_filenames: false
 

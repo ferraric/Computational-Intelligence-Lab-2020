@@ -1,8 +1,4 @@
-bunch==1.0.1
-comet_ml==3.1.4
 data-science-types==0.2.12
 pipreqs==0.4.10
 pre-commit==2.4.0
 pytest==5.4.3
-pytorch_lightning==0.7.6
-transformers==2.10.0
