@@ -7,5 +7,5 @@ TODO: remove this once we have another test
 """
 
 
-def test_placeholder():
+def test_placeholder() -> None:
     pass
