@@ -18,4 +18,6 @@ repos:
     -   id: check-json
     -   id: check-yaml
     -   id: name-tests-test
+    -   id: pretty-format-json
+        args: [--no-sort-keys, --autofix]
 
