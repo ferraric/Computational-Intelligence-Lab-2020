@@ -12,3 +12,9 @@ repos:
     rev: 'v0.720'
     hooks:
     -   id: mypy
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.1.0
+    hooks:
+    -   id: check-json
+    -   id: check-yaml
+
