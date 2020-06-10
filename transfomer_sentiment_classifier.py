@@ -1,12 +1,13 @@
+import inspect
+import logging
 import os
 import sys
-import inspect
-from comet_ml import Experiment
-import logging
-import transformers
+
 import pytorch_lightning as pl
-from utilities.general_utilities import get_args, get_bunch_config_from_json
+import transformers
 from bunch import Bunch
+from comet_ml import Experiment
+from utilities.general_utilities import get_args, get_bunch_config_from_json
 
 currentdir = os.path.dirname(
     os.path.abspath(inspect.getfile(inspect.currentframe()))  # type: ignore
