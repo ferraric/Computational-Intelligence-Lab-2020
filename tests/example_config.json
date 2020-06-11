@@ -1,3 +1,4 @@
 {
-  "string_config_key": "some string"
+  "string_config_key": "some string",
+  "bool_config_key": true
 }

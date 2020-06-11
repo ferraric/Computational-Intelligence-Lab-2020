@@ -11,3 +11,7 @@ class ConfigTest(TestCase):
 
     def test_string_config_value(self) -> None:
         assert self.config.string_config_key == "some string"
+
+    def test_bool_config_value(self) -> None:
+        # amounts to checking if value is == True
+        assert self.config.bool_config_key
