@@ -12,3 +12,24 @@ repos:
     rev: 'v0.720'
     hooks:
     -   id: mypy
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.1.0
+    hooks:
+    -   id: check-json
+    -   id: check-yaml
+    -   id: name-tests-test
+    -   id: pretty-format-json
+        args: [--no-sort-keys, --autofix]
+    -   id: requirements-txt-fixer
+-   repo: https://github.com/timothycrosley/isort
+    rev: 4.3.21
+    hooks:
+    - id: isort
+-   repo: local
+    hooks:
+    - id: custom_pipreqs
+      name: custom_pipreqs
+      entry: utilities/custom_pipreqs_hook.sh
+      language: script
+      pass_filenames: false
+
