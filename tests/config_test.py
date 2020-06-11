@@ -18,3 +18,6 @@ class ConfigTest(TestCase):
 
     def test_int_config_value(self) -> None:
         assert self.config.int_config_key == 0
+
+    def test_float_config_value(self) -> None:
+        assert self.config.float_config_key == 0.0
