@@ -15,3 +15,6 @@ class ConfigTest(TestCase):
     def test_bool_config_value(self) -> None:
         # amounts to checking if value is == True
         assert self.config.bool_config_key
+
+    def test_int_config_value(self) -> None:
+        assert self.config.int_config_key == 0
