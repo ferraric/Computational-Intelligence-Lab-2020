@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from utilities.general_utilities import get_bunch_config_from_json
 
-TEST_CONFIG_FILE = "example_config.json"
+TEST_CONFIG_FILE = "tests/example_config.json"
 
 
 class ConfigTest(TestCase):
