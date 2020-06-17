@@ -62,6 +62,10 @@ def main() -> None:
     )
     comet_experiment.log_parameters(config)
 
+    model = TransformerSentimentClassifier(config)
+    trainer = pl.Trainer()
+    trainer.fit(model)
+
 
 if __name__ == "__main__":
     main()
