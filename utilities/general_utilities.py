@@ -9,6 +9,7 @@ def get_args() -> argparse.Namespace:
     argparser.add_argument(
         "-c",
         "--config",
+        required=True,
         help="Add the Configuration file that has all the relevant parameters",
     )
     return argparser.parse_args()
