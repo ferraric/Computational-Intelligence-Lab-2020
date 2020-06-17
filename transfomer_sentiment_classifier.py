@@ -51,18 +51,6 @@ class TransformerSentimentClassifier(pl.LightningModule):
 
 
 def setup_comet_logger(config: Bunch) -> Experiment:
-    assert config.comet_api_key is not None, "Comet api key not defined in config"
-    assert (
-        config.comet_project_name is not None
-    ), "Comet project name not defined in config"
-    assert config.comet_workspace is not None, "Comet workspace not defined in config"
-    assert (
-        config.use_comet_experiments is not None
-    ), "Comet use_experiment flag not defined in config"
-    assert (
-        config.experiment_name is not None
-    ), "Comet experiment name is not defined in config"
-
     comet_experiment = Experiment(
         api_key=config.comet_api_key,
         project_name=config.comet_project_name,
