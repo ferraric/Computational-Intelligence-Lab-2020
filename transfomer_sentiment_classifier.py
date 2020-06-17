@@ -61,7 +61,6 @@ def main() -> None:
         disabled=not config.use_comet_experiments,
     )
     comet_experiment.log_parameters(config)
-    # use_gpus = 1 if torch.cuda.is_available() else 0
 
 
 if __name__ == "__main__":
