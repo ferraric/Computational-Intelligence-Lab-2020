@@ -69,10 +69,20 @@ class TransformerSentimentClassifier(pl.LightningModule):
         pass
 
     def train_dataloader(self) -> None:
-        pass
+        return torch.utils.data.DataLoader(
+            self.train_data,
+            batch_size=self.config.batch_size,
+            drop_last=False,
+            shuffle=True,
+        )
 
     def validation_dataloader(self) -> None:
-        pass
+        return torch.utils.data.DataLoader(
+            self.val_data,
+            batch_size=self.config.batch_size,
+            drop_last=False,
+            shuffle=False,
+        )
 
     def test_data_loader(self) -> None:
         pass
