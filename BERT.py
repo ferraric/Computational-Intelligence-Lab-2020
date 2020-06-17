@@ -95,3 +95,49 @@ class BERT:
         model = tf.keras.models.Model(inputs=[input_word_ids, input_mask, segment_ids], outputs=prob)
 
         return model
+
+    # def create_fc_model_for_uda(self,
+    #                             input_word_ids,
+    #                             input_mask,
+    #                             input_segment_ids,
+    #                             unsup_ratio,
+    #                             dropout_rate):
+    #
+    #     num_samples = input_word_ids.shape[0]
+    #     assert num_samples % (1 + 2 * unsup_ratio) == 0
+    #     sup_batch_size = num_samples // (1 + 2 * unsup_ratio)
+    #     unsup_batch_size = sup_batch_size * unsup_ratio
+    #
+    #     pooled_outputs, sequence_outputs = self.bert_layer([input_word_ids, input_mask, input_segment_ids])
+    #     logits = tf.keras.layers.Dropout(dropout_rate)(pooled_outputs)
+    #     log_probs = tf.keras.layers.Dense(2, activation='softmax')(logits)
+    #
+    #     def uda_loss(y_true, y_pred):
+    #         sup_log_probs = y_pred[:sup_batch_size]
+    #         one_hot_labels = tf.one_hot(indices=y_true, depth=2, on_value=1, off_value=-1)
+    #         target_one_hot = one_hot_labels
+    #
+    #         per_example_loss = tf.reduce_sum(target_one_hot * sup_log_probs, axis=-1)
+    #         loss_mask = tf.ones_like(per_example_loss)
+    #
+    #         loss_mask = tf.stop_gradient(loss_mask)
+    #         per_example_loss = per_example_loss * loss_mask
+    #         sup_loss = (tf.reduce_sum(per_example_loss) /
+    #                     tf.maximum(tf.reduce_sum(loss_mask), 1))
+    #
+    #
+    #         orig_start = sup_batch_size
+    #         orig_end = orig_start + unsup_batch_size
+    #         aug_start = sup_batch_size + unsup_batch_size
+    #         aug_end = aug_start + unsup_batch_size
+    #
+    #         ori_log_probs = y_pred[orig_start:orig_end]
+    #         aug_log_probs = y_pred[aug_start:aug_end]
+    #         per_example_kl_loss = self.kl_for_log_probs(
+    #             ori_log_probs, aug_log_probs)
+    #
+    #         unsup_loss = tf.reduce_mean(per_example_kl_loss)
+    #
+    #         return sup_loss + unsup_loss
+    #
+    #     model = tf.keras.models.Model()

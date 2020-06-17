@@ -42,4 +42,8 @@ class DataLoader:
         regex = re.compile('^[0-9]*,([\\s\\S]*)')
         for i, row in df_test.iterrows():
             df_test.at[i, DataLoader.DATA_COLUMN] = regex.match(df_test.at[i, DataLoader.DATA_COLUMN]).group(1)
-        return df, df_test
+
+        df_test_bt = pd.read_csv(os.path.join(self.path, 'test_data_bt.csv'), sep='\n', header=None)
+        df_test_bt.columns = [DataLoader.DATA_COLUMN]
+
+        return df, df_test, df_test_bt
