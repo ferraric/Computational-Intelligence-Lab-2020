@@ -1,5 +1,4 @@
 import inspect
-import logging
 import os
 import sys
 
@@ -74,14 +73,9 @@ def setup_comet_logger(config: Bunch) -> Experiment:
 
 
 def main() -> None:
-    try:
-        args = get_args()
-        config = get_bunch_config_from_json(args.config)
-    except RuntimeError:
-        logging.exception(
-            "You need to pass a config as argument, i.e. pass -c /path/to/config_file.json"
-        )
-        exit(0)
+    args = get_args()
+    config = get_bunch_config_from_json(args.config)
+
     comet_experiment = setup_comet_logger(config)
     comet_experiment.log_parameters(config)
     # use_gpus = 1 if torch.cuda.is_available() else 0
