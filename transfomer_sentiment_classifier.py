@@ -76,7 +76,7 @@ class TransformerSentimentClassifier(pl.LightningModule):
             shuffle=True,
         )
 
-    def validation_dataloader(self) -> None:
+    def val_dataloader(self) -> None:
         return torch.utils.data.DataLoader(
             self.val_data,
             batch_size=self.config.batch_size,
