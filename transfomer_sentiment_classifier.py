@@ -50,21 +50,16 @@ class TransformerSentimentClassifier(pl.LightningModule):
         pass
 
 
-def setup_comet_logger(config: Bunch) -> Experiment:
+def main() -> None:
+    args = get_args()
+    config = get_bunch_config_from_json(args.config)
+
     comet_experiment = Experiment(
         api_key=config.comet_api_key,
         project_name=config.comet_project_name,
         workspace=config.comet_workspace,
         disabled=not config.use_comet_experiments,
     )
-    return comet_experiment
-
-
-def main() -> None:
-    args = get_args()
-    config = get_bunch_config_from_json(args.config)
-
-    comet_experiment = setup_comet_logger(config)
     comet_experiment.log_parameters(config)
     # use_gpus = 1 if torch.cuda.is_available() else 0
 
