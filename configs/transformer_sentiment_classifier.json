@@ -1,5 +1,8 @@
 {
   "transformer_model": "bert-base-uncased",
+  "negative_tweets_path": "data/train_neg.txt",
+  "positive_tweets_path": "data/train_pos.txt",
+  "max_tokens_per_tweet": 140,
   "experiment_name": "initial_transformer_setup",
   "use_comet_experiments": true,
   "comet_api_key": "NVyYXH1De9UgyELocupO1Lge9",
