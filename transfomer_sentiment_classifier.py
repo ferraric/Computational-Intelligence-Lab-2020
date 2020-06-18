@@ -1,5 +1,4 @@
 import inspect
-import logging
 import os
 import sys
 
@@ -51,18 +50,9 @@ class TransformerSentimentClassifier(pl.LightningModule):
         pass
 
 
-def setup_comet_logger(config: Bunch) -> Experiment:
-    assert config.comet_api_key is not None, "Comet api key not defined in config"
-    assert (
-        config.comet_project_name is not None
-    ), "Comet project name not defined in config"
-    assert config.comet_workspace is not None, "Comet workspace not defined in config"
-    assert (
-        config.use_comet_experiments is not None
-    ), "Comet use_experiment flag not defined in config"
-    assert (
-        config.experiment_name is not None
-    ), "Comet experiment name is not defined in config"
+def main() -> None:
+    args = get_args()
+    config = get_bunch_config_from_json(args.config)
 
     comet_experiment = Experiment(
         api_key=config.comet_api_key,
@@ -70,21 +60,7 @@ def setup_comet_logger(config: Bunch) -> Experiment:
         workspace=config.comet_workspace,
         disabled=not config.use_comet_experiments,
     )
-    return comet_experiment
-
-
-def main() -> None:
-    try:
-        args = get_args()
-        config = get_bunch_config_from_json(args.config)
-    except RuntimeError:
-        logging.exception(
-            "You need to pass a config as argument, i.e. pass -c /path/to/config_file.json"
-        )
-        exit(0)
-    comet_experiment = setup_comet_logger(config)
     comet_experiment.log_parameters(config)
-    # use_gpus = 1 if torch.cuda.is_available() else 0
 
 
 if __name__ == "__main__":
