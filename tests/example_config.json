@@ -1,0 +1,6 @@
+{
+  "string_config_key": "some string",
+  "bool_config_key": true,
+  "int_config_key": 0,
+  "float_config_key": 0.0
+}
