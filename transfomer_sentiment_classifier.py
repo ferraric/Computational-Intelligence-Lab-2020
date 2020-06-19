@@ -25,7 +25,7 @@ class TransformerSentimentClassifier(pl.LightningModule):
         )
 
     def prepare_data(self) -> None:
-        tokenizer = transformers.BertTokenizer.from_pretrained(
+        tokenizer = transformers.BertTokenizerFast.from_pretrained(
             self.config.transformer_model
         )
 
