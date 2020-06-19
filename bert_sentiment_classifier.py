@@ -40,8 +40,8 @@ class BertSentimentClassifier(pl.LightningModule):
             tweets = text_lines_neg + text_lines_pos
             labels = torch.cat(
                 (
-                    torch.zeros(len(text_lines_neg), dtype=torch.int),
-                    torch.ones(len(text_lines_pos), dtype=torch.int),
+                    torch.zeros(len(text_lines_neg), dtype=torch.int64),
+                    torch.ones(len(text_lines_pos), dtype=torch.int64),
                 )
             )
             return tweets, labels
@@ -55,9 +55,9 @@ class BertSentimentClassifier(pl.LightningModule):
                 pad_to_max_length=True,
                 return_token_type_ids=False,
             )
-            input_ids = torch.tensor(tokenized_input["input_ids"], dtype=torch.int)
+            input_ids = torch.tensor(tokenized_input["input_ids"], dtype=torch.int64)
             attention_mask = torch.tensor(
-                tokenized_input["attention_mask"], dtype=torch.int
+                tokenized_input["attention_mask"], dtype=torch.int64
             )
             return TensorDataset(input_ids, attention_mask, labels)
 
@@ -76,7 +76,8 @@ class BertSentimentClassifier(pl.LightningModule):
     def forward(
         self, input_ids: torch.Tensor, attention_mask: torch.Tensor
     ) -> torch.Tensor:
-        return self.model(input_ids, attention_mask)
+        (logits,) = self.model(input_ids, attention_mask)
+        return logits
 
     def training_step(
         self, batch: List[torch.Tensor], batch_id: int
