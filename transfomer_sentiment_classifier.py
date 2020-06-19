@@ -2,7 +2,6 @@ import inspect
 import os
 import sys
 
-import numpy as np
 import pytorch_lightning as pl
 import torch
 import transformers
@@ -35,8 +34,11 @@ class TransformerSentimentClassifier(pl.LightningModule):
         with open(self.config.positive_tweets_path, encoding="utf-8") as f:
             text_lines_pos = f.read().splitlines()
         all_tweets = text_lines_neg + text_lines_pos
-        labels = np.concatenate(
-            (np.zeros(len(text_lines_neg)), np.ones(len(text_lines_pos)))
+        labels = torch.cat(
+            (
+                torch.zeros(len(text_lines_neg), dtype=torch.int),
+                torch.ones(len(text_lines_pos), dtype=torch.int),
+            )
         )
 
         tokenized_input = tokenizer.batch_encode_plus(
@@ -45,9 +47,10 @@ class TransformerSentimentClassifier(pl.LightningModule):
             pad_to_max_length=True,
             return_token_type_ids=False,
         )
-        input_ids = torch.tensor(tokenized_input["input_ids"], dtype=int)
-        attention_mask = torch.tensor(tokenized_input["attention_mask"], dtype=int)
-        labels = torch.tensor(labels, dtype=int)
+        input_ids = torch.tensor(tokenized_input["input_ids"], dtype=torch.int)
+        attention_mask = torch.tensor(
+            tokenized_input["attention_mask"], dtype=torch.int
+        )
         all_data = TensorDataset(input_ids, attention_mask, labels)
 
         n_val_samples = int(0.1 * len(all_data))
@@ -68,7 +71,7 @@ class TransformerSentimentClassifier(pl.LightningModule):
     def validation_epoch_end(self, outputs: None) -> None:
         pass
 
-    def train_dataloader(self) -> None:
+    def train_dataloader(self) -> torch.utils.data.DataLoader:
         return torch.utils.data.DataLoader(
             self.train_data,
             batch_size=self.config.batch_size,
@@ -76,7 +79,7 @@ class TransformerSentimentClassifier(pl.LightningModule):
             shuffle=True,
         )
 
-    def val_dataloader(self) -> None:
+    def val_dataloader(self) -> torch.utils.data.DataLoader:
         return torch.utils.data.DataLoader(
             self.val_data,
             batch_size=self.config.batch_size,
