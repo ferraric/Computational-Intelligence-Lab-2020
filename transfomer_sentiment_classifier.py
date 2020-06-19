@@ -7,7 +7,7 @@ import pytorch_lightning as pl
 import torch
 from bunch import Bunch
 from comet_ml import Experiment
-from torch.utils.data import DataLoader, TensorDataset, random_split
+from torch.utils.data import DataLoader, Subset, TensorDataset, random_split
 from transformers import BertForSequenceClassification, BertTokenizerFast
 from utilities.general_utilities import get_args, get_bunch_config_from_json
 
@@ -57,12 +57,15 @@ class TransformerSentimentClassifier(pl.LightningModule):
             )
             return TensorDataset(input_ids, attention_mask, labels)
 
-        all_data = _tokenize_tweets_and_labels(tokenizer, *_load_tweets_and_labels())
+        def _train_val_split(val_size: float, data: TensorDataset) -> List[Subset]:
+            assert 0 <= val_size and val_size <= 1
 
-        n_val_samples = int(0.1 * len(all_data))
-        n_train_samples = len(all_data) - n_val_samples
-        self.train_data, self.val_data = random_split(
-            all_data, [n_train_samples, n_val_samples]
+            n_val_samples = int(val_size * len(data))
+            n_train_samples = len(data) - n_val_samples
+            return random_split(data, [n_train_samples, n_val_samples])
+
+        self.train_data, self.val_data = _train_val_split(
+            0.1, _tokenize_tweets_and_labels(tokenizer, *_load_tweets_and_labels())
         )
 
     def forward(self, input_ids: None) -> None:
