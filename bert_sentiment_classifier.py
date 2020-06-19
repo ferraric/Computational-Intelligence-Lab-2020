@@ -7,6 +7,7 @@ import pytorch_lightning as pl
 import torch
 from bunch import Bunch
 from comet_ml import Experiment
+from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader, Subset, TensorDataset, random_split
@@ -26,6 +27,7 @@ class BertSentimentClassifier(pl.LightningModule):
         self.model = BertForSequenceClassification.from_pretrained(
             config.pretrained_model
         )
+        self.loss = CrossEntropyLoss(reduction="none")
 
     def prepare_data(self) -> None:
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
