@@ -4,10 +4,10 @@ import sys
 
 import pytorch_lightning as pl
 import torch
-import transformers
 from bunch import Bunch
 from comet_ml import Experiment
-from torch.utils.data import TensorDataset, random_split
+from torch.utils.data import DataLoader, TensorDataset, random_split
+from transformers import BertForSequenceClassification, BertTokenizerFast
 from utilities.general_utilities import get_args, get_bunch_config_from_json
 
 currentdir = os.path.dirname(
@@ -20,14 +20,12 @@ class TransformerSentimentClassifier(pl.LightningModule):
     def __init__(self, config: Bunch) -> None:
         super().__init__()
         self.config = config
-        self.model = transformers.BertForSequenceClassification.from_pretrained(
+        self.model = BertForSequenceClassification.from_pretrained(
             config.transformer_model
         )
 
     def prepare_data(self) -> None:
-        tokenizer = transformers.BertTokenizerFast.from_pretrained(
-            self.config.transformer_model
-        )
+        tokenizer = BertTokenizerFast.from_pretrained(self.config.transformer_model)
 
         with open(self.config.negative_tweets_path, encoding="utf-8") as f:
             text_lines_neg = f.read().splitlines()
@@ -71,16 +69,16 @@ class TransformerSentimentClassifier(pl.LightningModule):
     def validation_epoch_end(self, outputs: None) -> None:
         pass
 
-    def train_dataloader(self) -> torch.utils.data.DataLoader:
-        return torch.utils.data.DataLoader(
+    def train_dataloader(self) -> DataLoader:
+        return DataLoader(
             self.train_data,
             batch_size=self.config.batch_size,
             drop_last=False,
             shuffle=True,
         )
 
-    def val_dataloader(self) -> torch.utils.data.DataLoader:
-        return torch.utils.data.DataLoader(
+    def val_dataloader(self) -> DataLoader:
+        return DataLoader(
             self.val_data,
             batch_size=self.config.batch_size,
             drop_last=False,
