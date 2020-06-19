@@ -5,7 +5,6 @@
   "max_tokens_per_tweet": 140,
   "val_size": 0.1,
   "batch_size": 32,
-  "experiment_name": "bert-baseline",
   "use_comet_experiments": false,
   "comet_api_key": "NVyYXH1De9UgyELocupO1Lge9",
   "comet_project_name": "sentiment-analysis",
