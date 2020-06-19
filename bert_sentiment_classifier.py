@@ -95,8 +95,12 @@ class BertSentimentClassifier(pl.LightningModule):
         acc = (logits.argmax(-1) == labels).float()
         return {"loss": loss, "acc": acc}
 
-    def validation_epoch_end(self, outputs: None) -> None:
-        pass
+    def validation_epoch_end(
+        self, outputs: List[Dict[str, torch.Tensor]]
+    ) -> Dict[str, torch.Tensor]:
+        loss = torch.cat([o["loss"] for o in outputs], 0).mean()
+        acc = torch.cat([o["acc"] for o in outputs], 0).mean()
+        return {"val_loss": loss, "val_acc": acc}
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
