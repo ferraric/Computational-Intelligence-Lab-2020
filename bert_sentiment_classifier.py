@@ -17,16 +17,16 @@ currentdir = os.path.dirname(
 sys.path.insert(0, currentdir)
 
 
-class TransformerSentimentClassifier(pl.LightningModule):
+class BertSentimentClassifier(pl.LightningModule):
     def __init__(self, config: Bunch) -> None:
         super().__init__()
         self.config = config
         self.model = BertForSequenceClassification.from_pretrained(
-            config.transformer_model
+            config.pretrained_model
         )
 
     def prepare_data(self) -> None:
-        tokenizer = BertTokenizerFast.from_pretrained(self.config.transformer_model)
+        tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
 
         def _load_tweets_and_labels() -> Tuple[List[str], torch.Tensor]:
             with open(self.config.negative_tweets_path, encoding="utf-8") as f:
@@ -116,7 +116,7 @@ def main() -> None:
     )
     comet_experiment.log_parameters(config)
 
-    model = TransformerSentimentClassifier(config)
+    model = BertSentimentClassifier(config)
     trainer = pl.Trainer()
     trainer.fit(model)
 
