@@ -7,6 +7,8 @@ import pytorch_lightning as pl
 import torch
 from bunch import Bunch
 from comet_ml import Experiment
+from torch.optim import Adam
+from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader, Subset, TensorDataset, random_split
 from transformers import BertForSequenceClassification, BertTokenizerFast
 from utilities.general_utilities import get_args, get_bunch_config_from_json
@@ -100,8 +102,8 @@ class BertSentimentClassifier(pl.LightningModule):
     def test_data_loader(self) -> None:
         pass
 
-    def configure_optimizers(self) -> None:
-        pass
+    def configure_optimizers(self) -> Optimizer:
+        return Adam(self.parameters(), lr=self.config.lr)
 
 
 def main() -> None:
