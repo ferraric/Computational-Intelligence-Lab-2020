@@ -1,6 +1,7 @@
 import inspect
 import os
 import sys
+from typing import List, Tuple
 
 import pytorch_lightning as pl
 import torch
@@ -27,17 +28,21 @@ class TransformerSentimentClassifier(pl.LightningModule):
     def prepare_data(self) -> None:
         tokenizer = BertTokenizerFast.from_pretrained(self.config.transformer_model)
 
-        with open(self.config.negative_tweets_path, encoding="utf-8") as f:
-            text_lines_neg = f.read().splitlines()
-        with open(self.config.positive_tweets_path, encoding="utf-8") as f:
-            text_lines_pos = f.read().splitlines()
-        all_tweets = text_lines_neg + text_lines_pos
-        labels = torch.cat(
-            (
-                torch.zeros(len(text_lines_neg), dtype=torch.int),
-                torch.ones(len(text_lines_pos), dtype=torch.int),
+        def _load_tweets_and_labels() -> Tuple[List[str], torch.Tensor]:
+            with open(self.config.negative_tweets_path, encoding="utf-8") as f:
+                text_lines_neg = f.read().splitlines()
+            with open(self.config.positive_tweets_path, encoding="utf-8") as f:
+                text_lines_pos = f.read().splitlines()
+            tweets = text_lines_neg + text_lines_pos
+            labels = torch.cat(
+                (
+                    torch.zeros(len(text_lines_neg), dtype=torch.int),
+                    torch.ones(len(text_lines_pos), dtype=torch.int),
+                )
             )
-        )
+            return tweets, labels
+
+        all_tweets, labels = _load_tweets_and_labels()
 
         tokenized_input = tokenizer.batch_encode_plus(
             all_tweets,
