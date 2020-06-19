@@ -30,9 +30,9 @@ class TransformerSentimentClassifier(pl.LightningModule):
             self.config.transformer_model
         )
 
-        with open(self.config.negative_tweets_path, encoding='utf-8') as f:
+        with open(self.config.negative_tweets_path, encoding="utf-8") as f:
             text_lines_neg = f.read().splitlines()
-        with open(self.config.positive_tweets_path, encoding='utf-8') as f:
+        with open(self.config.positive_tweets_path, encoding="utf-8") as f:
             text_lines_pos = f.read().splitlines()
         all_tweets = text_lines_neg + text_lines_pos
         labels = np.concatenate(
