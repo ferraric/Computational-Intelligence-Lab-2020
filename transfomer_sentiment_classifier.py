@@ -65,7 +65,8 @@ class TransformerSentimentClassifier(pl.LightningModule):
             return random_split(data, [n_train_samples, n_val_samples])
 
         self.train_data, self.val_data = _train_val_split(
-            0.1, _tokenize_tweets_and_labels(tokenizer, *_load_tweets_and_labels())
+            self.config.val_size,
+            _tokenize_tweets_and_labels(tokenizer, *_load_tweets_and_labels()),
         )
 
     def forward(self, input_ids: None) -> None:

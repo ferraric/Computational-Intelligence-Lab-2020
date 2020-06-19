@@ -3,6 +3,7 @@
   "negative_tweets_path": "data/train_neg_full.txt",
   "positive_tweets_path": "data/train_pos_full.txt",
   "max_tokens_per_tweet": 140,
+  "val_size": 0.1,
   "batch_size": 32,
   "experiment_name": "bert-baseline",
   "use_comet_experiments": false,
