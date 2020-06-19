@@ -1,4 +1,5 @@
 data-science-types==0.2.12
+mypy==0.780
 pipreqs==0.4.10
 pre-commit==2.4.0
 pytest==5.4.3
