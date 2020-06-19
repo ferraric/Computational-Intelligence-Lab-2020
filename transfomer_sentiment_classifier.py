@@ -42,19 +42,22 @@ class TransformerSentimentClassifier(pl.LightningModule):
             )
             return tweets, labels
 
-        all_tweets, labels = _load_tweets_and_labels()
+        def _tokenize_tweets_and_labels(
+            tokenizer: BertTokenizerFast, tweets: List[str], labels: torch.Tensor
+        ) -> TensorDataset:
+            tokenized_input = tokenizer.batch_encode_plus(
+                tweets,
+                max_length=self.config.max_tokens_per_tweet,
+                pad_to_max_length=True,
+                return_token_type_ids=False,
+            )
+            input_ids = torch.tensor(tokenized_input["input_ids"], dtype=torch.int)
+            attention_mask = torch.tensor(
+                tokenized_input["attention_mask"], dtype=torch.int
+            )
+            return TensorDataset(input_ids, attention_mask, labels)
 
-        tokenized_input = tokenizer.batch_encode_plus(
-            all_tweets,
-            max_length=self.config.max_tokens_per_tweet,
-            pad_to_max_length=True,
-            return_token_type_ids=False,
-        )
-        input_ids = torch.tensor(tokenized_input["input_ids"], dtype=torch.int)
-        attention_mask = torch.tensor(
-            tokenized_input["attention_mask"], dtype=torch.int
-        )
-        all_data = TensorDataset(input_ids, attention_mask, labels)
+        all_data = _tokenize_tweets_and_labels(tokenizer, *_load_tweets_and_labels())
 
         n_val_samples = int(0.1 * len(all_data))
         n_train_samples = len(all_data) - n_val_samples
