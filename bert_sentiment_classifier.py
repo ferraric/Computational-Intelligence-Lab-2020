@@ -1,7 +1,7 @@
 import inspect
 import os
 import sys
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 import pytorch_lightning as pl
 import torch
@@ -34,9 +34,9 @@ class BertSentimentClassifier(pl.LightningModule):
 
         def _load_tweets_and_labels() -> Tuple[List[str], torch.Tensor]:
             with open(self.config.negative_tweets_path, encoding="utf-8") as f:
-                text_lines_neg = f.read().splitlines()
+                text_lines_neg = f.read().splitlines()[:100]
             with open(self.config.positive_tweets_path, encoding="utf-8") as f:
-                text_lines_pos = f.read().splitlines()
+                text_lines_pos = f.read().splitlines()[:100]
             tweets = text_lines_neg + text_lines_pos
             labels = torch.cat(
                 (
@@ -78,8 +78,13 @@ class BertSentimentClassifier(pl.LightningModule):
     ) -> torch.Tensor:
         return self.model(input_ids, attention_mask)
 
-    def training_step(self, batch: None, batch_idx: None) -> None:
-        pass
+    def training_step(
+        self, batch: List[torch.Tensor], batch_id: int
+    ) -> Dict[str, torch.Tensor]:
+        input_ids, attention_mask, labels = batch
+        logits = self.forward(input_ids, attention_mask)
+        loss = self.loss(logits, labels).mean()
+        return {"loss": loss}
 
     def validation_step(self, batch: None, batch_idx: None) -> None:
         pass
