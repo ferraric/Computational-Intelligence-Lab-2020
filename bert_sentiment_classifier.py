@@ -86,8 +86,14 @@ class BertSentimentClassifier(pl.LightningModule):
         loss = self.loss(logits, labels).mean()
         return {"loss": loss}
 
-    def validation_step(self, batch: None, batch_idx: None) -> None:
-        pass
+    def validation_step(
+        self, batch: List[torch.Tensor], batch_id: int
+    ) -> Dict[str, torch.Tensor]:
+        input_ids, attention_mask, labels = batch
+        logits = self.forward(input_ids, attention_mask)
+        loss = self.loss(logits, labels)
+        acc = (logits.argmax(-1) == labels).float()
+        return {"loss": loss, "acc": acc}
 
     def validation_epoch_end(self, outputs: None) -> None:
         pass
