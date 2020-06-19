@@ -9,5 +9,6 @@ install:
   - pip install -r requirements.txt
 before_script:
   - pre-commit run --all-files
+  - mypy .
 script:
   - pytest

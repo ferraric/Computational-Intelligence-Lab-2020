@@ -2,6 +2,7 @@ bunch==1.0.1
 comet_ml==3.1.4
 data-science-types==0.2.12
 numpy==1.16.4
+mypy==0.780
 pipreqs==0.4.10
 pre-commit==2.4.0
 pytest==5.4.3
