@@ -73,8 +73,10 @@ class BertSentimentClassifier(pl.LightningModule):
             _tokenize_tweets_and_labels(tokenizer, *_load_tweets_and_labels()),
         )
 
-    def forward(self, input_ids: None) -> None:
-        pass
+    def forward(
+        self, input_ids: torch.Tensor, attention_mask: torch.Tensor
+    ) -> torch.Tensor:
+        return self.model(input_ids, attention_mask)
 
     def training_step(self, batch: None, batch_idx: None) -> None:
         pass
