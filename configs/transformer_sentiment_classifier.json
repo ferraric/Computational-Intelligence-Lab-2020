@@ -1,8 +1,0 @@
-{
-  "transformer_model": "bert-base-uncased",
-  "experiment_name": "initial_transformer_setup",
-  "use_comet_experiments": true,
-  "comet_api_key": "NVyYXH1De9UgyELocupO1Lge9",
-  "comet_project_name": "sentiment-analysis",
-  "comet_workspace": "jerry-crea"
-}
