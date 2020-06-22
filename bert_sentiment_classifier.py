@@ -152,8 +152,12 @@ def main() -> None:
     save_model_callback = ModelCheckpoint(
         os.path.join(save_path, "{epoch}-{val_loss:.2f}"), monitor="val_loss"
     )
+    number_of_gpus = 1 if torch.cuda.is_available() else 0
     trainer = pl.Trainer(
-        checkpoint_callback=save_model_callback, deterministic=True, logger=logger
+        checkpoint_callback=save_model_callback,
+        deterministic=True,
+        gpus=number_of_gpus,
+        logger=logger,
     )
     trainer.fit(model)
 
