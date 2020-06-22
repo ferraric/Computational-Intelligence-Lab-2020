@@ -61,15 +61,17 @@ class BertSentimentClassifier(pl.LightningModule):
             )
             return TensorDataset(token_ids, attention_mask, labels)
 
-        def _train_val_split(val_size: float, data: TensorDataset) -> List[Subset]:
-            assert 0 <= val_size and val_size <= 1
+        def _train_validation_split(
+            validation_size: float, data: TensorDataset
+        ) -> List[Subset]:
+            assert 0 <= validation_size and validation_size <= 1
 
-            n_val_samples = int(val_size * len(data))
-            n_train_samples = len(data) - n_val_samples
-            return random_split(data, [n_train_samples, n_val_samples])
+            n_validation_samples = int(validation_size * len(data))
+            n_train_samples = len(data) - n_validation_samples
+            return random_split(data, [n_train_samples, n_validation_samples])
 
-        self.train_data, self.val_data = _train_val_split(
-            self.config.val_size,
+        self.train_data, self.validation_data = _train_validation_split(
+            self.config.validation_size,
             _tokenize_tweets_and_labels(tokenizer, *_load_tweets_and_labels()),
         )
 
@@ -93,15 +95,15 @@ class BertSentimentClassifier(pl.LightningModule):
         token_ids, attention_mask, labels = batch
         logits = self.forward(token_ids, attention_mask)
         loss = self.loss(logits, labels)
-        acc = (logits.argmax(-1) == labels).float()
-        return {"loss": loss, "acc": acc}
+        accuracy = (logits.argmax(-1) == labels).float()
+        return {"loss": loss, "accuracy": accuracy}
 
     def validation_epoch_end(
         self, outputs: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, torch.Tensor]:
         loss = torch.cat([o["loss"] for o in outputs], 0).mean()
-        acc = torch.cat([o["acc"] for o in outputs], 0).mean()
-        return {"val_loss": loss, "val_acc": acc}
+        accuracy = torch.cat([o["accuracy"] for o in outputs], 0).mean()
+        return {"validation_loss": loss, "validation_acc": accuracy}
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
@@ -113,7 +115,7 @@ class BertSentimentClassifier(pl.LightningModule):
 
     def val_dataloader(self) -> DataLoader:
         return DataLoader(
-            self.val_data,
+            self.validation_data,
             batch_size=self.config.batch_size,
             drop_last=False,
             shuffle=False,
@@ -123,7 +125,7 @@ class BertSentimentClassifier(pl.LightningModule):
         pass
 
     def configure_optimizers(self) -> Optimizer:
-        return Adam(self.parameters(), lr=self.config.lr)
+        return Adam(self.parameters(), lr=self.config.learning_rate)
 
 
 def main() -> None:
