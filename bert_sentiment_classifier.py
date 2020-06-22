@@ -55,11 +55,11 @@ class BertSentimentClassifier(pl.LightningModule):
                 pad_to_max_length=True,
                 return_token_type_ids=False,
             )
-            input_ids = torch.tensor(tokenized_input["input_ids"], dtype=torch.int64)
+            token_ids = torch.tensor(tokenized_input["input_ids"], dtype=torch.int64)
             attention_mask = torch.tensor(
                 tokenized_input["attention_mask"], dtype=torch.int64
             )
-            return TensorDataset(input_ids, attention_mask, labels)
+            return TensorDataset(token_ids, attention_mask, labels)
 
         def _train_val_split(val_size: float, data: TensorDataset) -> List[Subset]:
             assert 0 <= val_size and val_size <= 1
@@ -74,24 +74,24 @@ class BertSentimentClassifier(pl.LightningModule):
         )
 
     def forward(
-        self, input_ids: torch.Tensor, attention_mask: torch.Tensor
+        self, token_ids: torch.Tensor, attention_mask: torch.Tensor
     ) -> torch.Tensor:
-        (logits,) = self.model(input_ids, attention_mask)
+        (logits,) = self.model(token_ids, attention_mask)
         return logits
 
     def training_step(
         self, batch: List[torch.Tensor], batch_id: int
     ) -> Dict[str, torch.Tensor]:
-        input_ids, attention_mask, labels = batch
-        logits = self.forward(input_ids, attention_mask)
+        token_ids, attention_mask, labels = batch
+        logits = self.forward(token_ids, attention_mask)
         loss = self.loss(logits, labels).mean()
         return {"loss": loss}
 
     def validation_step(
         self, batch: List[torch.Tensor], batch_id: int
     ) -> Dict[str, torch.Tensor]:
-        input_ids, attention_mask, labels = batch
-        logits = self.forward(input_ids, attention_mask)
+        token_ids, attention_mask, labels = batch
+        logits = self.forward(token_ids, attention_mask)
         loss = self.loss(logits, labels)
         acc = (logits.argmax(-1) == labels).float()
         return {"loss": loss, "acc": acc}
