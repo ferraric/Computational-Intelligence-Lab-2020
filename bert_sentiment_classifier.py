@@ -131,6 +131,7 @@ class BertSentimentClassifier(pl.LightningModule):
 def main() -> None:
     args = get_args()
     config = get_bunch_config_from_json(args.config)
+    pl.seed_everything(config.random_seed)
 
     logger = CometLogger(
         save_dir="experiments",
@@ -142,7 +143,7 @@ def main() -> None:
     logger.log_hyperparams(config)
 
     model = BertSentimentClassifier(config)
-    trainer = pl.Trainer(logger=logger)
+    trainer = pl.Trainer(deterministic=True, logger=logger)
     trainer.fit(model)
 
 
