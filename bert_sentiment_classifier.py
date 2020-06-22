@@ -1,7 +1,4 @@
-import inspect
-import os
-import sys
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 import pytorch_lightning as pl
 import torch
@@ -13,11 +10,6 @@ from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader, Subset, TensorDataset, random_split
 from transformers import BertForSequenceClassification, BertTokenizerFast
 from utilities.general_utilities import get_args, get_bunch_config_from_json
-
-currentdir = os.path.dirname(
-    os.path.abspath(inspect.getfile(inspect.currentframe()))  # type: ignore
-)
-sys.path.insert(0, currentdir)
 
 
 class BertSentimentClassifier(pl.LightningModule):
