@@ -6,7 +6,7 @@ from typing import Dict, List, Tuple
 import pytorch_lightning as pl
 import torch
 from bunch import Bunch
-from comet_ml import Experiment
+from pytorch_lightning.loggers import CometLogger
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 from torch.optim.optimizer import Optimizer
@@ -132,16 +132,17 @@ def main() -> None:
     args = get_args()
     config = get_bunch_config_from_json(args.config)
 
-    comet_experiment = Experiment(
-        api_key=config.comet_api_key,
-        project_name=config.comet_project_name,
+    logger = CometLogger(
+        save_dir="experiments",
         workspace=config.comet_workspace,
-        disabled=not config.use_comet_experiments,
+        project_name=config.comet_project_name,
+        api_key=config.comet_api_key if config.use_comet_experiments else None,
+        experiment_name=config.experiment_name,
     )
-    comet_experiment.log_parameters(config)
+    logger.log_hyperparams(config)
 
     model = BertSentimentClassifier(config)
-    trainer = pl.Trainer()
+    trainer = pl.Trainer(logger=logger)
     trainer.fit(model)
 
 

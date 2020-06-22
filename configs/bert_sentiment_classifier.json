@@ -6,6 +6,7 @@
   "validation_size": 0.1,
   "batch_size": 32,
   "learning_rate": 3e-05,
+  "experiment_name": "bert-baseline",
   "use_comet_experiments": false,
   "comet_api_key": "NVyYXH1De9UgyELocupO1Lge9",
   "comet_project_name": "sentiment-analysis",
