@@ -138,6 +138,7 @@ def main() -> None:
     save_path = os.path.join(
         config.model_save_directory, config.experiment_name, current_timestamp
     )
+    os.makedirs(save_path)
 
     logger = CometLogger(
         save_dir=save_path,
