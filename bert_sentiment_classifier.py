@@ -1,12 +1,15 @@
 import inspect
 import os
 import sys
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 import pytorch_lightning as pl
 import torch
 from bunch import Bunch
 from comet_ml import Experiment
+from torch.nn import CrossEntropyLoss
+from torch.optim import Adam
+from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader, Subset, TensorDataset, random_split
 from transformers import BertForSequenceClassification, BertTokenizerFast
 from utilities.general_utilities import get_args, get_bunch_config_from_json
@@ -24,6 +27,7 @@ class BertSentimentClassifier(pl.LightningModule):
         self.model = BertForSequenceClassification.from_pretrained(
             config.pretrained_model
         )
+        self.loss = CrossEntropyLoss()
 
     def prepare_data(self) -> None:
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
@@ -36,8 +40,8 @@ class BertSentimentClassifier(pl.LightningModule):
             tweets = text_lines_neg + text_lines_pos
             labels = torch.cat(
                 (
-                    torch.zeros(len(text_lines_neg), dtype=torch.int),
-                    torch.ones(len(text_lines_pos), dtype=torch.int),
+                    torch.zeros(len(text_lines_neg), dtype=torch.int64),
+                    torch.ones(len(text_lines_pos), dtype=torch.int64),
                 )
             )
             return tweets, labels
@@ -51,35 +55,55 @@ class BertSentimentClassifier(pl.LightningModule):
                 pad_to_max_length=True,
                 return_token_type_ids=False,
             )
-            input_ids = torch.tensor(tokenized_input["input_ids"], dtype=torch.int)
+            token_ids = torch.tensor(tokenized_input["input_ids"], dtype=torch.int64)
             attention_mask = torch.tensor(
-                tokenized_input["attention_mask"], dtype=torch.int
+                tokenized_input["attention_mask"], dtype=torch.int64
             )
-            return TensorDataset(input_ids, attention_mask, labels)
+            return TensorDataset(token_ids, attention_mask, labels)
 
-        def _train_val_split(val_size: float, data: TensorDataset) -> List[Subset]:
-            assert 0 <= val_size and val_size <= 1
+        def _train_validation_split(
+            validation_size: float, data: TensorDataset
+        ) -> List[Subset]:
+            assert 0 <= validation_size and validation_size <= 1
 
-            n_val_samples = int(val_size * len(data))
-            n_train_samples = len(data) - n_val_samples
-            return random_split(data, [n_train_samples, n_val_samples])
+            n_validation_samples = int(validation_size * len(data))
+            n_train_samples = len(data) - n_validation_samples
+            return random_split(data, [n_train_samples, n_validation_samples])
 
-        self.train_data, self.val_data = _train_val_split(
-            self.config.val_size,
+        self.train_data, self.validation_data = _train_validation_split(
+            self.config.validation_size,
             _tokenize_tweets_and_labels(tokenizer, *_load_tweets_and_labels()),
         )
 
-    def forward(self, input_ids: None) -> None:
-        pass
+    def forward(
+        self, token_ids: torch.Tensor, attention_mask: torch.Tensor
+    ) -> torch.Tensor:
+        (logits,) = self.model(token_ids, attention_mask)
+        return logits
 
-    def training_step(self, batch: None, batch_idx: None) -> None:
-        pass
+    def training_step(
+        self, batch: List[torch.Tensor], batch_id: int
+    ) -> Dict[str, torch.Tensor]:
+        token_ids, attention_mask, labels = batch
+        logits = self.forward(token_ids, attention_mask)
+        loss = self.loss(logits, labels)
+        return {"loss": loss}
 
-    def validation_step(self, batch: None, batch_idx: None) -> None:
-        pass
+    def validation_step(
+        self, batch: List[torch.Tensor], batch_id: int
+    ) -> Dict[str, torch.Tensor]:
+        token_ids, attention_mask, labels = batch
+        logits = self.forward(token_ids, attention_mask)
+        loss = self.loss(logits, labels)
+        accuracy = (logits.argmax(-1) == labels).float().mean()
+        return {"loss": loss, "accuracy": accuracy}
 
-    def validation_epoch_end(self, outputs: None) -> None:
-        pass
+    def validation_epoch_end(
+        self, outputs: List[Dict[str, torch.Tensor]]
+    ) -> Dict[str, torch.Tensor]:
+        loss = torch.mean(torch.stack([output["loss"] for output in outputs]))
+        accuracy = torch.mean(torch.stack([output["accuracy"] for output in outputs]))
+        return {"val_loss": loss, "val_acc": accuracy}
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
@@ -91,7 +115,7 @@ class BertSentimentClassifier(pl.LightningModule):
 
     def val_dataloader(self) -> DataLoader:
         return DataLoader(
-            self.val_data,
+            self.validation_data,
             batch_size=self.config.batch_size,
             drop_last=False,
             shuffle=False,
@@ -100,8 +124,8 @@ class BertSentimentClassifier(pl.LightningModule):
     def test_data_loader(self) -> None:
         pass
 
-    def configure_optimizers(self) -> None:
-        pass
+    def configure_optimizers(self) -> Optimizer:
+        return Adam(self.parameters(), lr=self.config.learning_rate)
 
 
 def main() -> None:
