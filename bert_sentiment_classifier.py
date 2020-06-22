@@ -1,11 +1,13 @@
 import inspect
 import os
 import sys
+from datetime import datetime
 from typing import Dict, List, Tuple
 
 import pytorch_lightning as pl
 import torch
 from bunch import Bunch
+from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import CometLogger
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
@@ -132,9 +134,13 @@ def main() -> None:
     args = get_args()
     config = get_bunch_config_from_json(args.config)
     pl.seed_everything(config.random_seed)
+    current_timestamp = datetime.now().strftime("%y-%m-%d_%H-%M-%S")
+    save_path = os.path.join(
+        config.model_save_directory, config.experiment_name, current_timestamp
+    )
 
     logger = CometLogger(
-        save_dir="experiments",
+        save_dir=save_path,
         workspace=config.comet_workspace,
         project_name=config.comet_project_name,
         api_key=config.comet_api_key if config.use_comet_experiments else None,
@@ -143,7 +149,12 @@ def main() -> None:
     logger.log_hyperparams(config)
 
     model = BertSentimentClassifier(config)
-    trainer = pl.Trainer(deterministic=True, logger=logger)
+    save_model_callback = ModelCheckpoint(
+        os.path.join(save_path, "{epoch}-{val_loss:.2f}"), monitor="val_loss"
+    )
+    trainer = pl.Trainer(
+        checkpoint_callback=save_model_callback, deterministic=True, logger=logger
+    )
     trainer.fit(model)
 
 
