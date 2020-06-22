@@ -2,7 +2,7 @@ import inspect
 import os
 import sys
 from datetime import datetime
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 import pytorch_lightning as pl
 import torch
@@ -102,10 +102,11 @@ class BertSentimentClassifier(pl.LightningModule):
 
     def validation_epoch_end(
         self, outputs: List[Dict[str, torch.Tensor]]
-    ) -> Dict[str, torch.Tensor]:
+    ) -> Dict[str, Union[torch.Tensor, Dict[str, torch.Tensor]]]:
         loss = torch.mean(torch.stack([output["loss"] for output in outputs]))
         accuracy = torch.mean(torch.stack([output["accuracy"] for output in outputs]))
-        return {"val_loss": loss, "val_acc": accuracy}
+        out = {"val_loss": loss, "val_acc": accuracy}
+        return {**out, "log": out}
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
