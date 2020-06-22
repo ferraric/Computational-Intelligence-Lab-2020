@@ -27,7 +27,7 @@ class BertSentimentClassifier(pl.LightningModule):
         self.model = BertForSequenceClassification.from_pretrained(
             config.pretrained_model
         )
-        self.loss = CrossEntropyLoss(reduction="none")
+        self.loss = CrossEntropyLoss()
 
     def prepare_data(self) -> None:
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
@@ -86,7 +86,7 @@ class BertSentimentClassifier(pl.LightningModule):
     ) -> Dict[str, torch.Tensor]:
         token_ids, attention_mask, labels = batch
         logits = self.forward(token_ids, attention_mask)
-        loss = self.loss(logits, labels).mean()
+        loss = self.loss(logits, labels)
         return {"loss": loss}
 
     def validation_step(
@@ -95,14 +95,14 @@ class BertSentimentClassifier(pl.LightningModule):
         token_ids, attention_mask, labels = batch
         logits = self.forward(token_ids, attention_mask)
         loss = self.loss(logits, labels)
-        accuracy = (logits.argmax(-1) == labels).float()
+        accuracy = (logits.argmax(-1) == labels).float().mean()
         return {"loss": loss, "accuracy": accuracy}
 
     def validation_epoch_end(
         self, outputs: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, torch.Tensor]:
-        loss = torch.cat([o["loss"] for o in outputs], 0).mean()
-        accuracy = torch.cat([o["accuracy"] for o in outputs], 0).mean()
+        loss = torch.mean(torch.stack([o["loss"] for o in outputs]))
+        accuracy = torch.mean(torch.stack([o["accuracy"] for o in outputs]))
         return {"validation_loss": loss, "validation_acc": accuracy}
 
     def train_dataloader(self) -> DataLoader:
