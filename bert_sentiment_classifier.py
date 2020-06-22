@@ -103,7 +103,7 @@ class BertSentimentClassifier(pl.LightningModule):
     ) -> Dict[str, torch.Tensor]:
         loss = torch.mean(torch.stack([o["loss"] for o in outputs]))
         accuracy = torch.mean(torch.stack([o["accuracy"] for o in outputs]))
-        return {"validation_loss": loss, "validation_acc": accuracy}
+        return {"val_loss": loss, "val_acc": accuracy}
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
