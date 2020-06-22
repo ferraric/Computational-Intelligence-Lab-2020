@@ -101,8 +101,8 @@ class BertSentimentClassifier(pl.LightningModule):
     def validation_epoch_end(
         self, outputs: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, torch.Tensor]:
-        loss = torch.mean(torch.stack([o["loss"] for o in outputs]))
-        accuracy = torch.mean(torch.stack([o["accuracy"] for o in outputs]))
+        loss = torch.mean(torch.stack([output["loss"] for output in outputs]))
+        accuracy = torch.mean(torch.stack([output["accuracy"] for output in outputs]))
         return {"val_loss": loss, "val_acc": accuracy}
 
     def train_dataloader(self) -> DataLoader:
