@@ -158,6 +158,7 @@ def main() -> None:
         deterministic=True,
         gpus=number_of_gpus,
         logger=logger,
+        max_epochs=config.epochs,
     )
     trainer.fit(model)
 

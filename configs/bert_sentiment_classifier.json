@@ -1,6 +1,7 @@
 {
   "random_seed": 0,
   "model_save_directory": "experiments",
+  "epochs": 3,
   "pretrained_model": "bert-base-uncased",
   "negative_tweets_path": "data/train_neg_full.txt",
   "positive_tweets_path": "data/train_pos_full.txt",
