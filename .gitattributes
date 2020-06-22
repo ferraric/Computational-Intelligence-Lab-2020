@@ -1,0 +1,2 @@
+*.sh text eol=lf
+requirements.txt text eol=lf
