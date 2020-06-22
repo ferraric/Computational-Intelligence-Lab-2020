@@ -156,6 +156,7 @@ def main() -> None:
     trainer = pl.Trainer(
         checkpoint_callback=save_model_callback,
         deterministic=True,
+        fast_dev_run=config.debug,
         gpus=number_of_gpus,
         logger=logger,
         max_epochs=config.epochs,
