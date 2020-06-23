@@ -32,11 +32,9 @@ class BertSentimentClassifier(pl.LightningModule):
     def prepare_data(self) -> None:
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
 
-        def _load_tweets_and_labels() -> Tuple[List[str], torch.Tensor]:
-            with open(self.config.negative_tweets_path, encoding="utf-8") as f:
-                text_lines_neg = f.read().splitlines()
-            with open(self.config.positive_tweets_path, encoding="utf-8") as f:
-                text_lines_pos = f.read().splitlines()
+        def _get_tweets_and_labels(
+            text_lines_neg: List[str], text_lines_pos: List[str]
+        ) -> Tuple[List[str], torch.Tensor]:
             tweets = text_lines_neg + text_lines_pos
             labels = torch.cat(
                 (
@@ -44,6 +42,31 @@ class BertSentimentClassifier(pl.LightningModule):
                     torch.ones(len(text_lines_pos), dtype=torch.int64),
                 )
             )
+            return tweets, labels
+
+        def _load_tweets(use_augmented: bool) -> Tuple[List[str], torch.Tensor]:
+            with open(self.config.negative_tweets_path, encoding="utf-8") as f:
+                text_lines_neg = f.read().splitlines()
+            with open(self.config.positive_tweets_path, encoding="utf-8") as f:
+                text_lines_pos = f.read().splitlines()
+
+            tweets, labels = _get_tweets_and_labels(text_lines_neg, text_lines_pos)
+
+            if use_augmented:
+                with open(
+                    self.config.augmented_negative_tweets_path, encoding="utf-8"
+                ) as f:
+                    text_lines_neg_aug = f.read().splitlines()
+                with open(
+                    self.config.augmented_positive_tweets_path, encoding="utf-8"
+                ) as f:
+                    text_lines_pos_aug = f.read().splitlines()
+
+                tweets_pos = text_lines_pos + text_lines_pos_aug
+                tweets_neg = text_lines_neg + text_lines_neg_aug
+
+                tweets, labels = _get_tweets_and_labels(tweets_neg, tweets_pos)
+
             return tweets, labels
 
         def _tokenize_tweets_and_labels(
@@ -72,7 +95,9 @@ class BertSentimentClassifier(pl.LightningModule):
 
         self.train_data, self.validation_data = _train_validation_split(
             self.config.validation_size,
-            _tokenize_tweets_and_labels(tokenizer, *_load_tweets_and_labels()),
+            _tokenize_tweets_and_labels(
+                tokenizer, *_load_tweets(self.config.use_augmented)
+            ),
         )
 
     def forward(
@@ -106,6 +131,7 @@ class BertSentimentClassifier(pl.LightningModule):
         return {"val_loss": loss, "val_acc": accuracy}
 
     def train_dataloader(self) -> DataLoader:
+        print("train dataloader")
         return DataLoader(
             self.train_data,
             batch_size=self.config.batch_size,
