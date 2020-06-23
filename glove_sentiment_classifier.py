@@ -4,8 +4,10 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 from bunch import Bunch
+from comet_ml import Experiment
 from torch.optim import Adam
 from torch.optim.optimizer import Optimizer
+from utilities.general_utilities import get_args, get_bunch_config_from_json
 
 
 class GloveSentimentClassifier(pl.LightningModule):
@@ -45,3 +47,24 @@ class GloveSentimentClassifier(pl.LightningModule):
 
     def configure_optimizers(self) -> Optimizer:
         return Adam(self.parameters(), self.config.learning_rate)
+
+
+def main() -> None:
+    args = get_args()
+    config = get_bunch_config_from_json(args.config)
+
+    comet_experiment = Experiment(
+        api_key=config.comet_api_key,
+        project_name=config.comet_project_name,
+        workspace=config.comet_workspace,
+        disabled=not config.use_comet_experiments,
+    )
+    comet_experiment.log_parameters(config)
+
+    model = GloveSentimentClassifier(config)
+    trainer = pl.Trainer()
+    trainer.fit(model)
+
+
+if __name__ == "__main__":
+    main()
