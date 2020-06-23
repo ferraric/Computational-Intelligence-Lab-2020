@@ -16,15 +16,13 @@ git clone https://github.com/ferraric/Computational-Intelligence-Lab-2020
 # install project   
 cd Computational-Intelligence-Lab-2020    
 
-# -- if on Leonhard: install your python virtual environment into Computational-Intelligence-Lab-2020/venv
+# --> if on Leonhard: install your python virtual environment into Computational-Intelligence-Lab-2020/venv
 python3 -m venv /cluster/home/.../Computational-Intelligence-Lab-2020/venv
-# setup Leonhard
 source ./init_leonhard.sh
 
-# -- if local: 
+# --> if local: 
 pip install -r requirements.txt
 
-#
  ```  
 We use pre-commit hooks to format our code to comply with black and pep8. If you want to contribute execute: 
 ```pre-commit install```
