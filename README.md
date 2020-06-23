@@ -7,14 +7,18 @@ This is a project that was done in the Computational Intelligence Lab 2020 at ET
 Specifically we are doing a sentiment analysis of twitter data and classify them into positive and negative sentiments (see [Kaggle competition](https://www.kaggle.com/c/cil-text-classification-2020)). 
 
 ## Setup 
-First, install dependencies.
-Install your python virtual environment into 
+Download data from: https://polybox.ethz.ch/index.php/s/MxU3xzbLLKytwRT
+
 ```
 # clone project   
 git clone https://github.com/ferraric/Computational-Intelligence-Lab-2020   
 
 # install project   
 cd Computational-Intelligence-Lab-2020    
+
+# move data into the data folder
+mkdir data
+mv .../downloaded-data-folder ~/data
 
 # --> if on Leonhard: install your python virtual environment into Computational-Intelligence-Lab-2020/venv
 python3 -m venv /cluster/home/.../Computational-Intelligence-Lab-2020/venv
