@@ -7,14 +7,24 @@ This is a project that was done in the Computational Intelligence Lab 2020 at ET
 Specifically we are doing a sentiment analysis of twitter data and classify them into positive and negative sentiments (see [Kaggle competition](https://www.kaggle.com/c/cil-text-classification-2020)). 
 
 ## Setup 
-First, install dependencies   
+First, install dependencies.
+Install your python virtual environment into 
 ```
 # clone project   
 git clone https://github.com/ferraric/Computational-Intelligence-Lab-2020   
 
 # install project   
 cd Computational-Intelligence-Lab-2020    
+
+# -- if on Leonhard: install your python virtual environment into Computational-Intelligence-Lab-2020/venv
+python3 -m venv /cluster/home/.../Computational-Intelligence-Lab-2020/venv
+# setup Leonhard
+source ./init_leonhard.sh
+
+# -- if local: 
 pip install -r requirements.txt
+
+#
  ```  
 We use pre-commit hooks to format our code to comply with black and pep8. If you want to contribute execute: 
 ```pre-commit install```
