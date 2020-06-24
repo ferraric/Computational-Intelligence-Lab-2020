@@ -2,15 +2,11 @@ from typing import List, Tuple
 
 import torch
 from bert_sentiment_classifier import BertSentimentClassifier
-from bunch import Bunch
 from torch.utils.data import Subset, TensorDataset, random_split
 from transformers import BertTokenizerFast
 
 
 class BertSentimentClassifierAug(BertSentimentClassifier):
-    def __init__(self, config: Bunch) -> None:
-        super().__init__(config)
-
     def prepare_data(self) -> None:
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
 

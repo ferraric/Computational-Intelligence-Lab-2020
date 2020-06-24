@@ -29,12 +29,10 @@ def main() -> None:
     )
     logger.log_hyperparams(config)
 
-    if config.model_name == "BertSentimentClassifier":
-        model = BertSentimentClassifier(config)
-    elif config.model_name == "BertSentimentClassifierAug":
+    if config.use_augmented_data == 1:
         model = BertSentimentClassifierAug(config)
     else:
-        raise NotImplementedError
+        model = BertSentimentClassifier(config)
 
     save_model_callback = ModelCheckpoint(
         os.path.join(save_path, "{epoch}-{val_loss:.2f}"), monitor="val_loss"
