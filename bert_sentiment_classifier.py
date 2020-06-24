@@ -34,19 +34,19 @@ class BertSentimentClassifier(pl.LightningModule):
     def prepare_data(self) -> None:
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
 
-        def _load_tweets_and_labels() -> Tuple[List[str], torch.Tensor]:
-            with open(self.config.negative_tweets_path, encoding="utf-8") as f:
-                text_lines_neg = f.read().splitlines()
-            with open(self.config.positive_tweets_path, encoding="utf-8") as f:
-                text_lines_pos = f.read().splitlines()
-            tweets = text_lines_neg + text_lines_pos
-            labels = torch.cat(
+        def _load_tweets(path: str) -> List[str]:
+            with open(path, encoding="utf-8") as f:
+                return f.read().splitlines()
+
+        def _generate_labels(
+            n_negative_samples: int, n_positive_samples: int
+        ) -> torch.Tensor:
+            return torch.cat(
                 (
-                    torch.zeros(len(text_lines_neg), dtype=torch.int64),
-                    torch.ones(len(text_lines_pos), dtype=torch.int64),
+                    torch.zeros(n_negative_samples, dtype=torch.int64),
+                    torch.ones(n_positive_samples, dtype=torch.int64),
                 )
             )
-            return tweets, labels
 
         def _tokenize_tweets(
             tokenizer: BertTokenizerFast, tweets: List[str]
@@ -72,8 +72,12 @@ class BertSentimentClassifier(pl.LightningModule):
             n_train_samples = len(data) - n_validation_samples
             return random_split(data, [n_train_samples, n_validation_samples])
 
-        all_tweets, labels = _load_tweets_and_labels()
-        token_ids, attention_mask = _tokenize_tweets(tokenizer, all_tweets)
+        negative_tweets = _load_tweets(self.config.negative_tweets_path)
+        positive_tweets = _load_tweets(self.config.positive_tweets_path)
+        labels = _generate_labels(len(negative_tweets), len(positive_tweets))
+        token_ids, attention_mask = _tokenize_tweets(
+            tokenizer, negative_tweets + positive_tweets
+        )
         self.train_data, self.validation_data = _train_validation_split(
             self.config.validation_size,
             TensorDataset(token_ids, attention_mask, labels),
