@@ -118,6 +118,19 @@ class BertSentimentClassifier(pl.LightningModule):
         out = {"val_loss": loss, "val_acc": accuracy}
         return {**out, "log": out}
 
+    def test_step(
+        self, batch: List[torch.Tensor], batch_id: int
+    ) -> Dict[str, torch.Tensor]:
+        token_ids, attention_mask = batch
+        logits = self.forward(token_ids, attention_mask)
+        return {"logits": logits}
+
+    def test_epoch_end(
+        self, outputs: List[Dict[str, torch.Tensor]]
+    ) -> Dict[str, torch.Tensor]:
+        logits = torch.cat([output["logits"] for output in outputs], 0)
+        return {"logits": logits}
+
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
             self.train_data,
