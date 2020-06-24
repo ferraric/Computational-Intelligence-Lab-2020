@@ -8,7 +8,6 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 from bunch import Bunch
-from numpy import column_stack  # type: ignore
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import CometLogger
 from torch.nn import CrossEntropyLoss
@@ -146,9 +145,9 @@ class BertSentimentClassifier(pl.LightningModule):
         positive_probabilities = torch.nn.functional.softmax(logits, dim=1)[:, 1]
         predictions = 2 * (logits[:, 1] > logits[:, 0]) - 1
         ids = np.arange(1, logits.shape[0] + 1)
-        logit_table = column_stack((ids, logits))
-        prediction_table = column_stack((ids, predictions))
-        probabilities_table = column_stack((ids, positive_probabilities))
+        logit_table = np.hstack((ids.reshape(-1, 1), logits.numpy()))
+        prediction_table = np.hstack((ids, predictions.numpy()))
+        probabilities_table = np.hstack((ids, positive_probabilities.numpy()))
 
         self.logger.experiment.log_table(
             filename="test_logits.csv",
