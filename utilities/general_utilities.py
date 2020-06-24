@@ -12,6 +12,11 @@ def get_args() -> argparse.Namespace:
         required=True,
         help="Add the Configuration file that has all the relevant parameters",
     )
+    argparser.add_argument(
+        "-t",
+        "--test_model_path",
+        help="Path to saved model to be used for test set prediction",
+    )
     return argparser.parse_args()
 
 
