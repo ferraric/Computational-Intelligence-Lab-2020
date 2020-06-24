@@ -48,9 +48,9 @@ class BertSentimentClassifier(pl.LightningModule):
             )
             return tweets, labels
 
-        def _tokenize_tweets_and_labels(
-            tokenizer: BertTokenizerFast, tweets: List[str], labels: torch.Tensor
-        ) -> TensorDataset:
+        def _tokenize_tweets(
+            tokenizer: BertTokenizerFast, tweets: List[str]
+        ) -> Tuple[torch.Tensor, torch.Tensor]:
             tokenized_input = tokenizer.batch_encode_plus(
                 tweets,
                 max_length=self.config.max_tokens_per_tweet,
@@ -61,7 +61,7 @@ class BertSentimentClassifier(pl.LightningModule):
             attention_mask = torch.tensor(
                 tokenized_input["attention_mask"], dtype=torch.int64
             )
-            return TensorDataset(token_ids, attention_mask, labels)
+            return token_ids, attention_mask
 
         def _train_validation_split(
             validation_size: float, data: TensorDataset
@@ -72,9 +72,11 @@ class BertSentimentClassifier(pl.LightningModule):
             n_train_samples = len(data) - n_validation_samples
             return random_split(data, [n_train_samples, n_validation_samples])
 
+        all_tweets, labels = _load_tweets_and_labels()
+        token_ids, attention_mask = _tokenize_tweets(tokenizer, all_tweets)
         self.train_data, self.validation_data = _train_validation_split(
             self.config.validation_size,
-            _tokenize_tweets_and_labels(tokenizer, *_load_tweets_and_labels()),
+            TensorDataset(token_ids, attention_mask, labels),
         )
 
     def forward(
