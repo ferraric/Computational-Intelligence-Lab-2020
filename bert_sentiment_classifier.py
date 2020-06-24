@@ -1,14 +1,12 @@
 import inspect
 import os
 import sys
-from datetime import datetime
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple
 
 import pytorch_lightning as pl
 import torch
 from bunch import Bunch
-from pytorch_lightning.callbacks import ModelCheckpoint
-from pytorch_lightning.loggers import CometLogger
+from comet_ml import Experiment
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 from torch.optim.optimizer import Optimizer
@@ -34,25 +32,25 @@ class BertSentimentClassifier(pl.LightningModule):
     def prepare_data(self) -> None:
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
 
-        def _get_tweets_and_labels(
-            text_lines_neg: List[str], text_lines_pos: List[str]
-        ) -> Tuple[List[str], torch.Tensor]:
-            tweets = text_lines_neg + text_lines_pos
+        def _generate_labels(len_neg: int, len_pos: int) -> torch.Tensor:
             labels = torch.cat(
                 (
-                    torch.zeros(len(text_lines_neg), dtype=torch.int64),
-                    torch.ones(len(text_lines_pos), dtype=torch.int64),
+                    torch.zeros(len_neg, dtype=torch.int64),
+                    torch.ones(len_pos, dtype=torch.int64),
                 )
             )
-            return tweets, labels
+            return labels
 
-        def _load_tweets(use_augmented: bool) -> Tuple[List[str], torch.Tensor]:
+        def _get_tweets_and_labels(
+            use_augmented: bool,
+        ) -> Tuple[List[str], torch.Tensor]:
             with open(self.config.negative_tweets_path, encoding="utf-8") as f:
                 text_lines_neg = f.read().splitlines()
             with open(self.config.positive_tweets_path, encoding="utf-8") as f:
                 text_lines_pos = f.read().splitlines()
 
-            tweets, labels = _get_tweets_and_labels(text_lines_neg, text_lines_pos)
+            tweets = text_lines_neg + text_lines_pos
+            labels = _generate_labels(len(text_lines_neg), len(text_lines_pos))
 
             if use_augmented:
                 with open(
@@ -64,10 +62,11 @@ class BertSentimentClassifier(pl.LightningModule):
                 ) as f:
                     text_lines_pos_aug = f.read().splitlines()
 
-                tweets_pos = text_lines_pos + text_lines_pos_aug
                 tweets_neg = text_lines_neg + text_lines_neg_aug
+                tweets_pos = text_lines_pos + text_lines_pos_aug
 
-                tweets, labels = _get_tweets_and_labels(tweets_neg, tweets_pos)
+                tweets = tweets_neg + tweets_pos
+                labels = _generate_labels(len(tweets_neg), len(tweets_pos))
 
             return tweets, labels
 
@@ -98,7 +97,7 @@ class BertSentimentClassifier(pl.LightningModule):
         self.train_data, self.validation_data = _train_validation_split(
             self.config.validation_size,
             _tokenize_tweets_and_labels(
-                tokenizer, *_load_tweets(self.config.use_augmented)
+                tokenizer, *_get_tweets_and_labels(self.config.use_augmented)
             ),
         )
 
@@ -127,14 +126,12 @@ class BertSentimentClassifier(pl.LightningModule):
 
     def validation_epoch_end(
         self, outputs: List[Dict[str, torch.Tensor]]
-    ) -> Dict[str, Union[torch.Tensor, Dict[str, torch.Tensor]]]:
+    ) -> Dict[str, torch.Tensor]:
         loss = torch.mean(torch.stack([output["loss"] for output in outputs]))
         accuracy = torch.mean(torch.stack([output["accuracy"] for output in outputs]))
-        out = {"val_loss": loss, "val_acc": accuracy}
-        return {**out, "log": out}
+        return {"val_loss": loss, "val_acc": accuracy}
 
     def train_dataloader(self) -> DataLoader:
-        print("train dataloader")
         return DataLoader(
             self.train_data,
             batch_size=self.config.batch_size,
@@ -160,35 +157,17 @@ class BertSentimentClassifier(pl.LightningModule):
 def main() -> None:
     args = get_args()
     config = get_bunch_config_from_json(args.config)
-    pl.seed_everything(config.random_seed)
-    current_timestamp = datetime.now().strftime("%y-%m-%d_%H-%M-%S")
-    save_path = os.path.join(
-        config.model_save_directory, config.experiment_name, current_timestamp
-    )
-    os.makedirs(save_path)
 
-    logger = CometLogger(
-        save_dir=save_path,
-        workspace=config.comet_workspace,
+    comet_experiment = Experiment(
+        api_key=config.comet_api_key,
         project_name=config.comet_project_name,
-        api_key=config.comet_api_key if config.use_comet_experiments else None,
-        experiment_name=config.experiment_name,
+        workspace=config.comet_workspace,
+        disabled=not config.use_comet_experiments,
     )
-    logger.log_hyperparams(config)
+    comet_experiment.log_parameters(config)
 
     model = BertSentimentClassifier(config)
-    save_model_callback = ModelCheckpoint(
-        os.path.join(save_path, "{epoch}-{val_loss:.2f}"), monitor="val_loss"
-    )
-    number_of_gpus = 1 if torch.cuda.is_available() else 0
-    trainer = pl.Trainer(
-        checkpoint_callback=save_model_callback,
-        deterministic=True,
-        fast_dev_run=config.debug,
-        gpus=number_of_gpus,
-        logger=logger,
-        max_epochs=config.epochs,
-    )
+    trainer = pl.Trainer()
     trainer.fit(model)
 
 
