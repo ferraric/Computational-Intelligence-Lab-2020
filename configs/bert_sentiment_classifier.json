@@ -2,6 +2,7 @@
   "random_seed": 0,
   "model_save_directory": "experiments",
   "debug": false,
+  "model_name": "BertSentimentClassifier",
   "epochs": 3,
   "pretrained_model": "bert-base-uncased",
   "negative_tweets_path": "data/train_neg_full.txt",
