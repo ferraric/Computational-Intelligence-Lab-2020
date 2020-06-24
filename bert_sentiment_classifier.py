@@ -83,6 +83,10 @@ class BertSentimentClassifier(pl.LightningModule):
             TensorDataset(token_ids, attention_mask, labels),
         )
 
+        test_tweets = _load_tweets(self.config.test_tweets_path)
+        token_ids, attention_mask = _tokenize_tweets(tokenizer, test_tweets)
+        self.test_data = TensorDataset(token_ids, attention_mask)
+
     def forward(
         self, token_ids: torch.Tensor, attention_mask: torch.Tensor
     ) -> torch.Tensor:
@@ -130,8 +134,13 @@ class BertSentimentClassifier(pl.LightningModule):
             shuffle=False,
         )
 
-    def test_data_loader(self) -> None:
-        pass
+    def test_data_loader(self) -> DataLoader:
+        return torch.utils.data.DataLoader(
+            self.test_data,
+            batch_size=self.config.batch_size,
+            drop_last=False,
+            shuffle=False,
+        )
 
     def configure_optimizers(self) -> Optimizer:
         return Adam(self.parameters(), lr=self.config.learning_rate)
