@@ -1,0 +1,20 @@
+{
+  "random_seed": 0,
+  "model_save_directory": "experiments",
+  "debug": false,
+  "epochs": 3,
+  "pretrained_model": "bert-base-uncased",
+  "negative_tweets_path": "data/train_neg_full.txt",
+  "positive_tweets_path": "data/train_pos_full.txt",
+  "augmented_negative_tweets_path": "data/train_neg_aug.txt",
+  "augmented_positive_tweets_path": "data/train_pos_aug.txt",
+  "max_tokens_per_tweet": 140,
+  "validation_size": 0.1,
+  "batch_size": 32,
+  "learning_rate": 3e-05,
+  "experiment_name": "bert-baseline",
+  "use_comet_experiments": false,
+  "comet_api_key": "NVyYXH1De9UgyELocupO1Lge9",
+  "comet_project_name": "sentiment-analysis",
+  "comet_workspace": "jerry-crea"
+}
