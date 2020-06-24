@@ -188,6 +188,7 @@ def main() -> None:
     args = get_args()
     config = get_bunch_config_from_json(args.config)
     pl.seed_everything(config.random_seed)
+
     current_timestamp = datetime.now().strftime("%y-%m-%d_%H-%M-%S")
     save_path = os.path.join(
         config.model_save_directory, config.experiment_name, current_timestamp
@@ -203,7 +204,6 @@ def main() -> None:
     )
     logger.log_hyperparams(config)
 
-    model = BertSentimentClassifier(config)
     save_model_callback = ModelCheckpoint(
         os.path.join(save_path, "{epoch}-{val_loss:.2f}"), monitor="val_loss"
     )
@@ -216,8 +216,15 @@ def main() -> None:
         logger=logger,
         max_epochs=config.epochs,
     )
-    trainer.fit(model)
-    trainer.test()
+
+    if args.test_model_path is None:
+        model = BertSentimentClassifier(config)
+        trainer.fit(model)
+    else:
+        model = BertSentimentClassifier.load_from_checkpoint(
+            args.test_model_path, config=config
+        )
+    trainer.test(model=model)
 
 
 if __name__ == "__main__":
