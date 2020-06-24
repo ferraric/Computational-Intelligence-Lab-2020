@@ -4,6 +4,7 @@ import sys
 from datetime import datetime
 from typing import Dict, List, Tuple, Union
 
+import numpy as np
 import pytorch_lightning as pl
 import torch
 from bunch import Bunch
@@ -129,7 +130,31 @@ class BertSentimentClassifier(pl.LightningModule):
         self, outputs: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, torch.Tensor]:
         logits = torch.cat([output["logits"] for output in outputs], 0)
-        return {"logits": logits}
+
+        positive_probabilities = torch.nn.functional.softmax(logits, dim=1)[:, 1]
+        predictions = 2 * (logits[:, 1] > logits[:, 0]) - 1
+        ids = np.arange(1, logits.shape[0] + 1)
+        logit_table = np.column_stack((ids, logits))
+        prediction_table = np.column_stack((ids, predictions))
+        probabilities_table = np.column_stack((ids, positive_probabilities))
+
+        self.logger.experiment.log_table(
+            filename="test_logits.csv",
+            tabular_data=logit_table,
+            headers=["Id", "negative", "positive"],
+        )
+        self.logger.experiment.log_table(
+            filename="test_probabilities.csv",
+            tabular_data=probabilities_table,
+            headers=["Id", "positive_prob"],
+        )
+        self.logger.experiment.log_table(
+            filename="test_predictions.csv",
+            tabular_data=prediction_table,
+            headers=["Id", "Prediction"],
+        )
+
+        return {"predictions": predictions}
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
@@ -192,6 +217,7 @@ def main() -> None:
         max_epochs=config.epochs,
     )
     trainer.fit(model)
+    trainer.test()
 
 
 if __name__ == "__main__":
