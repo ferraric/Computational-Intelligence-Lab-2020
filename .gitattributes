@@ -1,2 +1,3 @@
 *.sh text eol=lf
 requirements.txt text eol=lf
+utilities/non_imported_requirements.txt text eol=lf
