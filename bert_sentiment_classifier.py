@@ -117,6 +117,45 @@ class BertSentimentClassifier(pl.LightningModule):
         out = {"val_loss": loss, "val_acc": accuracy}
         return {**out, "log": out}
 
+    def test_step(
+        self, batch: List[torch.Tensor], batch_id: int
+    ) -> Dict[str, torch.Tensor]:
+        token_ids, attention_mask = batch
+        logits = self.forward(token_ids, attention_mask)
+        return {"logits": logits}
+
+    def test_epoch_end(
+        self, outputs: List[Dict[str, torch.Tensor]]
+    ) -> Dict[str, torch.Tensor]:
+        logits = torch.cat([output["logits"] for output in outputs], 0)
+
+        positive_probabilities = torch.nn.functional.softmax(logits, dim=1)[:, 1]
+        predictions = 2 * (logits[:, 1] > logits[:, 0]) - 1
+        ids = torch.arange(1, logits.shape[0] + 1)
+        logit_table = torch.cat((ids.reshape(-1, 1).float(), logits), dim=1).numpy()
+        prediction_table = torch.stack((ids, predictions), dim=1).numpy()
+        probabilities_table = torch.stack(
+            (ids.float(), positive_probabilities), dim=1
+        ).numpy()
+
+        self.logger.experiment.log_table(
+            filename="test_logits.csv",
+            tabular_data=logit_table,
+            headers=["Id", "negative", "positive"],
+        )
+        self.logger.experiment.log_table(
+            filename="test_probabilities.csv",
+            tabular_data=probabilities_table,
+            headers=["Id", "positive_prob"],
+        )
+        self.logger.experiment.log_table(
+            filename="test_predictions.csv",
+            tabular_data=prediction_table,
+            headers=["Id", "Prediction"],
+        )
+
+        return {"predictions": predictions}
+
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
             self.train_data,
@@ -133,8 +172,13 @@ class BertSentimentClassifier(pl.LightningModule):
             shuffle=False,
         )
 
-    def test_data_loader(self) -> None:
-        pass
+    def test_dataloader(self) -> DataLoader:
+        return torch.utils.data.DataLoader(
+            self.test_data,
+            batch_size=self.config.batch_size,
+            drop_last=False,
+            shuffle=False,
+        )
 
     def configure_optimizers(self) -> Optimizer:
         return Adam(self.parameters(), lr=self.config.learning_rate)
