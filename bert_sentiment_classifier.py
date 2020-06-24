@@ -147,7 +147,7 @@ class BertSentimentClassifier(pl.LightningModule):
             shuffle=False,
         )
 
-    def test_data_loader(self) -> DataLoader:
+    def test_dataloader(self) -> DataLoader:
         return torch.utils.data.DataLoader(
             self.test_data,
             batch_size=self.config.batch_size,
