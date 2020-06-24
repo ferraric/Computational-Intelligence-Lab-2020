@@ -137,9 +137,11 @@ class BertSentimentClassifier(pl.LightningModule):
         positive_probabilities = torch.nn.functional.softmax(logits, dim=1)[:, 1]
         predictions = 2 * (logits[:, 1] > logits[:, 0]) - 1
         ids = torch.arange(1, logits.shape[0] + 1)
-        logit_table = torch.cat((ids.reshape(-1, 1), logits), dim=1)
-        prediction_table = torch.cat((ids, predictions), dim=1)
-        probabilities_table = torch.cat((ids, positive_probabilities), dim=1)
+        logit_table = torch.cat((ids.reshape(-1, 1).float(), logits), dim=1).numpy()
+        prediction_table = torch.stack((ids, predictions), dim=1).numpy()
+        probabilities_table = torch.stack(
+            (ids.float(), positive_probabilities), dim=1
+        ).numpy()
 
         self.logger.experiment.log_table(
             filename="test_logits.csv",
