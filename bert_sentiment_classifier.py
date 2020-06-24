@@ -1,9 +1,11 @@
-from typing import Dict, List, Tuple
+from datetime import datetime
+from typing import Dict, List, Tuple, Union
 
 import pytorch_lightning as pl
 import torch
 from bunch import Bunch
-from comet_ml import Experiment
+from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.loggers import CometLogger
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 from torch.optim.optimizer import Optimizer
@@ -92,10 +94,11 @@ class BertSentimentClassifier(pl.LightningModule):
 
     def validation_epoch_end(
         self, outputs: List[Dict[str, torch.Tensor]]
-    ) -> Dict[str, torch.Tensor]:
+    ) -> Dict[str, Union[torch.Tensor, Dict[str, torch.Tensor]]]:
         loss = torch.mean(torch.stack([output["loss"] for output in outputs]))
         accuracy = torch.mean(torch.stack([output["accuracy"] for output in outputs]))
-        return {"val_loss": loss, "val_acc": accuracy}
+        out = {"val_loss": loss, "val_acc": accuracy}
+        return {**out, "log": out}
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
@@ -123,17 +126,35 @@ class BertSentimentClassifier(pl.LightningModule):
 def main() -> None:
     args = get_args()
     config = get_bunch_config_from_json(args.config)
-
-    comet_experiment = Experiment(
-        api_key=config.comet_api_key,
-        project_name=config.comet_project_name,
-        workspace=config.comet_workspace,
-        disabled=not config.use_comet_experiments,
+    pl.seed_everything(config.random_seed)
+    current_timestamp = datetime.now().strftime("%y-%m-%d_%H-%M-%S")
+    save_path = os.path.join(
+        config.model_save_directory, config.experiment_name, current_timestamp
     )
-    comet_experiment.log_parameters(config)
+    os.makedirs(save_path)
+
+    logger = CometLogger(
+        save_dir=save_path,
+        workspace=config.comet_workspace,
+        project_name=config.comet_project_name,
+        api_key=config.comet_api_key if config.use_comet_experiments else None,
+        experiment_name=config.experiment_name,
+    )
+    logger.log_hyperparams(config)
 
     model = BertSentimentClassifier(config)
-    trainer = pl.Trainer()
+    save_model_callback = ModelCheckpoint(
+        os.path.join(save_path, "{epoch}-{val_loss:.2f}"), monitor="val_loss"
+    )
+    number_of_gpus = 1 if torch.cuda.is_available() else 0
+    trainer = pl.Trainer(
+        checkpoint_callback=save_model_callback,
+        deterministic=True,
+        fast_dev_run=config.debug,
+        gpus=number_of_gpus,
+        logger=logger,
+        max_epochs=config.epochs,
+    )
     trainer.fit(model)
 
 
