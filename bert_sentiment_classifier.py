@@ -88,6 +88,17 @@ class BertSentimentClassifier(pl.LightningModule):
         test_token_ids, test_attention_mask = _tokenize_tweets(tokenizer, test_tweets)
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
 
+        max_sequence_length_train = torch.max(
+            torch.sum(train_attention_mask, dim=1)
+        ).item()
+        max_sequence_length_test = torch.max(
+            torch.sum(test_attention_mask, dim=1)
+        ).item()
+        max_sequence_length = max(max_sequence_length_train, max_sequence_length_test)
+        # this will only be known at runtime and should be used for setting
+        # the max_tokens_per_tweet config property
+        self.logger.log_hyperparams({"actual_max_sequence_length": max_sequence_length})
+
     def forward(
         self, token_ids: torch.Tensor, attention_mask: torch.Tensor
     ) -> torch.Tensor:
