@@ -76,17 +76,17 @@ class BertSentimentClassifier(pl.LightningModule):
         negative_tweets = _load_tweets(self.config.negative_tweets_path)
         positive_tweets = _load_tweets(self.config.positive_tweets_path)
         labels = _generate_labels(len(negative_tweets), len(positive_tweets))
-        token_ids, attention_mask = _tokenize_tweets(
+        train_token_ids, train_attention_mask = _tokenize_tweets(
             tokenizer, negative_tweets + positive_tweets
         )
         self.train_data, self.validation_data = _train_validation_split(
             self.config.validation_size,
-            TensorDataset(token_ids, attention_mask, labels),
+            TensorDataset(train_token_ids, train_attention_mask, labels),
         )
 
         test_tweets = _load_tweets(self.config.test_tweets_path)
-        token_ids, attention_mask = _tokenize_tweets(tokenizer, test_tweets)
-        self.test_data = TensorDataset(token_ids, attention_mask)
+        test_token_ids, test_attention_mask = _tokenize_tweets(tokenizer, test_tweets)
+        self.test_data = TensorDataset(test_token_ids, test_attention_mask)
 
     def forward(
         self, token_ids: torch.Tensor, attention_mask: torch.Tensor
