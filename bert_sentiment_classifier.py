@@ -22,23 +22,23 @@ class BertSentimentClassifier(pl.LightningModule):
     def prepare_data(self) -> None:
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
 
-        def _load_tweets_and_labels() -> Tuple[List[str], torch.Tensor]:
-            with open(self.config.negative_tweets_path, encoding="utf-8") as f:
-                text_lines_neg = f.read().splitlines()
-            with open(self.config.positive_tweets_path, encoding="utf-8") as f:
-                text_lines_pos = f.read().splitlines()
-            tweets = text_lines_neg + text_lines_pos
-            labels = torch.cat(
+        def _load_tweets(path: str) -> List[str]:
+            with open(path, encoding="utf-8") as f:
+                return f.read().splitlines()
+
+        def _generate_labels(
+            n_negative_samples: int, n_positive_samples: int
+        ) -> torch.Tensor:
+            return torch.cat(
                 (
-                    torch.zeros(len(text_lines_neg), dtype=torch.int64),
-                    torch.ones(len(text_lines_pos), dtype=torch.int64),
+                    torch.zeros(n_negative_samples, dtype=torch.int64),
+                    torch.ones(n_positive_samples, dtype=torch.int64),
                 )
             )
-            return tweets, labels
 
-        def _tokenize_tweets_and_labels(
-            tokenizer: BertTokenizerFast, tweets: List[str], labels: torch.Tensor
-        ) -> TensorDataset:
+        def _tokenize_tweets(
+            tokenizer: BertTokenizerFast, tweets: List[str]
+        ) -> Tuple[torch.Tensor, torch.Tensor]:
             tokenized_input = tokenizer.batch_encode_plus(
                 tweets,
                 max_length=self.config.max_tokens_per_tweet,
@@ -49,7 +49,7 @@ class BertSentimentClassifier(pl.LightningModule):
             attention_mask = torch.tensor(
                 tokenized_input["attention_mask"], dtype=torch.int64
             )
-            return TensorDataset(token_ids, attention_mask, labels)
+            return token_ids, attention_mask
 
         def _train_validation_split(
             validation_size: float, data: TensorDataset
@@ -60,10 +60,31 @@ class BertSentimentClassifier(pl.LightningModule):
             n_train_samples = len(data) - n_validation_samples
             return random_split(data, [n_train_samples, n_validation_samples])
 
+        negative_tweets = _load_tweets(self.config.negative_tweets_path)
+        positive_tweets = _load_tweets(self.config.positive_tweets_path)
+        labels = _generate_labels(len(negative_tweets), len(positive_tweets))
+        train_token_ids, train_attention_mask = _tokenize_tweets(
+            tokenizer, negative_tweets + positive_tweets
+        )
         self.train_data, self.validation_data = _train_validation_split(
             self.config.validation_size,
-            _tokenize_tweets_and_labels(tokenizer, *_load_tweets_and_labels()),
+            TensorDataset(train_token_ids, train_attention_mask, labels),
         )
+
+        test_tweets = _load_tweets(self.config.test_tweets_path)
+        test_token_ids, test_attention_mask = _tokenize_tweets(tokenizer, test_tweets)
+        self.test_data = TensorDataset(test_token_ids, test_attention_mask)
+
+        max_sequence_length_train = torch.max(
+            torch.sum(train_attention_mask, dim=1)
+        ).item()
+        max_sequence_length_test = torch.max(
+            torch.sum(test_attention_mask, dim=1)
+        ).item()
+        max_sequence_length = max(max_sequence_length_train, max_sequence_length_test)
+        # this will only be known at runtime and should be used for setting
+        # the max_tokens_per_tweet config property
+        self.logger.log_hyperparams({"actual_max_sequence_length": max_sequence_length})
 
     def forward(
         self, token_ids: torch.Tensor, attention_mask: torch.Tensor
