@@ -2,7 +2,6 @@ import os
 from datetime import datetime
 from typing import Dict, List, Tuple, Union
 
-import numpy as np
 import pytorch_lightning as pl
 import torch
 from bunch import Bunch
@@ -137,10 +136,10 @@ class BertSentimentClassifier(pl.LightningModule):
 
         positive_probabilities = torch.nn.functional.softmax(logits, dim=1)[:, 1]
         predictions = 2 * (logits[:, 1] > logits[:, 0]) - 1
-        ids = np.arange(1, logits.shape[0] + 1)
-        logit_table = np.hstack((ids.reshape(-1, 1), logits.numpy()))
-        prediction_table = np.hstack((ids, predictions.numpy()))
-        probabilities_table = np.hstack((ids, positive_probabilities.numpy()))
+        ids = torch.arange(1, logits.shape[0] + 1)
+        logit_table = torch.cat((ids.reshape(-1, 1), logits), dim=1)
+        prediction_table = torch.cat((ids, predictions), dim=1)
+        probabilities_table = torch.cat((ids, positive_probabilities), dim=1)
 
         self.logger.experiment.log_table(
             filename="test_logits.csv",
