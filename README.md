@@ -18,7 +18,7 @@ cd Computational-Intelligence-Lab-2020
 
 # move data into the data folder
 mkdir data
-mv .../downloaded-data-folder ~/data
+mv .../downloaded-data-folder /data
 
 # --> if on Leonhard: install your python virtual environment into Computational-Intelligence-Lab-2020/venv
 python3 -m venv /cluster/home/.../Computational-Intelligence-Lab-2020/venv
