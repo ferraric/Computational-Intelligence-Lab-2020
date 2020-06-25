@@ -29,7 +29,7 @@ def main() -> None:
     )
     logger.log_hyperparams(config)
 
-    if config.use_augmented_data == 1:
+    if config.use_augmented_data:
         model = BertSentimentClassifierAug(config)
     else:
         model = BertSentimentClassifier(config)

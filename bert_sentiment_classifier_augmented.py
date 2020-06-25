@@ -1,45 +1,33 @@
-from bert_sentiment_classifier import BertSentimentClassifier as BSC
-from torch.utils.data import ChainDataset, TensorDataset
+from bert_sentiment_classifier import BertSentimentClassifier
+from torch.utils.data import ConcatDataset, TensorDataset
 from transformers import BertTokenizerFast
 
 
-class BertSentimentClassifierAug(BSC):
+class BertSentimentClassifierAug(BertSentimentClassifier):
     def prepare_data(self) -> None:
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
 
-        negative_tweets = BSC.load_tweets(self, self.config.negative_tweets_path)
-        positive_tweets = BSC.load_tweets(self, self.config.positive_tweets_path)
+        BertSentimentClassifier.prepare_data(self)
 
-        labels = BSC.generate_labels(self, len(negative_tweets), len(positive_tweets))
-        train_token_ids, train_attention_mask = BSC.tokenize_tweets(
-            self, tokenizer, negative_tweets + positive_tweets
+        additional_positive_tweets = BertSentimentClassifier._load_tweets(
+            self, self.config.additional_positive_tweets_path
         )
-        self.train_data, self.validation_data = BSC.train_validation_split(
-            self,
-            self.config.validation_size,
-            TensorDataset(train_token_ids, train_attention_mask, labels),
+        additional_negative_tweets = BertSentimentClassifier._load_tweets(
+            self, self.config.additional_negative_tweets_path
         )
-        positive_tweets_aug = BSC.load_tweets(
-            self, self.config.augmented_positive_tweets_path
+        additional_labels = BertSentimentClassifier._generate_labels(
+            self, len(additional_negative_tweets), len(additional_positive_tweets)
         )
-        negative_tweets_aug = BSC.load_tweets(
-            self, self.config.augmented_negative_tweets_path
+        (
+            additional_train_token_ids,
+            additional_train_attention_mask,
+        ) = BertSentimentClassifier._tokenize_tweets(
+            self, tokenizer, additional_negative_tweets + additional_positive_tweets
         )
-        labels_aug = BSC.generate_labels(
-            self, len(negative_tweets_aug), len(positive_tweets_aug)
+        additional_train_data = TensorDataset(
+            additional_train_token_ids,
+            additional_train_attention_mask,
+            additional_labels,
         )
-        train_aug_token_ids, train_aug_attention_mask = BSC.tokenize_tweets(
-            self, tokenizer, negative_tweets_aug + positive_tweets_aug
-        )
-        train_data_aug = TensorDataset(
-            train_aug_token_ids, train_aug_attention_mask, labels_aug
-        )
-        self.train_data = ChainDataset(self.train_data, train_data_aug)
 
-        test_tweets = BSC.load_tweets(self, self.config.test_tweets_path)
-        test_token_ids, test_attention_mask = BSC.tokenize_tweets(
-            self, tokenizer, test_tweets
-        )
-        self.test_data = TensorDataset(test_token_ids, test_attention_mask)
-
-        BSC.get_max_sequence_lenth(self, train_attention_mask, test_attention_mask)
+        self.train_data = ConcatDataset([self.train_data, additional_train_data])  # type: ignore
