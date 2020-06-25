@@ -3,7 +3,7 @@ from torch.utils.data import ConcatDataset, TensorDataset
 from transformers import BertTokenizerFast
 
 
-class BertSentimentClassifierAug(BertSentimentClassifier):
+class BertSentimentClassifierAddData(BertSentimentClassifier):
     def prepare_data(self) -> None:
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
 

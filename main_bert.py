@@ -4,7 +4,7 @@ from datetime import datetime
 import pytorch_lightning as pl
 import torch
 from bert_sentiment_classifier import BertSentimentClassifier
-from bert_sentiment_classifier_augmented import BertSentimentClassifierAug
+from bert_sentiment_classifier_augmented import BertSentimentClassifierAddData
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import CometLogger
 from utilities.general_utilities import get_args, get_bunch_config_from_json
@@ -30,7 +30,7 @@ def main() -> None:
     logger.log_hyperparams(config)
 
     if config.use_augmented_data:
-        model = BertSentimentClassifierAug(config)
+        model = BertSentimentClassifierAddData(config)
     else:
         model = BertSentimentClassifier(config)
 
