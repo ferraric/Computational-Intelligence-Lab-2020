@@ -9,20 +9,20 @@ class BertSentimentClassifierAddData(BertSentimentClassifier):
 
         super().prepare_data()
 
-        additional_positive_tweets = BertSentimentClassifier._load_tweets(
-            self, self.config.additional_positive_tweets_path
+        additional_positive_tweets = self._load_tweets(
+            self.config.additional_positive_tweets_path
         )
-        additional_negative_tweets = BertSentimentClassifier._load_tweets(
-            self, self.config.additional_negative_tweets_path
+        additional_negative_tweets = self._load_tweets(
+            self.config.additional_negative_tweets_path
         )
-        additional_labels = BertSentimentClassifier._generate_labels(
-            self, len(additional_negative_tweets), len(additional_positive_tweets)
+        additional_labels = self._generate_labels(
+            len(additional_negative_tweets), len(additional_positive_tweets)
         )
         (
             additional_train_token_ids,
             additional_train_attention_mask,
-        ) = BertSentimentClassifier._tokenize_tweets(
-            self, tokenizer, additional_negative_tweets + additional_positive_tweets
+        ) = self._tokenize_tweets(
+            tokenizer, additional_negative_tweets + additional_positive_tweets
         )
         additional_train_data = TensorDataset(
             additional_train_token_ids,
