@@ -5,10 +5,8 @@ from transformers import BertTokenizerFast
 
 class BertSentimentClassifierAddData(BertSentimentClassifier):
     def prepare_data(self) -> None:
-        tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
-
         super().prepare_data()
-
+        tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
         additional_positive_tweets = self._load_tweets(
             self.config.additional_positive_tweets_path
         )
