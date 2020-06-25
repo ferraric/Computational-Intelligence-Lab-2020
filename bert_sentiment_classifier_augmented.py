@@ -1,67 +1,45 @@
-from typing import List, Tuple
-
-import torch
-from bert_sentiment_classifier import BertSentimentClassifier
-from torch.utils.data import Subset, TensorDataset, random_split
+from bert_sentiment_classifier import BertSentimentClassifier as BSC
+from torch.utils.data import ChainDataset, TensorDataset
 from transformers import BertTokenizerFast
 
 
-class BertSentimentClassifierAug(BertSentimentClassifier):
+class BertSentimentClassifierAug(BSC):
     def prepare_data(self) -> None:
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
 
-        def _load_tweets_and_labels() -> Tuple[List[str], torch.Tensor]:
-            with open(self.config.negative_tweets_path, encoding="utf-8") as f:
-                text_lines_neg = f.read().splitlines()
-            with open(self.config.positive_tweets_path, encoding="utf-8") as f:
-                text_lines_pos = f.read().splitlines()
-            with open(
-                self.config.augmented_negative_tweets_path, encoding="utf-8"
-            ) as f:
-                text_lines_neg_aug = f.read().splitlines()
-            with open(
-                self.config.augmented_positive_tweets_path, encoding="utf-8"
-            ) as f:
-                text_lines_pos_aug = f.read().splitlines()
+        negative_tweets = BSC.load_tweets(self, self.config.negative_tweets_path)
+        positive_tweets = BSC.load_tweets(self, self.config.positive_tweets_path)
 
-            tweets_neg = text_lines_neg + text_lines_neg_aug
-            tweets_pos = text_lines_pos + text_lines_pos_aug
-
-            tweets = tweets_neg + tweets_pos
-            labels = torch.cat(
-                (
-                    torch.zeros(len(tweets_neg), dtype=torch.int64),
-                    torch.ones(len(tweets_pos), dtype=torch.int64),
-                )
-            )
-
-            return tweets, labels
-
-        def _tokenize_tweets_and_labels(
-            tokenizer: BertTokenizerFast, tweets: List[str], labels: torch.Tensor
-        ) -> TensorDataset:
-            tokenized_input = tokenizer.batch_encode_plus(
-                tweets,
-                max_length=self.config.max_tokens_per_tweet,
-                pad_to_max_length=True,
-                return_token_type_ids=False,
-            )
-            token_ids = torch.tensor(tokenized_input["input_ids"], dtype=torch.int64)
-            attention_mask = torch.tensor(
-                tokenized_input["attention_mask"], dtype=torch.int64
-            )
-            return TensorDataset(token_ids, attention_mask, labels)
-
-        def _train_validation_split(
-            validation_size: float, data: TensorDataset
-        ) -> List[Subset]:
-            assert 0 <= validation_size and validation_size <= 1
-
-            n_validation_samples = int(validation_size * len(data))
-            n_train_samples = len(data) - n_validation_samples
-            return random_split(data, [n_train_samples, n_validation_samples])
-
-        self.train_data, self.validation_data = _train_validation_split(
-            self.config.validation_size,
-            _tokenize_tweets_and_labels(tokenizer, *_load_tweets_and_labels()),
+        labels = BSC.generate_labels(self, len(negative_tweets), len(positive_tweets))
+        train_token_ids, train_attention_mask = BSC.tokenize_tweets(
+            self, tokenizer, negative_tweets + positive_tweets
         )
+        self.train_data, self.validation_data = BSC.train_validation_split(
+            self,
+            self.config.validation_size,
+            TensorDataset(train_token_ids, train_attention_mask, labels),
+        )
+        positive_tweets_aug = BSC.load_tweets(
+            self, self.config.augmented_positive_tweets_path
+        )
+        negative_tweets_aug = BSC.load_tweets(
+            self, self.config.augmented_negative_tweets_path
+        )
+        labels_aug = BSC.generate_labels(
+            self, len(negative_tweets_aug), len(positive_tweets_aug)
+        )
+        train_aug_token_ids, train_aug_attention_mask = BSC.tokenize_tweets(
+            self, tokenizer, negative_tweets_aug + positive_tweets_aug
+        )
+        train_data_aug = TensorDataset(
+            train_aug_token_ids, train_aug_attention_mask, labels_aug
+        )
+        self.train_data = ChainDataset(self.train_data, train_data_aug)
+
+        test_tweets = BSC.load_tweets(self, self.config.test_tweets_path)
+        test_token_ids, test_attention_mask = BSC.tokenize_tweets(
+            self, tokenizer, test_tweets
+        )
+        self.test_data = TensorDataset(test_token_ids, test_attention_mask)
+
+        BSC.get_max_sequence_lenth(self, train_attention_mask, test_attention_mask)
