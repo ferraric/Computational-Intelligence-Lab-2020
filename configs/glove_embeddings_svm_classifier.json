@@ -1,0 +1,15 @@
+{
+  "neg_tweets_path": "data/train_neg_full.txt",
+  "pos_tweets_path": "data/train_pos_full.txt",
+  "glove_vocabulary_path": "data/glove_vocab.pkl",
+  "glove_embeddings_path": "data/glove_embeddings_full.npz",
+  "regularization_parameters": [
+    0.001,
+    1,
+    10
+  ],
+  "use_comet_experiments": false,
+  "comet_api_key": "NVyYXH1De9UgyELocupO1Lge9",
+  "comet_project_name": "sentiment-analysis",
+  "comet_workspace": "jerry-crea"
+}
