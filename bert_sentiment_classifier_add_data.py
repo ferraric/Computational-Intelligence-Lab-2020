@@ -7,7 +7,7 @@ class BertSentimentClassifierAddData(BertSentimentClassifier):
     def prepare_data(self) -> None:
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
 
-        BertSentimentClassifier.prepare_data(self)
+        super().prepare_data()
 
         additional_positive_tweets = BertSentimentClassifier._load_tweets(
             self, self.config.additional_positive_tweets_path
