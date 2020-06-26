@@ -1,5 +1,7 @@
 import argparse
 import json
+import os
+from datetime import datetime
 
 from bunch import Bunch
 
@@ -29,3 +31,11 @@ def get_bunch_config_from_json(json_file_path: str) -> Bunch:
     with open(json_file_path, "r") as config_file:
         config_dict = json.load(config_file)
     return Bunch(config_dict)
+
+
+def build_save_path(config: Bunch) -> str:
+    current_timestamp = datetime.now().strftime("%y-%m-%d_%H-%M-%S")
+
+    return os.path.join(
+        config.model_save_directory, config.experiment_name, current_timestamp
+    )
