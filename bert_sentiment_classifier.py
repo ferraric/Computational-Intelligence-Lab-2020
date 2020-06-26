@@ -153,6 +153,7 @@ class BertSentimentClassifier(pl.LightningModule):
             batch_size=self.config.batch_size,
             drop_last=False,
             shuffle=True,
+            num_workers=self.config.n_data_loader_workers,
         )
 
     def val_dataloader(self) -> DataLoader:
@@ -161,6 +162,7 @@ class BertSentimentClassifier(pl.LightningModule):
             batch_size=self.config.batch_size,
             drop_last=False,
             shuffle=False,
+            num_workers=self.config.n_data_loader_workers,
         )
 
     def test_dataloader(self) -> DataLoader:
@@ -169,6 +171,7 @@ class BertSentimentClassifier(pl.LightningModule):
             batch_size=self.config.batch_size,
             drop_last=False,
             shuffle=False,
+            num_workers=self.config.n_data_loader_workers,
         )
 
     def configure_optimizers(self) -> Optimizer:
