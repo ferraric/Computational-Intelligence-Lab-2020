@@ -41,12 +41,9 @@ class BertSentimentClassifier(pl.LightningModule):
             max_length=self.config.max_tokens_per_tweet,
             pad_to_max_length=True,
             return_token_type_ids=False,
+            return_tensors="pt",
         )
-        token_ids = torch.tensor(tokenized_input["input_ids"], dtype=torch.int64)
-        attention_mask = torch.tensor(
-            tokenized_input["attention_mask"], dtype=torch.int64
-        )
-        return token_ids, attention_mask
+        return tokenized_input["input_ids"], tokenized_input["attention_mask"]
 
     def prepare_data(self) -> None:
         def _train_validation_split(
