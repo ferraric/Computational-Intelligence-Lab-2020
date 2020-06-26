@@ -103,3 +103,10 @@ class BERTweet(BertSentimentClassifier):
         )
         test_attention_mask = (test_token_ids != pad_token_id).float()
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
+
+    def forward(
+        self, token_ids: torch.Tensor, attention_mask: torch.Tensor
+    ) -> torch.Tensor:
+        outputs = self.bertweet(token_ids, attention_mask)
+        sequence_output = outputs[0]
+        return self.classifier(sequence_output)
