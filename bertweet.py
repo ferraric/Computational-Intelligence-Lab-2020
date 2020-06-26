@@ -38,18 +38,20 @@ class BERTweet(BertSentimentClassifier):
         def replace_special_tokens(tweet: str) -> str:
             return tweet.replace("<url>", "HTTPURL").replace("<user>", "@USER")
 
-        with open(path, encoding="utf-8") as f:
-            return list(map(replace_special_tokens, f.read().splitlines()))
+        tweets = super()._load_tweets(path)[:1000]
+        return list(map(replace_special_tokens, tweets))
 
     def prepare_data(self) -> None:
         bpe_codes_path = os.path.join(
-            self.config.pretrained_model, "BERTweet_base_transformers/bpe.codes"
+            self.config.pretrained_model_base_path,
+            "BERTweet_base_transformers/bpe.codes",
         )
         bpe = fastBPE(Namespace(bpe_codes=bpe_codes_path))
         vocab = Dictionary()
         vocab.add_from_file(
             os.path.join(
-                self.config.pretrained_model, "BERTweet_base_transformers/dict.txt"
+                self.config.pretrained_model_base_path,
+                "BERTweet_base_transformers/dict.txt",
             )
         )
 
