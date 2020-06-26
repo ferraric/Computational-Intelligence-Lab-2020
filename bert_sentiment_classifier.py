@@ -118,7 +118,7 @@ class BertSentimentClassifier(pl.LightningModule):
     def test_epoch_end(
         self, outputs: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, torch.Tensor]:
-        logits = torch.cat([output["logits"] for output in outputs], 0)
+        logits = torch.cat([output["logits"] for output in outputs], 0).cpu()
 
         positive_probabilities = torch.nn.functional.softmax(logits, dim=1)[:, 1]
         predictions = 2 * (logits[:, 1] > logits[:, 0]) - 1
