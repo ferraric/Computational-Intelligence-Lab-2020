@@ -87,6 +87,7 @@ def main() -> None:
         workspace=config.comet_workspace,
         disabled=not config.use_comet_experiments,
     )
+    comet_experiment.set_name(config.comet_experiment_name)
     comet_experiment.log_parameters(config)
 
     training_features, training_labels = generate_training_data(config)
