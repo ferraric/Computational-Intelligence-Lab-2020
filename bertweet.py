@@ -38,7 +38,7 @@ class BERTweet(BertSentimentClassifier):
         def replace_special_tokens(tweet: str) -> str:
             return tweet.replace("<url>", "HTTPURL").replace("<user>", "@USER")
 
-        tweets = super()._load_tweets(path)[:1000]
+        tweets = super()._load_tweets(path)
         return list(map(replace_special_tokens, tweets))
 
     def prepare_data(self) -> None:
