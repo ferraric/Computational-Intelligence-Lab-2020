@@ -3,12 +3,8 @@ module load eth_proxy
 source venv/bin/activate
 pip3 install -r requirements.txt
 pre-commit install
-# The pre-commit hook isort looks through all these config files.
-# If it does not find them in the project root folder,
-# it tries to look for them in the $HOME folder (/cluster/home),
-# where it does not have permission and thus fails.
-# We create emtpy config files in the project root folder
-# in order to prevent that.
+# to prevent the pre-commit hook "isort" to look through all config files in the $HOME folder 
+# (where it doesn't have permission and fails), we create empty config files in the project root folder
 touch .editorconfig
 touch pyproject.toml
 touch .isort.cfg
