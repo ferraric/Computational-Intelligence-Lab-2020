@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 
 from bunch import Bunch
+from pytorch_lightning.loggers import CometLogger
 
 
 def get_args() -> argparse.Namespace:
@@ -38,4 +39,14 @@ def build_save_path(config: Bunch) -> str:
 
     return os.path.join(
         config.model_save_directory, config.experiment_name, current_timestamp
+    )
+
+
+def build_comet_logger(save_dir: str, config: Bunch) -> CometLogger:
+    return CometLogger(
+        save_dir=save_dir,
+        workspace=config.comet_workspace,
+        project_name=config.comet_project_name,
+        api_key=config.comet_api_key if config.use_comet_experiments else None,
+        experiment_name=config.experiment_name,
     )

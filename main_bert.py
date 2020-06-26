@@ -5,8 +5,8 @@ import torch
 from bert_sentiment_classifier import BertSentimentClassifier
 from bert_sentiment_classifier_add_data import BertSentimentClassifierAddData
 from pytorch_lightning.callbacks import ModelCheckpoint
-from pytorch_lightning.loggers import CometLogger
 from utilities.general_utilities import (
+    build_comet_logger,
     build_save_path,
     get_args,
     get_bunch_config_from_json,
@@ -20,13 +20,7 @@ def main() -> None:
     save_path = build_save_path(config)
     os.makedirs(save_path)
 
-    logger = CometLogger(
-        save_dir=save_path,
-        workspace=config.comet_workspace,
-        project_name=config.comet_project_name,
-        api_key=config.comet_api_key if config.use_comet_experiments else None,
-        experiment_name=config.experiment_name,
-    )
+    logger = build_comet_logger(save_path, config)
     logger.log_hyperparams(config)
 
     save_model_callback = ModelCheckpoint(
