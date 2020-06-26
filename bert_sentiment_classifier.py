@@ -45,16 +45,16 @@ class BertSentimentClassifier(pl.LightningModule):
         )
         return tokenized_input["input_ids"], tokenized_input["attention_mask"]
 
+    def _train_validation_split(
+        self, validation_size: float, data: TensorDataset
+    ) -> List[Subset]:
+        assert 0 <= validation_size and validation_size <= 1
+
+        n_validation_samples = int(validation_size * len(data))
+        n_train_samples = len(data) - n_validation_samples
+        return random_split(data, [n_train_samples, n_validation_samples])
+
     def prepare_data(self) -> None:
-        def _train_validation_split(
-            validation_size: float, data: TensorDataset
-        ) -> List[Subset]:
-            assert 0 <= validation_size and validation_size <= 1
-
-            n_validation_samples = int(validation_size * len(data))
-            n_train_samples = len(data) - n_validation_samples
-            return random_split(data, [n_train_samples, n_validation_samples])
-
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
 
         negative_tweets = self._load_tweets(self.config.negative_tweets_path)
@@ -63,7 +63,7 @@ class BertSentimentClassifier(pl.LightningModule):
         train_token_ids, train_attention_mask = self._tokenize_tweets(
             tokenizer, negative_tweets + positive_tweets
         )
-        self.train_data, self.validation_data = _train_validation_split(
+        self.train_data, self.validation_data = self._train_validation_split(
             self.config.validation_size,
             TensorDataset(train_token_ids, train_attention_mask, labels),
         )
