@@ -41,12 +41,9 @@ class BertSentimentClassifier(pl.LightningModule):
             max_length=self.config.max_tokens_per_tweet,
             pad_to_max_length=True,
             return_token_type_ids=False,
+            return_tensors="pt",
         )
-        token_ids = torch.tensor(tokenized_input["input_ids"], dtype=torch.int64)
-        attention_mask = torch.tensor(
-            tokenized_input["attention_mask"], dtype=torch.int64
-        )
-        return token_ids, attention_mask
+        return tokenized_input["input_ids"], tokenized_input["attention_mask"]
 
     def prepare_data(self) -> None:
         def _train_validation_split(
@@ -118,7 +115,7 @@ class BertSentimentClassifier(pl.LightningModule):
     def test_epoch_end(
         self, outputs: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, torch.Tensor]:
-        logits = torch.cat([output["logits"] for output in outputs], 0)
+        logits = torch.cat([output["logits"] for output in outputs], 0).cpu()
 
         positive_probabilities = torch.nn.functional.softmax(logits, dim=1)[:, 1]
         predictions = 2 * (logits[:, 1] > logits[:, 0]) - 1
@@ -153,6 +150,7 @@ class BertSentimentClassifier(pl.LightningModule):
             batch_size=self.config.batch_size,
             drop_last=False,
             shuffle=True,
+            num_workers=self.config.n_data_loader_workers,
         )
 
     def val_dataloader(self) -> DataLoader:
@@ -161,6 +159,7 @@ class BertSentimentClassifier(pl.LightningModule):
             batch_size=self.config.batch_size,
             drop_last=False,
             shuffle=False,
+            num_workers=self.config.n_data_loader_workers,
         )
 
     def test_dataloader(self) -> DataLoader:
@@ -169,6 +168,7 @@ class BertSentimentClassifier(pl.LightningModule):
             batch_size=self.config.batch_size,
             drop_last=False,
             shuffle=False,
+            num_workers=self.config.n_data_loader_workers,
         )
 
     def configure_optimizers(self) -> Optimizer:

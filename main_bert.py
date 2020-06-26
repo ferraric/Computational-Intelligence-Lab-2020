@@ -29,11 +29,6 @@ def main() -> None:
     )
     logger.log_hyperparams(config)
 
-    if config.use_augmented_data:
-        model = BertSentimentClassifierAddData(config)
-    else:
-        model = BertSentimentClassifier(config)
-
     save_model_callback = ModelCheckpoint(
         os.path.join(save_path, "{epoch}-{val_loss:.2f}"), monitor="val_loss"
     )
@@ -46,7 +41,23 @@ def main() -> None:
         logger=logger,
         max_epochs=config.epochs,
     )
-    trainer.fit(model)
+
+    if args.test_model_path is None:
+        if config.use_augmented_data:
+            model = BertSentimentClassifierAddData(config)
+        else:
+            model = BertSentimentClassifier(config)
+        trainer.fit(model)
+    else:
+        if config.use_augmented_data:
+            model = BertSentimentClassifierAddData.load_from_checkpoint(
+                args.test_model_path, config=config
+            )
+        else:
+            model = BertSentimentClassifier.load_from_checkpoint(
+                args.test_model_path, config=config
+            )
+    trainer.test(model=model)
 
 
 if __name__ == "__main__":

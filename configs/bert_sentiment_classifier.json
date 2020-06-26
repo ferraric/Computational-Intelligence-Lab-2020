@@ -13,6 +13,7 @@
   "max_tokens_per_tweet": 140,
   "validation_size": 0.1,
   "batch_size": 32,
+  "n_data_loader_workers": 4,
   "learning_rate": 3e-05,
   "experiment_name": "bert-baseline",
   "use_comet_experiments": false,
