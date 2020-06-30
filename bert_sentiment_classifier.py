@@ -69,8 +69,9 @@ class BertSentimentClassifier(pl.LightningModule):
         )
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
+        test_tweets_index_removed = [tweet.split(",")[1] for tweet in test_tweets]
         test_token_ids, test_attention_mask = self._tokenize_tweets(
-            tokenizer, test_tweets
+            tokenizer, test_tweets_index_removed
         )
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
 
