@@ -13,7 +13,7 @@ from utilities.general_utilities import get_args, get_bunch_config_from_json
 
 def load_tweets(tweets_path: str) -> List[str]:
     with open(tweets_path, encoding="utf-8") as f:
-        return f.read().splitlines()[:500]
+        return f.read().splitlines()
 
 
 def load_vocabulary(vocabulary_path: str) -> List[str]:
@@ -72,10 +72,10 @@ def generate_training_data(config: Bunch) -> Tuple[np.ndarray, np.ndarray]:
         neg_tweets = load_tweets(neg_tweets_path)
         pos_tweets = load_tweets(pos_tweets_path)
         all_tweets = neg_tweets + pos_tweets
-        labels = np.concatenate(
+        tweet_labels = np.concatenate(
             (-1 * np.ones(len(neg_tweets)), np.ones(len(pos_tweets))), axis=0
         )
-        return all_tweets, labels
+        return all_tweets, tweet_labels
 
     tweets, labels = load_tweets_and_labels(
         config.neg_tweets_path, config.pos_tweets_path
@@ -116,8 +116,6 @@ def run_grid_search(
 def main() -> None:
     args = get_args()
     config = get_bunch_config_from_json(args.config)
-
-    np.random.seed(config.random_seed)
 
     comet_experiment = Experiment(
         api_key=config.comet_api_key,
