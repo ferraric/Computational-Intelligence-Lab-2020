@@ -4,7 +4,7 @@ from typing import Dict, List, Tuple, Union
 import numpy as np
 from bunch import Bunch
 from comet_ml import Experiment
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, KFold
 from sklearn.svm import SVC
 from utilities.general_utilities import get_args, get_bunch_config_from_json
 
@@ -25,9 +25,10 @@ def load_embeddings(embeddings_path: str) -> np.ndarray:
         return np.load(f)["arr_0"]
 
 
-def construct_features(
-    vocabulary: List[str], embeddings: np.ndarray, tweets: List[str]
-) -> np.ndarray:
+def construct_features(config: Bunch, tweets: List[str]) -> np.ndarray:
+    vocabulary = load_vocabulary(config.glove_vocabulary_path)
+    embeddings = load_embeddings(config.glove_embeddings_path)
+
     nr_samples = len(tweets)
     nr_features = embeddings.shape[1]
     features = np.zeros((nr_samples, nr_features))
@@ -52,36 +53,38 @@ def generate_training_data(config: Bunch) -> Tuple[np.ndarray, np.ndarray]:
         neg_tweets = load_tweets(neg_tweets_path)
         pos_tweets = load_tweets(pos_tweets_path)
         all_tweets = neg_tweets + pos_tweets
-        labels = np.vstack((np.zeros(len(neg_tweets)), np.ones(len(pos_tweets))))
+        labels = np.concatenate(
+            (-1 * np.ones(len(neg_tweets)), np.ones(len(pos_tweets))), axis=0
+        )
         return all_tweets, labels
 
-    vocab = load_vocabulary(config.glove_train_vocabulary_path)
-    embeddings = load_embeddings(config.glove_train_embeddings_path)
     tweets, labels = load_tweets_and_labels(
         config.neg_tweets_path, config.pos_tweets_path
     )
 
-    features = construct_features(vocab, embeddings, tweets)
+    features = construct_features(config, tweets)
     return features, labels
 
 
 def generate_test_data_features(config: Bunch) -> np.ndarray:
     test_tweets = load_tweets(config.test_data_path)
 
-    vocab = load_vocabulary(config.glove_test_vocabulary_path)
-    embeddings = load_embeddings(config.glove_test_embeddings_path)
-
-    return construct_features(vocab, embeddings, test_tweets)
+    return construct_features(config, test_tweets)
 
 
 def run_grid_search(
+    random_seed: int,
     svm_params: Dict[str, List[Union[float, str]]],
     features: np.ndarray,
     labels: np.ndarray,
 ) -> Tuple[SVC, float, Dict[str, List[Union[float, str]]]]:
     model = SVC()
     grid_search = GridSearchCV(
-        estimator=model, param_grid=svm_params, n_jobs=-1, verbose=1
+        estimator=model,
+        cv=KFold(shuffle=True, random_state=random_seed),
+        param_grid=svm_params,
+        n_jobs=-1,
+        verbose=1,
     )
     grid_search.fit(features, labels)
     return (
@@ -95,6 +98,8 @@ def main() -> None:
     args = get_args()
     config = get_bunch_config_from_json(args.config)
 
+    np.random.seed(config.random_seed)
+
     comet_experiment = Experiment(
         api_key=config.comet_api_key,
         project_name=config.comet_project_name,
@@ -106,8 +111,11 @@ def main() -> None:
 
     training_features, training_labels = generate_training_data(config)
     best_model, best_model_score, best_model_params = run_grid_search(
-        config.svm_parameters, training_features, training_labels
+        config.random_seed, config.svm_parameters, training_features, training_labels
     )
+
+    comet_experiment.log_metric("mean accuracy", best_model_score)
+    comet_experiment.log_parameters(best_model_params)
 
     test_data_features = generate_test_data_features(config)
     ids = np.arange(1, test_data_features.shape[0] + 1)
