@@ -13,7 +13,7 @@ from utilities.general_utilities import get_args, get_bunch_config_from_json
 
 def load_tweets(tweets_path: str) -> List[str]:
     with open(tweets_path, encoding="utf-8") as f:
-        return f.read().splitlines()
+        return f.read().splitlines()[:500]
 
 
 def load_vocabulary(vocabulary_path: str) -> List[str]:
@@ -27,9 +27,11 @@ def load_embeddings(embeddings_path: str) -> np.ndarray:
         return np.load(f)["arr_0"]
 
 
-def construct_features(config: Bunch, tweets: List[str]) -> np.ndarray:
-    vocabulary = load_vocabulary(config.glove_vocabulary_path)
-    embeddings = load_embeddings(config.glove_embeddings_path)
+def construct_features(
+    glove_vocabulary_path: str, glove_embeddings_path: str, tweets: List[str]
+) -> np.ndarray:
+    vocabulary = load_vocabulary(glove_vocabulary_path)
+    embeddings = load_embeddings(glove_embeddings_path)
 
     nr_samples = len(tweets)
     nr_features = embeddings.shape[1]
@@ -54,7 +56,12 @@ def construct_features_parallel(config: Bunch, tweets: List[str]) -> np.ndarray:
     ]
 
     with ProcessPoolExecutor(max_workers=config.num_workers) as executor:
-        feature_chunks = executor.map(construct_features, repeat(config), split_tweets)
+        feature_chunks = executor.map(
+            construct_features,
+            repeat(config.glove_vocabulary_path),
+            repeat(config.glove_embeddings_path),
+            split_tweets,
+        )
         return np.concatenate(tuple(feature_chunks), axis=0)
 
 
@@ -132,8 +139,6 @@ def main() -> None:
     test_data_features = generate_test_data_features(config)
     ids = np.arange(1, test_data_features.shape[0] + 1)
     predictions = best_model.predict(test_data_features)
-    print(best_model_score)
-    print(predictions)
     predictions_table = np.hstack((ids, predictions))
 
     comet_experiment.log_table(
