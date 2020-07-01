@@ -72,7 +72,7 @@ class BertSentimentClassifier(pl.LightningModule):
         test_tweets = self._load_tweets(self.config.test_tweets_path)
 
         def _remove_index_from_test_tweet(tweet: str) -> str:
-            test_tweet_format = re.compile("^[0-9]*,([\\s\\S]*)")
+            test_tweet_format = re.compile("^[0-9]*,(.*)")
             match = test_tweet_format.match(tweet)
             if match:
                 return match.group(1)
