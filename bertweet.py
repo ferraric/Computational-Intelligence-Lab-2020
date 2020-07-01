@@ -76,7 +76,10 @@ class BERTweet(BertSentimentClassifier):
         token_id_list = list(map(_encode, token_strings))
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
-        token_strings = list(map(_split_into_tokens, test_tweets))
+        test_tweets_index_removed = [
+            self._remove_index_from_test_tweet(tweet) for tweet in test_tweets
+        ]
+        token_strings = list(map(_split_into_tokens, test_tweets_index_removed))
         test_token_id_list = list(map(_encode, token_strings))
 
         max_token_length = max(map(len, token_id_list + test_token_id_list))
