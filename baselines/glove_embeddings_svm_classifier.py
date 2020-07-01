@@ -1,4 +1,6 @@
 import pickle
+from concurrent.futures import ProcessPoolExecutor
+from itertools import repeat
 from typing import Dict, List, Tuple, Union
 
 import numpy as np
@@ -46,6 +48,16 @@ def construct_features(config: Bunch, tweets: List[str]) -> np.ndarray:
     return features
 
 
+def construct_features_parallel(config: Bunch, tweets: List[str]) -> np.ndarray:
+    split_tweets = [
+        a.tolist() for a in np.array_split(np.array(tweets), config.num_workers)
+    ]
+
+    with ProcessPoolExecutor(max_workers=config.num_workers) as executor:
+        feature_chunks = executor.map(construct_features, repeat(config), split_tweets)
+        return np.concatenate(tuple(feature_chunks), axis=0)
+
+
 def generate_training_data(config: Bunch) -> Tuple[np.ndarray, np.ndarray]:
     def load_tweets_and_labels(
         neg_tweets_path: str, pos_tweets_path: str
@@ -62,14 +74,14 @@ def generate_training_data(config: Bunch) -> Tuple[np.ndarray, np.ndarray]:
         config.neg_tweets_path, config.pos_tweets_path
     )
 
-    features = construct_features(config, tweets)
+    features = construct_features_parallel(config, tweets)
     return features, labels
 
 
 def generate_test_data_features(config: Bunch) -> np.ndarray:
     test_tweets = load_tweets(config.test_data_path)
 
-    return construct_features(config, test_tweets)
+    return construct_features_parallel(config, test_tweets)
 
 
 def run_grid_search(
@@ -120,6 +132,8 @@ def main() -> None:
     test_data_features = generate_test_data_features(config)
     ids = np.arange(1, test_data_features.shape[0] + 1)
     predictions = best_model.predict(test_data_features)
+    print(best_model_score)
+    print(predictions)
     predictions_table = np.hstack((ids, predictions))
 
     comet_experiment.log_table(
