@@ -24,6 +24,9 @@ class BertSentimentClassifier(pl.LightningModule):
         with open(path, encoding="utf-8") as f:
             return f.read().splitlines()
 
+    def _remove_duplicate_tweets(self, tweets: List[str]) -> List[str]:
+        return list(set(tweets))
+
     def _generate_labels(
         self, n_negative_samples: int, n_positive_samples: int
     ) -> torch.Tensor:
@@ -60,6 +63,8 @@ class BertSentimentClassifier(pl.LightningModule):
 
         negative_tweets = self._load_tweets(self.config.negative_tweets_path)
         positive_tweets = self._load_tweets(self.config.positive_tweets_path)
+        negative_tweets = self._remove_duplicate_tweets(negative_tweets)
+        positive_tweets = self._remove_duplicate_tweets(positive_tweets)
         labels = self._generate_labels(len(negative_tweets), len(positive_tweets))
         train_token_ids, train_attention_mask = self._tokenize_tweets(
             tokenizer, negative_tweets + positive_tweets
