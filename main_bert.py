@@ -28,6 +28,7 @@ def main() -> None:
         experiment_name=config.experiment_name,
     )
     logger.log_hyperparams(config)
+    logger.log_hyperparams({"model_checkpoint_path": save_path})
 
     save_model_callback = ModelCheckpoint(
         os.path.join(save_path, "{epoch}-{val_loss:.2f}"), monitor="val_loss"
