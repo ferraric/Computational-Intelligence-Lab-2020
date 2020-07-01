@@ -1,3 +1,4 @@
+import re
 from typing import Dict, List, Tuple, Union
 
 import pytorch_lightning as pl
@@ -69,8 +70,20 @@ class BertSentimentClassifier(pl.LightningModule):
         )
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
+
+        def _remove_index_from_test_tweet(tweet: str) -> str:
+            test_tweet_format = re.compile("^[0-9]*,(.*)")
+            match = test_tweet_format.match(tweet)
+            if match:
+                return match.group(1)
+            else:
+                raise ValueError("unexpected test data format")
+
+        test_tweets_index_removed = [
+            _remove_index_from_test_tweet(tweet) for tweet in test_tweets
+        ]
         test_token_ids, test_attention_mask = self._tokenize_tweets(
-            tokenizer, test_tweets
+            tokenizer, test_tweets_index_removed
         )
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
 

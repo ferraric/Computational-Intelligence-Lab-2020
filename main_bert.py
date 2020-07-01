@@ -21,6 +21,7 @@ def main() -> None:
 
     logger = build_comet_logger(save_path, config)
     logger.log_hyperparams(config)
+    logger.log_hyperparams({"model_checkpoint_path": save_path})
 
     trainer = initialize_trainer(save_path, config, logger)
 
