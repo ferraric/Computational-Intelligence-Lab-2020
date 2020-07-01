@@ -35,11 +35,11 @@ class BERTweet(BertSentimentClassifier):
         self.loss = CrossEntropyLoss()
 
     def _load_tweets(self, path: str) -> List[str]:
-        def replace_special_tokens(tweet: str) -> str:
+        def _replace_special_tokens(tweet: str) -> str:
             return tweet.replace("<url>", "HTTPURL").replace("<user>", "@USER")
 
-        tweets = super()._load_tweets(path)
-        return list(map(replace_special_tokens, tweets))
+        tweets = super()._load_tweets(path)[:10]
+        return list(map(_replace_special_tokens, tweets))
 
     def prepare_data(self) -> None:
         bpe_codes_path = os.path.join(
@@ -84,14 +84,19 @@ class BERTweet(BertSentimentClassifier):
 
         max_token_length = max(map(len, token_id_list + test_token_id_list))
 
+        def _pad(
+            token_ids: List[List[int]], pad_token_id: int, max_token_length: int
+        ) -> torch.Tensor:
+            return torch.tensor(
+                [
+                    token_ids_per_tweet
+                    + [pad_token_id] * (max_token_length - len(token_ids_per_tweet))
+                    for token_ids_per_tweet in token_ids
+                ]
+            )
+
         pad_token_id = vocab.pad()
-        token_ids = torch.tensor(
-            [
-                token_ids_per_tweet
-                + [pad_token_id] * (max_token_length - len(token_ids_per_tweet))
-                for token_ids_per_tweet in token_id_list
-            ]
-        )
+        token_ids = _pad(token_id_list, pad_token_id, max_token_length)
         attention_mask = (token_ids != pad_token_id).float()
 
         self.train_data, self.validation_data = self._train_validation_split(
@@ -99,13 +104,7 @@ class BERTweet(BertSentimentClassifier):
             TensorDataset(token_ids, attention_mask, labels),
         )
 
-        test_token_ids = torch.tensor(
-            [
-                token_ids_per_tweet
-                + [pad_token_id] * (max_token_length - len(token_ids_per_tweet))
-                for token_ids_per_tweet in test_token_id_list
-            ]
-        )
+        test_token_ids = _pad(test_token_id_list, pad_token_id, max_token_length)
         test_attention_mask = (test_token_ids != pad_token_id).float()
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
 
