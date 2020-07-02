@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Set, Tuple, Union
 
 import pytorch_lightning as pl
 import torch
@@ -25,13 +25,14 @@ class BertSentimentClassifier(pl.LightningModule):
             return f.read().splitlines()
 
     def _get_unique_tweet_indices(self, data: Subset) -> List[int]:
-        unique_tweets: List[str] = []
+        unique_tweets: Set[int] = set()
         unique_indices = []
         for i in range(data.__len__()):
             token_ids, _, _ = data.__getitem__(i)
             token_ids = token_ids.tolist()
+            token_ids = tuple(token_ids)
             if token_ids not in unique_tweets:
-                unique_tweets.append(token_ids)
+                unique_tweets.add(token_ids)
                 unique_indices.append(i)
         return unique_indices
 
