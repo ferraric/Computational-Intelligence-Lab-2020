@@ -38,8 +38,7 @@ class BERTweet(BertSentimentClassifier):
         def _replace_special_tokens(tweet: str) -> str:
             return tweet.replace("<url>", "HTTPURL").replace("<user>", "@USER")
 
-        tweets = super()._load_tweets(path)[:10]
-        return list(map(_replace_special_tokens, tweets))
+        return [_replace_special_tokens(tweet) for tweet in super()._load_tweets(path)]
 
     def prepare_data(self) -> None:
         bpe_codes_path = os.path.join(
@@ -72,15 +71,15 @@ class BERTweet(BertSentimentClassifier):
         all_tweets = negative_tweets + positive_tweets
         labels = self._generate_labels(len(negative_tweets), len(positive_tweets))
 
-        token_strings = list(map(_split_into_tokens, all_tweets))
-        token_id_list = list(map(_encode, token_strings))
+        token_id_list = [_encode(_split_into_tokens(tweet)) for tweet in all_tweets]
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = [
             self._remove_index_from_test_tweet(tweet) for tweet in test_tweets
         ]
-        token_strings = list(map(_split_into_tokens, test_tweets_index_removed))
-        test_token_id_list = list(map(_encode, token_strings))
+        test_token_id_list = [
+            _encode(_split_into_tokens(tweet)) for tweet in test_tweets_index_removed
+        ]
 
         max_token_length = max(map(len, token_id_list + test_token_id_list))
 
