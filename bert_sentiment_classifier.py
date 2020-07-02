@@ -1,9 +1,10 @@
 import re
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Set, Tuple, Union
 
 import pytorch_lightning as pl
 import torch
 from bunch import Bunch
+from sklearn.model_selection import train_test_split
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 from torch.optim.optimizer import Optimizer
@@ -24,8 +25,17 @@ class BertSentimentClassifier(pl.LightningModule):
         with open(path, encoding="utf-8") as f:
             return f.read().splitlines()
 
-    def _remove_duplicate_tweets(self, tweets: List[str]) -> List[str]:
-        return list(set(tweets))
+    def _remove_duplicate_tweets(
+        self, tweets: List[str], labels: List[int]
+    ) -> Tuple[List[str], List[int]]:
+        unique_labels = []
+        unique_tweets: Set[str] = set()
+        for tweet, i in zip(tweets, labels):
+            if tweet not in unique_tweets:
+                unique_labels.append(i)
+                unique_tweets.add(tweet)
+
+        return list(unique_tweets), unique_labels
 
     def _generate_labels(
         self, n_negative_samples: int, n_positive_samples: int
@@ -63,15 +73,34 @@ class BertSentimentClassifier(pl.LightningModule):
 
         negative_tweets = self._load_tweets(self.config.negative_tweets_path)
         positive_tweets = self._load_tweets(self.config.positive_tweets_path)
-        negative_tweets = self._remove_duplicate_tweets(negative_tweets)
-        positive_tweets = self._remove_duplicate_tweets(positive_tweets)
-        labels = self._generate_labels(len(negative_tweets), len(positive_tweets))
-        train_token_ids, train_attention_mask = self._tokenize_tweets(
-            tokenizer, negative_tweets + positive_tweets
+        tensor_labels = self._generate_labels(
+            len(negative_tweets), len(positive_tweets)
         )
-        self.train_data, self.validation_data = _train_validation_split(
-            self.config.validation_size,
-            TensorDataset(train_token_ids, train_attention_mask, labels),
+        labels = tensor_labels.data.tolist()
+
+        train_data, validation_data, train_labels, val_labels = train_test_split(
+            negative_tweets + positive_tweets,
+            labels,
+            test_size=self.config.validation_size,
+            random_state=self.config.random_seed,
+        )
+        train_data, train_labels = self._remove_duplicate_tweets(
+            train_data, train_labels
+        )
+        train_labels = torch.tensor(train_labels)
+        val_labels = torch.tensor(val_labels)
+
+        train_token_ids, train_attention_mask = self._tokenize_tweets(
+            tokenizer, train_data
+        )
+        val_token_ids, val_attention_mask = self._tokenize_tweets(
+            tokenizer, validation_data
+        )
+        self.train_data = TensorDataset(
+            train_token_ids, train_attention_mask, train_labels
+        )
+        self.validation_data = TensorDataset(
+            val_token_ids, val_attention_mask, val_labels
         )
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
