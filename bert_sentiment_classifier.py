@@ -4,7 +4,6 @@ from typing import Dict, List, Set, Tuple, Union
 import pytorch_lightning as pl
 import torch
 from bunch import Bunch
-from sklearn.model_selection import train_test_split
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 from torch.optim.optimizer import Optimizer
@@ -73,35 +72,21 @@ class BertSentimentClassifier(pl.LightningModule):
 
         negative_tweets = self._load_tweets(self.config.negative_tweets_path)
         positive_tweets = self._load_tweets(self.config.positive_tweets_path)
-        tensor_labels = self._generate_labels(
-            len(negative_tweets), len(positive_tweets)
-        )
-        labels = tensor_labels.data.tolist()
-
-        train_data, validation_data, train_labels, val_labels = train_test_split(
-            negative_tweets + positive_tweets,
-            labels,
-            test_size=self.config.validation_size,
-            random_state=self.config.random_seed,
-        )
-        train_data, train_labels = self._remove_duplicate_tweets(
-            train_data, train_labels
-        )
-        train_labels = torch.tensor(train_labels)
-        val_labels = torch.tensor(val_labels)
+        labels = self._generate_labels(len(negative_tweets), len(positive_tweets))
 
         train_token_ids, train_attention_mask = self._tokenize_tweets(
-            tokenizer, train_data
+            tokenizer, negative_tweets + positive_tweets
         )
-        val_token_ids, val_attention_mask = self._tokenize_tweets(
-            tokenizer, validation_data
+        self.train_data, self.validation_data = _train_validation_split(
+            self.config.validation_size,
+            TensorDataset(train_token_ids, train_attention_mask, labels),
         )
-        self.train_data = TensorDataset(
-            train_token_ids, train_attention_mask, train_labels
+        print(self.train_data)
+        unique_train_data, inverse_indices, counts = torch.unique(
+            self.train_data, dim=0
         )
-        self.validation_data = TensorDataset(
-            val_token_ids, val_attention_mask, val_labels
-        )
+        print(unique_train_data)
+        print(inverse_indices)
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
 
