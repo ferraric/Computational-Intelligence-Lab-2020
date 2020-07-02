@@ -22,7 +22,7 @@ def main() -> None:
     comet_experiment.set_name(config.comet_experiment_name)
     comet_experiment.log_parameters(config)
 
-    test_tweets = load_tweets(config.test_data_path)[:10]
+    test_tweets = load_tweets(config.test_data_path)
     test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
 
     client = language.LanguageServiceClient()
@@ -42,7 +42,7 @@ def main() -> None:
         prediction_present = bool(response_dict["documentSentiment"])
         if prediction_present:
             # -1, 1 predictions
-            predictions[i] = 2 * response.document_sentiment.score - 1
+            predictions[i] = 2 * (response.document_sentiment.score > 0) - 1
 
         print("iteration", i, "took:", time.time() - start_iter_timestamp, "seconds")
 
