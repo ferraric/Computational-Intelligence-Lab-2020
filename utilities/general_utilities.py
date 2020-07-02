@@ -1,5 +1,7 @@
 import argparse
 import json
+import re
+from typing import List
 
 from bunch import Bunch
 
@@ -29,3 +31,15 @@ def get_bunch_config_from_json(json_file_path: str) -> Bunch:
     with open(json_file_path, "r") as config_file:
         config_dict = json.load(config_file)
     return Bunch(config_dict)
+
+
+def remove_indices_from_test_tweets(tweets: List[str]) -> List[str]:
+    def _remove_index_from_test_tweet(tweet: str) -> str:
+        test_tweet_format = re.compile("^[0-9]*,(.*)")
+        match = test_tweet_format.match(tweet)
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError("unexpected test data format")
+
+    return [_remove_index_from_test_tweet(tweet) for tweet in tweets]
