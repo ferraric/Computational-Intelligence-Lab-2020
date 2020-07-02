@@ -8,7 +8,7 @@ from torch.optim import Adam
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader, Subset, TensorDataset, random_split
 from transformers import BertForSequenceClassification, BertTokenizerFast
-from utilities.data_loading import remove_indices_from_test_tweets
+from utilities.data_loading import load_tweets, remove_indices_from_test_tweets
 
 
 class BertSentimentClassifier(pl.LightningModule):
@@ -19,10 +19,6 @@ class BertSentimentClassifier(pl.LightningModule):
             config.pretrained_model
         )
         self.loss = CrossEntropyLoss()
-
-    def _load_tweets(self, path: str) -> List[str]:
-        with open(path, encoding="utf-8") as f:
-            return f.read().splitlines()
 
     def _generate_labels(
         self, n_negative_samples: int, n_positive_samples: int
@@ -58,8 +54,8 @@ class BertSentimentClassifier(pl.LightningModule):
 
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
 
-        negative_tweets = self._load_tweets(self.config.negative_tweets_path)
-        positive_tweets = self._load_tweets(self.config.positive_tweets_path)
+        negative_tweets = load_tweets(self.config.negative_tweets_path)
+        positive_tweets = load_tweets(self.config.positive_tweets_path)
         labels = self._generate_labels(len(negative_tweets), len(positive_tweets))
         train_token_ids, train_attention_mask = self._tokenize_tweets(
             tokenizer, negative_tweets + positive_tweets
@@ -69,7 +65,7 @@ class BertSentimentClassifier(pl.LightningModule):
             TensorDataset(train_token_ids, train_attention_mask, labels),
         )
 
-        test_tweets = self._load_tweets(self.config.test_tweets_path)
+        test_tweets = load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
 
         test_token_ids, test_attention_mask = self._tokenize_tweets(

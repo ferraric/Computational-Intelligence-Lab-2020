@@ -8,13 +8,8 @@ from bunch import Bunch
 from comet_ml import Experiment
 from sklearn.model_selection import GridSearchCV, KFold
 from sklearn.svm import SVC
-from utilities.data_loading import remove_indices_from_test_tweets
+from utilities.data_loading import load_tweets, remove_indices_from_test_tweets
 from utilities.general_utilities import get_args, get_bunch_config_from_json
-
-
-def load_tweets(tweets_path: str) -> List[str]:
-    with open(tweets_path, encoding="utf-8") as f:
-        return f.read().splitlines()
 
 
 def load_vocabulary(vocabulary_path: str) -> List[str]:
