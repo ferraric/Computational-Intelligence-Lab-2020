@@ -33,7 +33,7 @@ def get_bunch_config_from_json(json_file_path: str) -> Bunch:
     return Bunch(config_dict)
 
 
-def remove_indices_from_test_tweets(test_tweets: List[str]) -> List[str]:
+def remove_indices_from_test_tweets(tweets: List[str]) -> List[str]:
     def _remove_index_from_test_tweet(tweet: str) -> str:
         test_tweet_format = re.compile("^[0-9]*,(.*)")
         match = test_tweet_format.match(tweet)
@@ -42,8 +42,4 @@ def remove_indices_from_test_tweets(test_tweets: List[str]) -> List[str]:
         else:
             raise ValueError("unexpected test data format")
 
-    test_tweets_index_removed = [
-        _remove_index_from_test_tweet(tweet) for tweet in test_tweets
-    ]
-
-    return test_tweets_index_removed
+    return [_remove_index_from_test_tweet(tweet) for tweet in tweets]
