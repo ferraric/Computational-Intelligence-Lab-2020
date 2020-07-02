@@ -1,4 +1,4 @@
-comet-ml==3.1.11
+comet_ml==3.1.11
 data-science-types==0.2.12
 fastBPE==0.1.0
 mypy==0.780
