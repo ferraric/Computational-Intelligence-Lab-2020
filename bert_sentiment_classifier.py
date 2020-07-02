@@ -1,5 +1,5 @@
 import re
-from typing import Dict, List, Set, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 import pytorch_lightning as pl
 import torch
@@ -24,17 +24,16 @@ class BertSentimentClassifier(pl.LightningModule):
         with open(path, encoding="utf-8") as f:
             return f.read().splitlines()
 
-    def _remove_duplicate_tweets(
-        self, tweets: List[str], labels: List[int]
-    ) -> Tuple[List[str], List[int]]:
-        unique_labels = []
-        unique_tweets: Set[str] = set()
-        for tweet, i in zip(tweets, labels):
-            if tweet not in unique_tweets:
-                unique_labels.append(i)
-                unique_tweets.add(tweet)
-
-        return list(unique_tweets), unique_labels
+    def _get_unique_tweet_indices(self, data: Subset) -> List[int]:
+        unique_tweets: List[str] = []
+        unique_indices = []
+        for i in range(data.dataset.__len__()):
+            token_ids, _, _ = data.dataset.__getitem__(i)
+            token_ids = token_ids.tolist()
+            if token_ids not in unique_tweets:
+                unique_tweets.append(token_ids)
+                unique_indices.append(i)
+        return unique_indices
 
     def _generate_labels(
         self, n_negative_samples: int, n_positive_samples: int
@@ -77,16 +76,14 @@ class BertSentimentClassifier(pl.LightningModule):
         train_token_ids, train_attention_mask = self._tokenize_tweets(
             tokenizer, negative_tweets + positive_tweets
         )
+
         self.train_data, self.validation_data = _train_validation_split(
             self.config.validation_size,
             TensorDataset(train_token_ids, train_attention_mask, labels),
         )
-        print(self.train_data)
-        unique_train_data, inverse_indices, counts = torch.unique(
-            self.train_data, dim=0
-        )
-        print(unique_train_data)
-        print(inverse_indices)
+
+        unique_indices = self._get_unique_tweet_indices(self.train_data)
+        self.train_data = Subset(self.train_data, unique_indices)
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
 
