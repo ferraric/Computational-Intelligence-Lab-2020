@@ -27,7 +27,7 @@ def main() -> None:
 
     client = language.LanguageServiceClient()
     result = []
-    predictions = np.zeros(len(test_tweets_index_removed))
+    predictions = np.zeros(len(test_tweets_index_removed), dtype=np.int32)
 
     for i, tweet in enumerate(test_tweets_index_removed):
         start_iter_timestamp = time.time()
@@ -48,7 +48,7 @@ def main() -> None:
 
     comet_experiment.log_asset_data(result, name="google_nlp_api_response.json")
 
-    ids = np.arange(1, len(test_tweets_index_removed) + 1)
+    ids = np.arange(1, len(test_tweets_index_removed) + 1).astype(np.int32)
     predictions_table = np.column_stack((ids, predictions))
     comet_experiment.log_table(
         filename="google_nlp_api_predictions.csv",
