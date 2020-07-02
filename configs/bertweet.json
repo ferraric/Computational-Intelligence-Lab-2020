@@ -3,7 +3,7 @@
   "model_save_directory": "experiments",
   "debug": false,
   "epochs": 3,
-  "pretrained_model_base_path": "utilities/bertweet/",
+  "pretrained_model_base_path": "custom_pretrained_models/bertweet/",
   "negative_tweets_path": "data/train_neg_full.txt",
   "positive_tweets_path": "data/train_pos_full.txt",
   "test_tweets_path": "data/test_data.txt",
