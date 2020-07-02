@@ -27,8 +27,8 @@ class BertSentimentClassifier(pl.LightningModule):
     def _get_unique_tweet_indices(self, data: Subset) -> List[int]:
         unique_tweets: List[str] = []
         unique_indices = []
-        for i in range(data.dataset.__len__()):
-            token_ids, _, _ = data.dataset.__getitem__(i)
+        for i in range(data.__len__()):
+            token_ids, _, _ = data.__getitem__(i)
             token_ids = token_ids.tolist()
             if token_ids not in unique_tweets:
                 unique_tweets.append(token_ids)
