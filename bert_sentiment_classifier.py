@@ -8,7 +8,7 @@ from torch.optim import Adam
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader, Subset, TensorDataset, random_split
 from transformers import BertForSequenceClassification, BertTokenizerFast
-from utilities.general_utilities import remove_indices_from_test_tweets
+from utilities.data_loading import remove_indices_from_test_tweets
 
 
 class BertSentimentClassifier(pl.LightningModule):

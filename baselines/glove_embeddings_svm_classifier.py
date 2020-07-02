@@ -8,11 +8,8 @@ from bunch import Bunch
 from comet_ml import Experiment
 from sklearn.model_selection import GridSearchCV, KFold
 from sklearn.svm import SVC
-from utilities.general_utilities import (
-    get_args,
-    get_bunch_config_from_json,
-    remove_indices_from_test_tweets,
-)
+from utilities.data_loading import remove_indices_from_test_tweets
+from utilities.general_utilities import get_args, get_bunch_config_from_json
 
 
 def load_tweets(tweets_path: str) -> List[str]:
