@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 from comet_ml import Experiment
 from google.cloud import language
@@ -20,7 +22,7 @@ def main() -> None:
     comet_experiment.set_name(config.comet_experiment_name)
     comet_experiment.log_parameters(config)
 
-    test_tweets = load_tweets(config.test_data_path)
+    test_tweets = load_tweets(config.test_data_path)[:10]
     test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
 
     client = language.LanguageServiceClient()
@@ -28,6 +30,7 @@ def main() -> None:
     predictions = np.zeros(len(test_tweets_index_removed))
 
     for i, tweet in enumerate(test_tweets_index_removed):
+        start_iter_timestamp = time.time()
         document = types.Document(
             type=enums.Document.Type.PLAIN_TEXT, content=tweet, language="en"
         )
@@ -40,6 +43,8 @@ def main() -> None:
         if prediction_present:
             # -1, 1 predictions
             predictions[i] = 2 * response.document_sentiment.score - 1
+
+        print("iteration", i, "took:", time.time() - start_iter_timestamp, "seconds")
 
     comet_experiment.log_asset_data(result, name="google_nlp_api_response.json")
 
