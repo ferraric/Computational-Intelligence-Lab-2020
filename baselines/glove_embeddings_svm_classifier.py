@@ -8,7 +8,11 @@ from bunch import Bunch
 from comet_ml import Experiment
 from sklearn.model_selection import GridSearchCV, KFold
 from sklearn.svm import SVC
-from utilities.general_utilities import get_args, get_bunch_config_from_json
+from utilities.general_utilities import (
+    get_args,
+    get_bunch_config_from_json,
+    remove_indices_from_test_tweets,
+)
 
 
 def load_tweets(tweets_path: str) -> List[str]:
@@ -88,7 +92,9 @@ def generate_training_data(config: Bunch) -> Tuple[np.ndarray, np.ndarray]:
 def generate_test_data_features(config: Bunch) -> np.ndarray:
     test_tweets = load_tweets(config.test_data_path)
 
-    return construct_features_parallel(config, test_tweets)
+    test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
+
+    return construct_features_parallel(config, test_tweets_index_removed)
 
 
 def run_grid_search(
