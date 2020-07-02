@@ -41,6 +41,19 @@ def main() -> None:
             # -1, 1 predictions
             predictions[i] = 2 * response.document_sentiment.score - 1
 
+    comet_experiment.log_asset_data(result, name="google_nlp_api_response.json")
+
+    ids = np.arange(1, len(test_tweets_index_removed) + 1)
+    predictions_table = np.column_stack((ids, predictions))
+    comet_experiment.log_table(
+        filename="google_nlp_api_predictions.csv",
+        tabular_data=predictions_table,
+        headers=["Id", "Prediction"],
+    )
+
+    percentage_predicted = np.sum(predictions != 0) / predictions.shape[0]
+    comet_experiment.log_metric(name="percentage predicted", value=percentage_predicted)
+
 
 if __name__ == "__main__":
     main()
