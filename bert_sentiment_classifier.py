@@ -24,6 +24,14 @@ class BertSentimentClassifier(pl.LightningModule):
         with open(path, encoding="utf-8") as f:
             return f.read().splitlines()
 
+    def _log_nr_unique_tweets(
+        self, negative_tweets: List[str], positive_tweets: List[str]
+    ) -> None:
+        nr_neg_tweets = len(set(negative_tweets))
+        self.logger.log_hyperparams({"nr negative tweets": nr_neg_tweets})
+        nr_pos_tweets = len(set(positive_tweets))
+        self.logger.log_hyperparams({"nr positive tweets": nr_pos_tweets})
+
     def _get_unique_tweet_indices(self, data: Subset) -> List[int]:
         unique_tweets: Set[int] = set()
         unique_indices = []
@@ -73,6 +81,8 @@ class BertSentimentClassifier(pl.LightningModule):
         negative_tweets = self._load_tweets(self.config.negative_tweets_path)
         positive_tweets = self._load_tweets(self.config.positive_tweets_path)
         labels = self._generate_labels(len(negative_tweets), len(positive_tweets))
+
+        self._log_nr_unique_tweets(negative_tweets, positive_tweets)
 
         train_token_ids, train_attention_mask = self._tokenize_tweets(
             tokenizer, negative_tweets + positive_tweets
