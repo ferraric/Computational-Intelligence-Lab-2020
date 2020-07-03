@@ -12,7 +12,7 @@ from torch.nn import CrossEntropyLoss
 from torch.utils.data import TensorDataset
 from transformers import RobertaConfig, RobertaModel
 from transformers.modeling_roberta import RobertaClassificationHead
-from utilities.general_utilities import remove_indices_from_test_tweets
+from utilities.data_loading import remove_indices_from_test_tweets
 
 
 class BERTweet(BertSentimentClassifier):
