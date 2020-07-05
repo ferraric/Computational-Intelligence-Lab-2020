@@ -95,10 +95,10 @@ class BERTweet(BertSentimentClassifier):
             for tweet in test_tweets_index_removed
         ]
 
-        max_token_length = max(map(len, token_id_list + test_token_id_list))
-
         pad_token_id = self.vocab.pad()
-        token_ids = self._pad(token_id_list, pad_token_id, max_token_length)
+        token_ids = self._pad(
+            token_id_list, pad_token_id, self.config.max_tokens_per_tweet
+        )
         attention_mask = (token_ids != pad_token_id).float()
 
         self.train_data, self.validation_data = self._train_validation_split(
@@ -106,7 +106,9 @@ class BERTweet(BertSentimentClassifier):
             TensorDataset(token_ids, attention_mask, labels),
         )
 
-        test_token_ids = self._pad(test_token_id_list, pad_token_id, max_token_length)
+        test_token_ids = self._pad(
+            test_token_id_list, pad_token_id, self.config.max_tokens_per_tweet
+        )
         test_attention_mask = (test_token_ids != pad_token_id).float()
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
 
