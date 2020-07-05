@@ -69,6 +69,11 @@ class BERTweet(BertSentimentClassifier):
 
     def _pad(self, token_ids: List[List[int]], max_token_length: int) -> torch.Tensor:
         pad_token_id = self.vocab.pad()
+        actual_max_token_length = max(map(len, token_ids))
+        assert actual_max_token_length <= max_token_length, (
+            "max token length set too small, needs to be at least "
+            + str(actual_max_token_length)
+        )
         return torch.tensor(
             [
                 token_ids_per_tweet
