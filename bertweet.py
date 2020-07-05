@@ -67,9 +67,8 @@ class BERTweet(BertSentimentClassifier):
             .tolist()
         )
 
-    def _pad(
-        self, token_ids: List[List[int]], pad_token_id: int, max_token_length: int
-    ) -> torch.Tensor:
+    def _pad(self, token_ids: List[List[int]], max_token_length: int) -> torch.Tensor:
+        pad_token_id = self.vocab.pad()
         return torch.tensor(
             [
                 token_ids_per_tweet
@@ -77,6 +76,10 @@ class BERTweet(BertSentimentClassifier):
                 for token_ids_per_tweet in token_ids
             ]
         )
+
+    def _generate_attention_mask(self, token_ids: torch.Tensor) -> torch.Tensor:
+        pad_token_id = self.vocab.pad()
+        return (token_ids != pad_token_id).float()
 
     def prepare_data(self) -> None:
         negative_tweets = self._load_tweets(self.config.negative_tweets_path)
@@ -87,11 +90,8 @@ class BERTweet(BertSentimentClassifier):
         token_id_list = [
             self._encode(self._split_into_tokens(tweet)) for tweet in all_tweets
         ]
-        pad_token_id = self.vocab.pad()
-        token_ids = self._pad(
-            token_id_list, pad_token_id, self.config.max_tokens_per_tweet
-        )
-        attention_mask = (token_ids != pad_token_id).float()
+        token_ids = self._pad(token_id_list, self.config.max_tokens_per_tweet)
+        attention_mask = self._generate_attention_mask(token_ids)
         self.train_data, self.validation_data = self._train_validation_split(
             self.config.validation_size,
             TensorDataset(token_ids, attention_mask, labels),
@@ -103,10 +103,8 @@ class BERTweet(BertSentimentClassifier):
             self._encode(self._split_into_tokens(tweet))
             for tweet in test_tweets_index_removed
         ]
-        test_token_ids = self._pad(
-            test_token_id_list, pad_token_id, self.config.max_tokens_per_tweet
-        )
-        test_attention_mask = (test_token_ids != pad_token_id).float()
+        test_token_ids = self._pad(test_token_id_list, self.config.max_tokens_per_tweet)
+        test_attention_mask = self._generate_attention_mask(test_token_ids)
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
 
     def forward(
