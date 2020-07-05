@@ -87,6 +87,15 @@ class BERTweet(BertSentimentClassifier):
         token_id_list = [
             self._encode(self._split_into_tokens(tweet)) for tweet in all_tweets
         ]
+        pad_token_id = self.vocab.pad()
+        token_ids = self._pad(
+            token_id_list, pad_token_id, self.config.max_tokens_per_tweet
+        )
+        attention_mask = (token_ids != pad_token_id).float()
+        self.train_data, self.validation_data = self._train_validation_split(
+            self.config.validation_size,
+            TensorDataset(token_ids, attention_mask, labels),
+        )
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
@@ -94,18 +103,6 @@ class BERTweet(BertSentimentClassifier):
             self._encode(self._split_into_tokens(tweet))
             for tweet in test_tweets_index_removed
         ]
-
-        pad_token_id = self.vocab.pad()
-        token_ids = self._pad(
-            token_id_list, pad_token_id, self.config.max_tokens_per_tweet
-        )
-        attention_mask = (token_ids != pad_token_id).float()
-
-        self.train_data, self.validation_data = self._train_validation_split(
-            self.config.validation_size,
-            TensorDataset(token_ids, attention_mask, labels),
-        )
-
         test_token_ids = self._pad(
             test_token_id_list, pad_token_id, self.config.max_tokens_per_tweet
         )
