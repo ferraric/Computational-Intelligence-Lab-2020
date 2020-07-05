@@ -55,47 +55,50 @@ class BERTweet(BertSentimentClassifier):
 
         return [_replace_special_tokens(tweet) for tweet in super()._load_tweets(path)]
 
-    def prepare_data(self) -> None:
-        def _split_into_tokens(tweet: str) -> str:
-            return "<s> " + self.bpe.encode(tweet) + " <s>"
+    def _split_into_tokens(self, tweet: str) -> str:
+        return "<s> " + self.bpe.encode(tweet) + " <s>"
 
-        def _encode(token_string: str) -> List[int]:
-            return (
-                self.vocab.encode_line(
-                    token_string, append_eos=False, add_if_not_exist=False
-                )
-                .long()
-                .tolist()
+    def _encode(self, token_string: str) -> List[int]:
+        return (
+            self.vocab.encode_line(
+                token_string, append_eos=False, add_if_not_exist=False
             )
+            .long()
+            .tolist()
+        )
 
+    def _pad(
+        self, token_ids: List[List[int]], pad_token_id: int, max_token_length: int
+    ) -> torch.Tensor:
+        return torch.tensor(
+            [
+                token_ids_per_tweet
+                + [pad_token_id] * (max_token_length - len(token_ids_per_tweet))
+                for token_ids_per_tweet in token_ids
+            ]
+        )
+
+    def prepare_data(self) -> None:
         negative_tweets = self._load_tweets(self.config.negative_tweets_path)
         positive_tweets = self._load_tweets(self.config.positive_tweets_path)
         all_tweets = negative_tweets + positive_tweets
         labels = self._generate_labels(len(negative_tweets), len(positive_tweets))
 
-        token_id_list = [_encode(_split_into_tokens(tweet)) for tweet in all_tweets]
+        token_id_list = [
+            self._encode(self._split_into_tokens(tweet)) for tweet in all_tweets
+        ]
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
         test_token_id_list = [
-            _encode(_split_into_tokens(tweet)) for tweet in test_tweets_index_removed
+            self._encode(self._split_into_tokens(tweet))
+            for tweet in test_tweets_index_removed
         ]
 
         max_token_length = max(map(len, token_id_list + test_token_id_list))
 
-        def _pad(
-            token_ids: List[List[int]], pad_token_id: int, max_token_length: int
-        ) -> torch.Tensor:
-            return torch.tensor(
-                [
-                    token_ids_per_tweet
-                    + [pad_token_id] * (max_token_length - len(token_ids_per_tweet))
-                    for token_ids_per_tweet in token_ids
-                ]
-            )
-
         pad_token_id = self.vocab.pad()
-        token_ids = _pad(token_id_list, pad_token_id, max_token_length)
+        token_ids = self._pad(token_id_list, pad_token_id, max_token_length)
         attention_mask = (token_ids != pad_token_id).float()
 
         self.train_data, self.validation_data = self._train_validation_split(
@@ -103,7 +106,7 @@ class BERTweet(BertSentimentClassifier):
             TensorDataset(token_ids, attention_mask, labels),
         )
 
-        test_token_ids = _pad(test_token_id_list, pad_token_id, max_token_length)
+        test_token_ids = self._pad(test_token_id_list, pad_token_id, max_token_length)
         test_attention_mask = (test_token_ids != pad_token_id).float()
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
 
