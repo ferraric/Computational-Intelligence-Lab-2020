@@ -19,6 +19,20 @@ class BERTweet(BertSentimentClassifier):
     def __init__(self, config: Bunch) -> None:
         pl.LightningModule.__init__(self)
         self.config = config
+
+        bpe_codes_path = os.path.join(
+            config.pretrained_model_base_path, "BERTweet_base_transformers/bpe.codes",
+        )
+        self.bpe = fastBPE(Namespace(bpe_codes=bpe_codes_path))
+        vocab = Dictionary()
+        vocab.add_from_file(
+            os.path.join(
+                config.pretrained_model_base_path,
+                "BERTweet_base_transformers/dict.txt",
+            )
+        )
+        self.vocab = vocab
+
         model_config = RobertaConfig.from_pretrained(
             os.path.join(
                 config.pretrained_model_base_path,
@@ -42,25 +56,12 @@ class BERTweet(BertSentimentClassifier):
         return [_replace_special_tokens(tweet) for tweet in super()._load_tweets(path)]
 
     def prepare_data(self) -> None:
-        bpe_codes_path = os.path.join(
-            self.config.pretrained_model_base_path,
-            "BERTweet_base_transformers/bpe.codes",
-        )
-        bpe = fastBPE(Namespace(bpe_codes=bpe_codes_path))
-        vocab = Dictionary()
-        vocab.add_from_file(
-            os.path.join(
-                self.config.pretrained_model_base_path,
-                "BERTweet_base_transformers/dict.txt",
-            )
-        )
-
         def _split_into_tokens(tweet: str) -> str:
-            return "<s> " + bpe.encode(tweet) + " <s>"
+            return "<s> " + self.bpe.encode(tweet) + " <s>"
 
         def _encode(token_string: str) -> List[int]:
             return (
-                vocab.encode_line(
+                self.vocab.encode_line(
                     token_string, append_eos=False, add_if_not_exist=False
                 )
                 .long()
@@ -93,7 +94,7 @@ class BERTweet(BertSentimentClassifier):
                 ]
             )
 
-        pad_token_id = vocab.pad()
+        pad_token_id = self.vocab.pad()
         token_ids = _pad(token_id_list, pad_token_id, max_token_length)
         attention_mask = (token_ids != pad_token_id).float()
 
