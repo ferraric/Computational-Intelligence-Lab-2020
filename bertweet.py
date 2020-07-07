@@ -67,8 +67,8 @@ class BERTweet(BertSentimentClassifier):
                 .tolist()
             )
 
-        negative_tweets = self._load_tweets(self.config.negative_tweets_path)
-        positive_tweets = self._load_tweets(self.config.positive_tweets_path)
+        negative_tweets = self._load_unique_tweets(self.config.negative_tweets_path)
+        positive_tweets = self._load_unique_tweets(self.config.positive_tweets_path)
         all_tweets = negative_tweets + positive_tweets
         labels = self._generate_labels(len(negative_tweets), len(positive_tweets))
 

@@ -24,6 +24,13 @@ class BertSentimentClassifier(pl.LightningModule):
         with open(path, encoding="utf-8") as f:
             return f.read().splitlines()
 
+    def _load_unique_tweets(self, path: str) -> List[str]:
+        def _remove_duplicate_tweets(tweets: List[str]) -> List[str]:
+            return list(set(tweets))
+
+        loaded_tweets = self._load_tweets(path)
+        return _remove_duplicate_tweets(loaded_tweets)
+
     def _generate_labels(
         self, n_negative_samples: int, n_positive_samples: int
     ) -> torch.Tensor:
@@ -58,8 +65,8 @@ class BertSentimentClassifier(pl.LightningModule):
     def prepare_data(self) -> None:
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
 
-        negative_tweets = self._load_tweets(self.config.negative_tweets_path)
-        positive_tweets = self._load_tweets(self.config.positive_tweets_path)
+        negative_tweets = self._load_unique_tweets(self.config.negative_tweets_path)
+        positive_tweets = self._load_unique_tweets(self.config.positive_tweets_path)
         labels = self._generate_labels(len(negative_tweets), len(positive_tweets))
         train_token_ids, train_attention_mask = self._tokenize_tweets(
             tokenizer, negative_tweets + positive_tweets
