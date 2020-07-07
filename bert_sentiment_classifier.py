@@ -22,14 +22,21 @@ class BertSentimentClassifier(pl.LightningModule):
 
     def _load_tweets(self, path: str) -> List[str]:
         with open(path, encoding="utf-8") as f:
-            return f.read().splitlines()
+            loaded_tweets = f.read().splitlines()
+        self.logger.experiment.log_other(
+            key="n_tweets_from:" + path, value=len(loaded_tweets)
+        )
+        return loaded_tweets
 
     def _load_unique_tweets(self, path: str) -> List[str]:
         def _remove_duplicate_tweets(tweets: List[str]) -> List[str]:
             return list(set(tweets))
 
-        loaded_tweets = self._load_tweets(path)
-        return _remove_duplicate_tweets(loaded_tweets)
+        unique_tweets = _remove_duplicate_tweets(self._load_tweets(path))
+        self.logger.experiment.log_other(
+            key="n_unique_tweets_from:" + path, value=len(unique_tweets)
+        )
+        return unique_tweets
 
     def _generate_labels(
         self, n_negative_samples: int, n_positive_samples: int
