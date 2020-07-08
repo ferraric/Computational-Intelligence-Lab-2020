@@ -1,16 +1,21 @@
 import html
 import os
+import re
 
 import pandas as pd
 
 
 def preprocess(tweet: str) -> str:
+    tweet = re.sub(url, "<url>", tweet)
+    tweet = re.sub(user_mention, "<user>", tweet)
     tweet = html.unescape(tweet)
     return tweet
 
 
 if __name__ == "__main__":
     data_path = "../data"
+    url = re.compile(r"(?:(http[s]?://\S+)|((//)?(\w+\.)?\w+\.\w+/\S+))")
+    user_mention = re.compile(r"(?:(?<!\w)@\w+\b)")
 
     raw_data_path = os.path.join(data_path, "training.1600000.processed.noemoticon.csv")
     raw_data = pd.read_csv(  # type: ignore
