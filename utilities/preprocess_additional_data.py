@@ -14,6 +14,9 @@ def preprocess(tweet: str) -> str:
         "([.])\\1(\\1)+", "\\1\\1\\1", tweet
     )  # limit length of repeated letters to 3
     tweet = html.unescape(tweet)  # i.e. &quot; -> "
+    tweet = re.sub(r"([.,()!?])(.)", "\\1 \\2", tweet)  # .word -> . word
+    tweet = re.sub(r"(.)([.,()!?])", "\\1 \\2", tweet)  # word. -> word .
+    tweet = " ".join(tweet.split())  # remove double whitespaces
     return tweet
 
 
