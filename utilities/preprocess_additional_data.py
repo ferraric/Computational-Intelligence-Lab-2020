@@ -9,6 +9,10 @@ import pandas as pd
 def preprocess(tweet: str) -> str:
     tweet = re.sub(url, "<url>", tweet)
     tweet = re.sub(user_mention, "<user>", tweet)
+    tweet = tweet.lower()
+    tweet = re.sub(
+        "([.])\\1(\\1)+", "\\1\\1\\1", tweet
+    )  # limit length of repeated letters to 3
     tweet = html.unescape(tweet)  # i.e. &quot; -> "
     return tweet
 
