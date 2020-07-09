@@ -11,7 +11,7 @@ def preprocess(tweet: str) -> str:
     tweet = re.sub(user_mention, "<user>", tweet)
     tweet = tweet.lower()
     tweet = re.sub(
-        "([.])\\1(\\1)+", "\\1\\1\\1", tweet
+        "(.)\\1(\\1)+", "\\1\\1\\1", tweet
     )  # limit length of repeated letters to 3
     tweet = html.unescape(tweet)  # i.e. &quot; -> "
     tweet = re.sub(r"([.,()!?])(.)", "\\1 \\2", tweet)  # .word -> . word
