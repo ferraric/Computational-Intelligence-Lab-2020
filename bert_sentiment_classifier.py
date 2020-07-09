@@ -8,8 +8,9 @@ from torch.optim import Adam
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader, Subset, TensorDataset, random_split
 from transformers import BertForSequenceClassification, BertTokenizerFast
-from utilities.general_utilities import (
+from utilities.data_loading import (
     generate_bootstrap_dataset,
+    load_tweets,
     remove_indices_from_test_tweets,
 )
 
@@ -24,8 +25,7 @@ class BertSentimentClassifier(pl.LightningModule):
         self.loss = CrossEntropyLoss()
 
     def _load_tweets(self, path: str) -> List[str]:
-        with open(path, encoding="utf-8") as f:
-            loaded_tweets = f.read().splitlines()
+        loaded_tweets = load_tweets(path)
         self.logger.experiment.log_other(
             key="n_tweets_from:" + path, value=len(loaded_tweets)
         )
