@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple, Union
 import pytorch_lightning as pl
 import torch
 from bunch import Bunch
+from sklearn.model_selection import train_test_split
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 from torch.optim.optimizer import Optimizer
@@ -70,17 +71,54 @@ class BertSentimentClassifier(pl.LightningModule):
         return random_split(data, [n_train_samples, n_validation_samples])
 
     def prepare_data(self) -> None:
+        def _remove_brackets(data: List[str]) -> List[str]:
+            for i in data:
+                i = i.replace("(", "").replace(")", "")
+            return data
+
+        def _save_val_split(val_data: List[str], val_labels: List[int]) -> None:
+            with open("data/val_data.txt", "w") as out:
+                for i in val_data:
+                    out.write(i + "\n")
+            with open("data/val_labels.txt", "w") as out:
+                for j in val_labels:
+                    out.write(str(j) + "\n")
+
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
 
         negative_tweets = self._load_unique_tweets(self.config.negative_tweets_path)
         positive_tweets = self._load_unique_tweets(self.config.positive_tweets_path)
-        labels = self._generate_labels(len(negative_tweets), len(positive_tweets))
-        train_token_ids, train_attention_mask = self._tokenize_tweets(
-            tokenizer, negative_tweets + positive_tweets
+        tensor_labels = self._generate_labels(
+            len(negative_tweets), len(positive_tweets)
         )
-        self.train_data, self.validation_data = self._train_validation_split(
-            self.config.validation_size,
-            TensorDataset(train_token_ids, train_attention_mask, labels),
+
+        labels = tensor_labels.data.tolist()
+        tweets = negative_tweets + positive_tweets
+
+        train_data, validation_data, train_labels, val_labels = train_test_split(
+            tweets,
+            labels,
+            test_size=self.config.validation_size,
+            random_state=self.config.random_seed,
+        )
+        _save_val_split(validation_data, val_labels)
+        validation_data = _remove_brackets(validation_data)
+
+        train_labels = torch.tensor(train_labels)
+        val_labels = torch.tensor(val_labels)
+
+        # tokenize
+        train_token_ids, train_attention_mask = self._tokenize_tweets(
+            tokenizer, train_data
+        )
+        val_token_ids, val_attention_mask = self._tokenize_tweets(
+            tokenizer, validation_data
+        )
+        self.train_data = TensorDataset(
+            train_token_ids, train_attention_mask, train_labels
+        )
+        self.validation_data = TensorDataset(
+            val_token_ids, val_attention_mask, val_labels
         )
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
