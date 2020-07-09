@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple, Union
 import pytorch_lightning as pl
 import torch
 from bunch import Bunch
+from numpy.random._generator import default_rng
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 from torch.optim.optimizer import Optimizer
@@ -82,6 +83,12 @@ class BertSentimentClassifier(pl.LightningModule):
             self.config.validation_size,
             TensorDataset(train_token_ids, train_attention_mask, labels),
         )
+
+        if self.config.do_bootstrap_sampling:
+            rng = default_rng(self.config.bootstrap_random_seed)
+            dataset_size = len(negative_tweets) + len(positive_tweets)
+            sampled_indices = rng.uniform(0, dataset_size, dataset_size)
+            self.train_data = Subset(self.train_data, sampled_indices)
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
