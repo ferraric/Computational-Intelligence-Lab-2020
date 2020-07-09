@@ -1,5 +1,6 @@
 from bertweet import BERTweet
 from torch.utils.data import ConcatDataset, TensorDataset
+from utilities.general_utilities import generate_bootstrap_dataset
 
 
 class BERTweetAddData(BERTweet):
@@ -32,3 +33,6 @@ class BERTweetAddData(BERTweet):
         self.train_data = ConcatDataset(  # type: ignore
             [self.train_data, additional_train_data]
         )
+
+        if self.config.do_bootstrap_sampling:
+            self.train_data = generate_bootstrap_dataset(self.train_data)
