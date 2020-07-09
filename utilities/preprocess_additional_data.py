@@ -16,6 +16,7 @@ def preprocess(tweet: str) -> str:
     tweet = html.unescape(tweet)  # i.e. &quot; -> "
     tweet = re.sub(r"([.,()!?])(.)", "\\1 \\2", tweet)  # .word -> . word
     tweet = re.sub(r"(.)([.,()!?])", "\\1 \\2", tweet)  # word. -> word .
+    tweet = re.sub(r"([.,()!?])([.,()!?])", "\\1 \\2", tweet)  # .. -> . .
     tweet = " ".join(tweet.split())  # remove double whitespaces
     return tweet
 
