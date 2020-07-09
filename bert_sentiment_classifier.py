@@ -91,18 +91,16 @@ class BertSentimentClassifier(pl.LightningModule):
         tensor_labels = self._generate_labels(
             len(negative_tweets), len(positive_tweets)
         )
-
         labels = tensor_labels.data.tolist()
-        tweets = negative_tweets + positive_tweets
 
-        train_data, validation_data, train_labels, val_labels = train_test_split(
-            tweets,
+        train_data, val_data, train_labels, val_labels = train_test_split(
+            negative_tweets + positive_tweets,
             labels,
             test_size=self.config.validation_size,
             random_state=self.config.random_seed,
         )
-        _save_val_split(validation_data, val_labels)
-        validation_data = _remove_brackets(validation_data)
+        _save_val_split(val_data, val_labels)
+        val_data = _remove_brackets(val_data)
 
         train_labels = torch.tensor(train_labels)
         val_labels = torch.tensor(val_labels)
@@ -111,9 +109,7 @@ class BertSentimentClassifier(pl.LightningModule):
         train_token_ids, train_attention_mask = self._tokenize_tweets(
             tokenizer, train_data
         )
-        val_token_ids, val_attention_mask = self._tokenize_tweets(
-            tokenizer, validation_data
-        )
+        val_token_ids, val_attention_mask = self._tokenize_tweets(tokenizer, val_data)
         self.train_data = TensorDataset(
             train_token_ids, train_attention_mask, train_labels
         )
