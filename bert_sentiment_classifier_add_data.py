@@ -1,17 +1,16 @@
 from bert_sentiment_classifier import BertSentimentClassifier
 from torch.utils.data import ConcatDataset, TensorDataset
 from transformers import BertTokenizerFast
-from utilities.data_loading import load_tweets
 
 
 class BertSentimentClassifierAddData(BertSentimentClassifier):
     def prepare_data(self) -> None:
         super().prepare_data()
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
-        additional_positive_tweets = load_tweets(
+        additional_positive_tweets = self._load_unique_tweets(
             self.config.additional_positive_tweets_path
         )
-        additional_negative_tweets = load_tweets(
+        additional_negative_tweets = self._load_unique_tweets(
             self.config.additional_negative_tweets_path
         )
         additional_labels = self._generate_labels(
