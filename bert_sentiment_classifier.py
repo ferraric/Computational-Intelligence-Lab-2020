@@ -3,13 +3,15 @@ from typing import Dict, List, Tuple, Union
 import pytorch_lightning as pl
 import torch
 from bunch import Bunch
-from numpy.random._generator import default_rng
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader, Subset, TensorDataset, random_split
 from transformers import BertForSequenceClassification, BertTokenizerFast
-from utilities.general_utilities import remove_indices_from_test_tweets
+from utilities.general_utilities import (
+    generate_bootstrap_dataset,
+    remove_indices_from_test_tweets,
+)
 
 
 class BertSentimentClassifier(pl.LightningModule):
@@ -85,10 +87,7 @@ class BertSentimentClassifier(pl.LightningModule):
         )
 
         if self.config.do_bootstrap_sampling:
-            rng = default_rng(self.config.bootstrap_random_seed)
-            dataset_size = len(negative_tweets) + len(positive_tweets)
-            sampled_indices = rng.uniform(0, dataset_size, dataset_size)
-            self.train_data = Subset(self.train_data, sampled_indices)
+            self.train_data = generate_bootstrap_dataset(self.train_data)
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)

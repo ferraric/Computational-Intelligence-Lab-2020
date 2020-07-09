@@ -12,7 +12,10 @@ from torch.nn import CrossEntropyLoss
 from torch.utils.data import TensorDataset
 from transformers import RobertaConfig, RobertaModel
 from transformers.modeling_roberta import RobertaClassificationHead
-from utilities.general_utilities import remove_indices_from_test_tweets
+from utilities.general_utilities import (
+    generate_bootstrap_dataset,
+    remove_indices_from_test_tweets,
+)
 
 
 class BERTweet(BertSentimentClassifier):
@@ -101,6 +104,9 @@ class BERTweet(BertSentimentClassifier):
             self.config.validation_size,
             TensorDataset(token_ids, attention_mask, labels),
         )
+
+        if self.config.do_bootstrap_sampling:
+            self.train_data = generate_bootstrap_dataset(self.train_data)
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)

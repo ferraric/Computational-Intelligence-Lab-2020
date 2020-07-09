@@ -1,7 +1,7 @@
 from bert_sentiment_classifier import BertSentimentClassifier
-from numpy.random._generator import default_rng
-from torch.utils.data import ConcatDataset, Subset, TensorDataset
+from torch.utils.data import ConcatDataset, TensorDataset
 from transformers import BertTokenizerFast
+from utilities.general_utilities import generate_bootstrap_dataset
 
 
 class BertSentimentClassifierAddData(BertSentimentClassifier):
@@ -32,7 +32,4 @@ class BertSentimentClassifierAddData(BertSentimentClassifier):
         self.train_data = ConcatDataset([self.train_data, additional_train_data])  # type: ignore
 
         if self.config.do_bootstrap_sampling:
-            rng = default_rng(self.config.bootstrap_random_seed)
-            dataset_size = self.train_data.__len__()
-            sampled_indices = rng.uniform(0, dataset_size, dataset_size)
-            self.train_data = Subset(self.train_data, sampled_indices)
+            self.train_data = generate_bootstrap_dataset(self.train_data)
