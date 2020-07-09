@@ -6,10 +6,10 @@ class BERTweetAddData(BERTweet):
     def prepare_data(self) -> None:
         super().prepare_data()
 
-        additional_negative_tweets = self._load_tweets(
+        additional_negative_tweets = self._load_unique_tweets(
             self.config.additional_negative_tweets_path
         )
-        additional_positive_tweets = self._load_tweets(
+        additional_positive_tweets = self._load_unique_tweets(
             self.config.additional_positive_tweets_path
         )
         additional_labels = self._generate_labels(
