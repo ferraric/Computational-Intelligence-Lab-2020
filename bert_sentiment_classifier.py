@@ -8,7 +8,10 @@ from torch.optim import Adam
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader, Subset, TensorDataset, random_split
 from transformers import BertForSequenceClassification, BertTokenizerFast
-from utilities.general_utilities import remove_indices_from_test_tweets
+from utilities.general_utilities import (
+    generate_bootstrap_dataset,
+    remove_indices_from_test_tweets,
+)
 
 
 class BertSentimentClassifier(pl.LightningModule):
@@ -82,6 +85,9 @@ class BertSentimentClassifier(pl.LightningModule):
             self.config.validation_size,
             TensorDataset(train_token_ids, train_attention_mask, labels),
         )
+
+        if self.config.do_bootstrap_sampling:
+            self.train_data = generate_bootstrap_dataset(self.train_data)
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
