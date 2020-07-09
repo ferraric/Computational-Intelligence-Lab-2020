@@ -18,6 +18,7 @@ def preprocess(tweet: str) -> str:
     tweet = re.sub(r"([,()!?])([,()!?])", "\\1 \\2", tweet)  # !! -> ! !
     tweet = re.sub(r"([.,()!?%])(\w)", "\\1 \\2", tweet)  # .word -> . word
     tweet = re.sub(r"(\w)([.,()!?%])", "\\1 \\2", tweet)  # word. -> word .
+    tweet = re.sub("([a-zA-Z])/([a-zA-Z])", "\\1 / \\2", tweet)
     tweet = " ".join(tweet.split())  # remove double whitespaces
     return tweet
 
