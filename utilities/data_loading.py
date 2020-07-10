@@ -28,11 +28,7 @@ def generate_bootstrap_dataset(dataset: Dataset) -> Subset:
     return Subset(dataset, sampled_indices)
 
 
-def map_indices_to_int_list(data: List[int], indices: Sequence[int]) -> List[int]:
-    return [data[i] for i in indices]
-
-
-def map_indices_to_str_list(data: List[str], indices: Sequence[int]) -> List[str]:
+def map_data_to_indices(data: List, indices: Sequence[int]) -> List:
     return [data[i] for i in indices]
 
 
