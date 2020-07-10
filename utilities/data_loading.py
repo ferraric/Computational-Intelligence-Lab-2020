@@ -28,19 +28,21 @@ def generate_bootstrap_dataset(dataset: Dataset) -> Subset:
     return Subset(dataset, sampled_indices)
 
 
-def save_labels_for_testing(
-    labels: List[int], indices: Sequence[int], save_path: str
-) -> None:
-    label_list = [labels[i] for i in indices]
+def map_indices_to_int_list(data: List[int], indices: Sequence[int]) -> List[int]:
+    return [data[i] for i in indices]
+
+
+def map_indices_to_str_list(data: List[str], indices: Sequence[int]) -> List[str]:
+    return [data[i] for i in indices]
+
+
+def save_labels(label_list: List[int], save_path: str) -> None:
     with open(save_path, "w") as out:
         for label in label_list:
             out.write(str(label) + "\n")
 
 
-def save_tweets_in_test_format(
-    tweets: List[str], indices: Sequence[int], save_path: str
-) -> None:
-    tweet_strings = [tweets[i] for i in indices]
+def save_tweets_in_test_format(tweets: List[str], save_path: str) -> None:
     with open(save_path, "w") as out:
-        for i, tweet in enumerate(tweet_strings, 1):
+        for i, tweet in enumerate(tweets, 1):
             out.write(str(i) + "," + tweet + "\n")
