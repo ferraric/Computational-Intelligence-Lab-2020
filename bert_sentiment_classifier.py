@@ -113,6 +113,7 @@ class BertSentimentClassifier(pl.LightningModule):
             tokenizer, train_data
         )
         val_token_ids, val_attention_mask = self._tokenize_tweets(tokenizer, val_data)
+
         self.train_data = TensorDataset(
             train_token_ids, train_attention_mask, train_labels
         )
@@ -121,7 +122,7 @@ class BertSentimentClassifier(pl.LightningModule):
         )
 
         if self.config.do_bootstrap_sampling:
-            self.train_data = generate_bootstrap_dataset(self.train_data)
+            self.train_data = generate_bootstrap_dataset(self.train_data)  # type: ignore
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
