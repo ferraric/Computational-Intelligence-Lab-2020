@@ -36,6 +36,7 @@ def save_labels(labels: List[int]) -> None:
 
 def save_tweets(tweets: List[str], indices: List[int]) -> None:
     tweet_strings = [tweets[i] for i in indices]
+    j = 0
     with open("data/val_data.txt", "w") as out:
         for i in tweet_strings:
-            out.write(i + "\n")
+            out.write(str(j) + "," + i + "\n")
