@@ -11,8 +11,7 @@ from transformers import BertForSequenceClassification, BertTokenizerFast
 from utilities.data_loading import (
     generate_bootstrap_dataset,
     load_tweets,
-    map_indices_to_int_list,
-    map_indices_to_str_list,
+    map_data_to_indices,
     remove_indices_from_test_tweets,
     save_labels,
     save_tweets_in_test_format,
@@ -94,10 +93,12 @@ class BertSentimentClassifier(pl.LightningModule):
         )
 
         validation_indices = self.validation_data.indices
-        tweet_list = map_indices_to_str_list(all_tweets, validation_indices)
-        label_list = map_indices_to_int_list(labels.tolist(), validation_indices)
-        save_tweets_in_test_format(tweet_list, self.config.validation_tweets_path)
-        save_labels(label_list, self.config.validation_labels_path)
+        validation_tweets = map_data_to_indices(all_tweets, validation_indices)
+        validation_labels = map_data_to_indices(labels.tolist(), validation_indices)
+        save_tweets_in_test_format(
+            validation_tweets, self.config.validation_tweets_save_path
+        )
+        save_labels(validation_labels, self.config.validation_labels_save_path)
 
         if self.config.do_bootstrap_sampling:
             self.train_data = generate_bootstrap_dataset(self.train_data)

@@ -32,9 +32,9 @@ def map_data_to_indices(data: List, indices: Sequence[int]) -> List:
     return [data[i] for i in indices]
 
 
-def save_labels(label_list: List[int], save_path: str) -> None:
+def save_labels(labels: List[int], save_path: str) -> None:
     with open(save_path, "w") as out:
-        for label in label_list:
+        for label in labels:
             out.write(str(label) + "\n")
 
 
