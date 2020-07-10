@@ -37,9 +37,6 @@ def save_labels_for_testing(labels: List[int], indices: List[int]) -> None:
 
 def save_tweets_in_test_format(tweets: List[str], indices: List[int]) -> None:
     tweet_strings = [tweets[i] for i in indices]
-    print(tweet_strings)
-    j = 1
     with open("data/val_data.txt", "w") as out:
-        for i in tweet_strings:
-            out.write(str(j) + "," + i + "\n")
-            j += 1
+        for i, tweet in enumerate(tweet_strings, 1):
+            out.write(str(i) + "," + tweet + "\n")
