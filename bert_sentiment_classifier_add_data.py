@@ -1,7 +1,7 @@
 from bert_sentiment_classifier import BertSentimentClassifier
 from torch.utils.data import ConcatDataset, TensorDataset
 from transformers import BertTokenizerFast
-from utilities.general_utilities import generate_bootstrap_dataset
+from utilities.data_loading import generate_bootstrap_dataset
 
 
 class BertSentimentClassifierAddData(BertSentimentClassifier):

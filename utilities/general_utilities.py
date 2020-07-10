@@ -1,17 +1,13 @@
 import argparse
 import json
 import os
-import re
 from datetime import datetime
-from random import choices
-from typing import List
 
 import torch
 from bunch import Bunch
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import CometLogger
-from torch.utils.data import Dataset, Subset
 
 
 def get_args() -> argparse.Namespace:
@@ -72,21 +68,3 @@ def initialize_trainer(save_path: str, config: Bunch, logger: CometLogger) -> Tr
         logger=logger,
         max_epochs=config.epochs,
     )
-
-
-def remove_indices_from_test_tweets(tweets: List[str]) -> List[str]:
-    def _remove_index_from_test_tweet(tweet: str) -> str:
-        test_tweet_format = re.compile("^[0-9]*,(.*)")
-        match = test_tweet_format.match(tweet)
-        if match:
-            return match.group(1)
-        else:
-            raise ValueError("unexpected test data format")
-
-    return [_remove_index_from_test_tweet(tweet) for tweet in tweets]
-
-
-def generate_bootstrap_dataset(dataset: Dataset) -> Subset:
-    dataset_size = dataset.__len__()
-    sampled_indices = choices(range(dataset_size), k=dataset_size)
-    return Subset(dataset, sampled_indices)
