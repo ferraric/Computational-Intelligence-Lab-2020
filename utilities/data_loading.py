@@ -1,6 +1,6 @@
 import re
 from random import choices
-from typing import List
+from typing import List, Sequence
 
 from torch.utils.data import Dataset, Subset
 
@@ -29,7 +29,7 @@ def generate_bootstrap_dataset(dataset: Dataset) -> Subset:
 
 
 def save_labels_for_testing(
-    labels: List[int], indices: List[int], save_path: str
+    labels: List[int], indices: Sequence[int], save_path: str
 ) -> None:
     label_list = [labels[i] for i in indices]
     with open(save_path, "w") as out:
@@ -38,7 +38,7 @@ def save_labels_for_testing(
 
 
 def save_tweets_in_test_format(
-    tweets: List[str], indices: List[int], save_path: str
+    tweets: List[str], indices: Sequence[int], save_path: str
 ) -> None:
     tweet_strings = [tweets[i] for i in indices]
     with open(save_path, "w") as out:
