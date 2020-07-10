@@ -1,6 +1,6 @@
 import re
 from random import choices
-from typing import List, Sequence
+from typing import List
 
 from torch.utils.data import Dataset, Subset
 
@@ -26,10 +26,6 @@ def generate_bootstrap_dataset(dataset: Dataset) -> Subset:
     dataset_size = dataset.__len__()
     sampled_indices = choices(range(dataset_size), k=dataset_size)
     return Subset(dataset, sampled_indices)
-
-
-def map_data_to_indices(data: List, indices: Sequence[int]) -> List:
-    return [data[i] for i in indices]
 
 
 def save_labels(labels: List[int], save_path: str) -> None:
