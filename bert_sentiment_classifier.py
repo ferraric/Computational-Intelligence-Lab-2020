@@ -12,8 +12,8 @@ from utilities.data_loading import (
     generate_bootstrap_dataset,
     load_tweets,
     remove_indices_from_test_tweets,
-    save_labels,
-    save_tweets,
+    save_labels_for_testing,
+    save_tweets_in_test_format,
 )
 
 
@@ -74,19 +74,16 @@ class BertSentimentClassifier(pl.LightningModule):
         n_train_samples = len(data) - n_validation_samples
         return random_split(data, [n_train_samples, n_validation_samples])
 
-    def _get_indices(self, data: Subset) -> List[int]:
-        return list(data.indices)
-
     def prepare_data(self) -> None:
-
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
 
         negative_tweets = self._load_unique_tweets(self.config.negative_tweets_path)
         positive_tweets = self._load_unique_tweets(self.config.positive_tweets_path)
+        all_tweets = negative_tweets + positive_tweets
         labels = self._generate_labels(len(negative_tweets), len(positive_tweets))
 
         train_token_ids, train_attention_mask = self._tokenize_tweets(
-            tokenizer, negative_tweets + positive_tweets
+            tokenizer, all_tweets
         )
 
         self.train_data, self.validation_data = self._train_validation_split(
@@ -94,12 +91,12 @@ class BertSentimentClassifier(pl.LightningModule):
             TensorDataset(train_token_ids, train_attention_mask, labels),
         )
 
-        validation_indices = self._get_indices(self.validation_data)
-        save_tweets(negative_tweets + positive_tweets, validation_indices)
-        save_labels(labels.tolist(), validation_indices)
+        validation_indices = list(self.validation_data.indices)
+        save_tweets_in_test_format(all_tweets, validation_indices)
+        save_labels_for_testing(labels.tolist(), validation_indices)
 
         if self.config.do_bootstrap_sampling:
-            self.train_data = generate_bootstrap_dataset(self.train_data)  # type: ignore
+            self.train_data = generate_bootstrap_dataset(self.train_data)
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
