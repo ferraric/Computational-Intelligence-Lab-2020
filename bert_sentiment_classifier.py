@@ -92,8 +92,12 @@ class BertSentimentClassifier(pl.LightningModule):
         )
 
         validation_indices = list(self.validation_data.indices)
-        save_tweets_in_test_format(all_tweets, validation_indices)
-        save_labels_for_testing(labels.tolist(), validation_indices)
+        save_tweets_in_test_format(
+            all_tweets, validation_indices, self.config.save_tweets_path
+        )
+        save_labels_for_testing(
+            labels.tolist(), validation_indices, self.config.save_labels_path
+        )
 
         if self.config.do_bootstrap_sampling:
             self.train_data = generate_bootstrap_dataset(self.train_data)

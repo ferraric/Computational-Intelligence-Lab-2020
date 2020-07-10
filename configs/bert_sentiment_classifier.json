@@ -10,6 +10,8 @@
   "additional_negative_tweets_path": "data/additional_train_neg.txt",
   "additional_positive_tweets_path": "data/additional_train_pos.txt",
   "test_tweets_path": "data/test_data.txt",
+  "save_tweets_path": "data/val_data.txt",
+  "save_labels_path": "data/val_labels.txt",
   "max_tokens_per_tweet": 140,
   "validation_size": 0.1,
   "do_bootstrap_sampling": false,
