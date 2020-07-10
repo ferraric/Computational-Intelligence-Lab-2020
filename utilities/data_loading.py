@@ -26,3 +26,16 @@ def generate_bootstrap_dataset(dataset: Dataset) -> Subset:
     dataset_size = dataset.__len__()
     sampled_indices = choices(range(dataset_size), k=dataset_size)
     return Subset(dataset, sampled_indices)
+
+
+def save_labels(labels: List[int]) -> None:
+    with open("data/val_labels.txt", "w") as out:
+        for j in labels:
+            out.write(str(j) + "\n")
+
+
+def save_tweets(tweets: List[str], indices: List[int]) -> None:
+    tweet_strings = [tweets[i] for i in indices]
+    with open("data/val_data.txt", "w") as out:
+        for i in tweet_strings:
+            out.write(i + "\n")

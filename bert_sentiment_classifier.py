@@ -12,8 +12,9 @@ from utilities.data_loading import (
     generate_bootstrap_dataset,
     load_tweets,
     remove_indices_from_test_tweets,
+    save_labels,
+    save_tweets,
 )
-from utilities.rules import apply_rules
 
 
 class BertSentimentClassifier(pl.LightningModule):
@@ -82,17 +83,6 @@ class BertSentimentClassifier(pl.LightningModule):
             indices.append(i)
         return indices, labels
 
-    def _save_validation_labels(self, labels: List[int]) -> None:
-        with open("data/val_labels.txt", "w") as out:
-            for j in labels:
-                out.write(str(j) + "\n")
-
-    def _save_validation_tweets(self, tweets: List[str], indices: List[int]) -> None:
-        tweet_strings = [tweets[i] for i in indices]
-        with open("data/val_data.txt", "w") as out:
-            for i in tweet_strings:
-                out.write(i + "\n")
-
     def prepare_data(self) -> None:
 
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
@@ -113,19 +103,16 @@ class BertSentimentClassifier(pl.LightningModule):
         validation_indices, validation_labels = self._get_validation_indices(
             self.validation_data
         )
-        self._save_validation_tweets(
-            negative_tweets + positive_tweets, validation_indices
-        )
-        self._save_validation_labels(validation_labels)
+        train_indices, train_labels = self._get_validation_indices(self.train_data)
+        save_tweets(negative_tweets + positive_tweets, validation_indices)
+        save_labels(validation_labels)
 
         if self.config.do_bootstrap_sampling:
             self.train_data = generate_bootstrap_dataset(self.train_data)  # type: ignore
-
         test_tweets = self._load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
-        test_tweets = apply_rules(test_tweets_index_removed)
         test_token_ids, test_attention_mask = self._tokenize_tweets(
-            tokenizer, test_tweets
+            tokenizer, test_tweets_index_removed
         )
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
 
