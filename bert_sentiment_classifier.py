@@ -91,9 +91,9 @@ class BertSentimentClassifier(pl.LightningModule):
             TensorDataset(train_token_ids, train_attention_mask, labels),
         )
 
-        validation_indices = self.validation_data.indices
+        validation_indices = list(self.validation_data.indices)
         validation_tweets = [all_tweets[i] for i in validation_indices]
-        validation_labels = [labels.tolist()[i] for i in validation_indices]
+        validation_labels = labels[validation_indices]
         save_tweets_in_test_format(
             validation_tweets, self.config.validation_tweets_save_path
         )

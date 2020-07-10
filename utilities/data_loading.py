@@ -2,6 +2,7 @@ import re
 from random import choices
 from typing import List
 
+import torch
 from torch.utils.data import Dataset, Subset
 
 
@@ -28,10 +29,10 @@ def generate_bootstrap_dataset(dataset: Dataset) -> Subset:
     return Subset(dataset, sampled_indices)
 
 
-def save_labels(labels: List[int], save_path: str) -> None:
+def save_labels(labels: torch.Tensor, save_path: str) -> None:
     with open(save_path, "w") as out:
         for label in labels:
-            out.write(str(label) + "\n")
+            out.write(str(label.item()) + "\n")
 
 
 def save_tweets_in_test_format(tweets: List[str], save_path: str) -> None:
