@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple, Union
 import pytorch_lightning as pl
 import torch
 from bunch import Bunch
+from rules import apply_rules
 from sklearn.model_selection import train_test_split
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
@@ -74,11 +75,6 @@ class BertSentimentClassifier(pl.LightningModule):
         return random_split(data, [n_train_samples, n_validation_samples])
 
     def prepare_data(self) -> None:
-        def _remove_brackets(data: List[str]) -> List[str]:
-            for i in data:
-                i = i.replace("(", "").replace(")", "")
-            return data
-
         def _save_val_split(val_data: List[str], val_labels: List[int]) -> None:
             with open("data/val_data.txt", "w") as out:
                 for i in val_data:
@@ -103,12 +99,10 @@ class BertSentimentClassifier(pl.LightningModule):
             random_state=self.config.random_seed,
         )
         _save_val_split(val_data, val_labels)
-        val_data = _remove_brackets(val_data)
 
         train_labels = torch.tensor(train_labels)
         val_labels = torch.tensor(val_labels)
 
-        # tokenize
         train_token_ids, train_attention_mask = self._tokenize_tweets(
             tokenizer, train_data
         )
@@ -126,8 +120,9 @@ class BertSentimentClassifier(pl.LightningModule):
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
+        test_tweets = apply_rules(test_tweets_index_removed)
         test_token_ids, test_attention_mask = self._tokenize_tweets(
-            tokenizer, test_tweets_index_removed
+            tokenizer, test_tweets
         )
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
 
