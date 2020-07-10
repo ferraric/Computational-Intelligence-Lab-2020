@@ -74,14 +74,8 @@ class BertSentimentClassifier(pl.LightningModule):
         n_train_samples = len(data) - n_validation_samples
         return random_split(data, [n_train_samples, n_validation_samples])
 
-    def _get_validation_indices(self, data: Subset) -> Tuple[List[int], List[int]]:
-        indices = []
-        labels = []
-        for i in range(data.__len__()):
-            _, _, label = data.__getitem__(i)
-            labels.append(i)
-            indices.append(i)
-        return indices, labels
+    def _get_indices(self, data: Subset) -> List[int]:
+        return list(data.indices)
 
     def prepare_data(self) -> None:
 
@@ -100,15 +94,13 @@ class BertSentimentClassifier(pl.LightningModule):
             TensorDataset(train_token_ids, train_attention_mask, labels),
         )
 
-        validation_indices, validation_labels = self._get_validation_indices(
-            self.validation_data
-        )
-        train_indices, train_labels = self._get_validation_indices(self.train_data)
+        validation_indices = self._get_indices(self.validation_data)
         save_tweets(negative_tweets + positive_tweets, validation_indices)
-        save_labels(validation_labels)
+        save_labels(labels.tolist(), validation_indices)
 
         if self.config.do_bootstrap_sampling:
             self.train_data = generate_bootstrap_dataset(self.train_data)  # type: ignore
+
         test_tweets = self._load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
         test_token_ids, test_attention_mask = self._tokenize_tweets(
