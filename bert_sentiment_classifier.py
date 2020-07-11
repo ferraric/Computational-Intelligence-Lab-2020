@@ -92,23 +92,25 @@ class BertSentimentClassifier(pl.LightningModule):
             TensorDataset(train_token_ids, train_attention_mask, labels),
         )
 
-        validation_indices = list(self.validation_data.indices)
-        validation_tweets = [all_tweets[i] for i in validation_indices]
-        validation_labels = labels[validation_indices]
-        save_tweets_in_test_format(
-            validation_tweets,
-            os.path.join(
-                self.config.model_save_directory,
-                self.config.validation_tweets_save_path,
-            ),
-        )
-        save_labels(
-            validation_labels,
-            os.path.join(
-                self.config.model_save_directory,
-                self.config.validation_labels_save_path,
-            ),
-        )
+        # set to false when testing!
+        if self.config.save_validation_tweets:
+            validation_indices = list(self.validation_data.indices)
+            validation_tweets = [all_tweets[i] for i in validation_indices]
+            validation_labels = labels[validation_indices]
+            save_tweets_in_test_format(
+                validation_tweets,
+                os.path.join(
+                    self.config.model_save_directory,
+                    self.config.validation_tweets_save_path,
+                ),
+            )
+            save_labels(
+                validation_labels,
+                os.path.join(
+                    self.config.model_save_directory,
+                    self.config.validation_labels_save_path,
+                ),
+            )
 
         if self.config.do_bootstrap_sampling:
             self.train_data = generate_bootstrap_dataset(self.train_data)
