@@ -1,3 +1,4 @@
+import os
 from typing import Dict, List, Tuple, Union
 
 import pytorch_lightning as pl
@@ -95,9 +96,19 @@ class BertSentimentClassifier(pl.LightningModule):
         validation_tweets = [all_tweets[i] for i in validation_indices]
         validation_labels = labels[validation_indices]
         save_tweets_in_test_format(
-            validation_tweets, self.config.validation_tweets_save_path
+            validation_tweets,
+            os.path.join(
+                self.config.model_save_directory,
+                self.config.validation_tweets_save_path,
+            ),
         )
-        save_labels(validation_labels, self.config.validation_labels_save_path)
+        save_labels(
+            validation_labels,
+            os.path.join(
+                self.config.model_save_directory,
+                self.config.validation_labels_save_path,
+            ),
+        )
 
         if self.config.do_bootstrap_sampling:
             self.train_data = generate_bootstrap_dataset(self.train_data)

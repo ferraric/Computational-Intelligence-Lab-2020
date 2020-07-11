@@ -39,4 +39,4 @@ def save_labels(labels: torch.Tensor, save_path: str) -> None:
 def save_tweets_in_test_format(tweets: List[str], save_path: str) -> None:
     with open(save_path, "w") as out:
         for i, tweet in enumerate(tweets, 1):
-            out.write(str(i) + "," + tweet + "\n")
+            out.write("{},{} \n".format(str(i), tweet))
