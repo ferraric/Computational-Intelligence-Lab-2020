@@ -2,6 +2,7 @@ import os
 
 import pytorch_lightning as pl
 from roberta_sentiment_classifier import RobertaSentimentClassifier
+from roberta_sentiment_classifier_add_data import RobertaSentimentClassifierAddData
 from utilities.general_utilities import (
     build_comet_logger,
     build_save_path,
@@ -25,12 +26,20 @@ def main() -> None:
     trainer = initialize_trainer(save_path, config, logger)
 
     if args.test_model_path is None:
-        model = RobertaSentimentClassifier(config)
+        if config.use_augmented_data:
+            model = RobertaSentimentClassifierAddData(config)
+        else:
+            model = RobertaSentimentClassifier(config)
         trainer.fit(model)
     else:
-        model = RobertaSentimentClassifier.load_from_checkpoint(
-            args.test_model_path, config=config
-        )
+        if config.use_augmented_data:
+            model = RobertaSentimentClassifierAddData.load_from_checkpoint(
+                args.test_model_path, config=config
+            )
+        else:
+            model = RobertaSentimentClassifier.load_from_checkpoint(
+                args.test_model_path, config=config
+            )
     trainer.test(model=model)
 
 
