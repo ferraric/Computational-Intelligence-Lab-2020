@@ -25,7 +25,7 @@ def main() -> None:
         data = json.load(file)
         data.update(save_path_dict)
         file.seek(0)
-        json.dump(data, file)
+        json.dump(data, file, indent=4)
 
     logger = build_comet_logger(save_path, config)
     logger.log_hyperparams(config)
