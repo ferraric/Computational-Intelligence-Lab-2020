@@ -8,7 +8,7 @@ from torch.utils.data import Dataset, Subset
 
 def load_tweets(tweets_path: str) -> List[str]:
     with open(tweets_path, encoding="utf-8") as f:
-        return f.read().splitlines()[:10]
+        return f.read().splitlines()
 
 
 def remove_indices_from_test_tweets(tweets: List[str]) -> List[str]:
