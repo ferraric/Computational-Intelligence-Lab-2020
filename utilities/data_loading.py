@@ -32,13 +32,11 @@ def generate_bootstrap_dataset(dataset: Dataset) -> Subset:
 def save_labels(labels: torch.Tensor, save_path: str) -> None:
     with open(save_path, "w") as out:
         for label in labels:
-            if label[label == 0]:
-                out.write(str(-1) + "\n")
-            else:
-                out.write(str(label.item()) + "\n")
+            label_to_save = 2 * label.item() - 1
+            out.write(str(label_to_save) + "\n")
 
 
 def save_tweets_in_test_format(tweets: List[str], save_path: str) -> None:
     with open(save_path, "w") as out:
         for i, tweet in enumerate(tweets, 1):
-            out.write("{},{} \n".format(str(i), tweet))
+            out.write("{},{}\n".format(str(i), tweet))
