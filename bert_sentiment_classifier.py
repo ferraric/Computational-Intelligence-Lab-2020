@@ -146,8 +146,35 @@ class BertSentimentClassifier(pl.LightningModule):
     ) -> Dict[str, Union[torch.Tensor, Dict[str, torch.Tensor]]]:
         loss = torch.mean(torch.stack([output["loss"] for output in outputs]))
         accuracy = torch.mean(torch.stack([output["accuracy"] for output in outputs]))
-
         out = {"val_loss": loss, "val_acc": accuracy}
+
+        logits = torch.cat([output["logits"] for output in outputs], 0).cpu()
+
+        positive_probabilities = torch.nn.functional.softmax(logits, dim=1)[:, 1]
+        predictions = 2 * (logits[:, 1] > logits[:, 0]) - 1
+        ids = torch.arange(1, logits.shape[0] + 1)
+        logit_table = torch.cat((ids.reshape(-1, 1).float(), logits), dim=1).numpy()
+        prediction_table = torch.stack((ids, predictions), dim=1).numpy()
+        probabilities_table = torch.stack(
+            (ids.float(), positive_probabilities), dim=1
+        ).numpy()
+
+        self.logger.experiment.log_table(
+            filename=("test_logits_val_epoch{}.csv".format(self.current_epoch)),
+            tabular_data=logit_table,
+            headers=["Id", "negative", "positive"],
+        )
+        self.logger.experiment.log_table(
+            filename=("test_probabilities_val_epoch{}.csv".format(self.current_epoch)),
+            tabular_data=probabilities_table,
+            headers=["Id", "positive_prob"],
+        )
+        self.logger.experiment.log_table(
+            filename=("test_predictions_val_epoch{}.csv".format(self.current_epoch)),
+            tabular_data=prediction_table,
+            headers=["Id", "Prediction"],
+        )
+
         return {**out, "log": out}
 
     def test_step(
