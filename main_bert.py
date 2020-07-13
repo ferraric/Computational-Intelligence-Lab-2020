@@ -26,6 +26,7 @@ def main() -> None:
         data.update(save_path_dict)
         file.seek(0)
         json.dump(data, file, indent=4)
+    config = get_bunch_config_from_json(args.config)
 
     logger = build_comet_logger(save_path, config)
     logger.log_hyperparams(config)
