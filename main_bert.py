@@ -1,4 +1,3 @@
-import json
 import os
 
 import pytorch_lightning as pl
@@ -19,14 +18,7 @@ def main() -> None:
     pl.seed_everything(config.random_seed)
     save_path = build_save_path(config)
     os.makedirs(save_path)
-
-    save_path_dict = {"model_save_path": save_path}
-    with open(args.config, "r+") as file:
-        data = json.load(file)
-        data.update(save_path_dict)
-        file.seek(0)
-        json.dump(data, file, indent=4)
-    config = get_bunch_config_from_json(args.config)
+    config.model_save_path = save_path
 
     logger = build_comet_logger(save_path, config)
     logger.log_hyperparams(config)

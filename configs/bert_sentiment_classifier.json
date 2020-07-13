@@ -18,10 +18,9 @@
   "batch_size": 32,
   "n_data_loader_workers": 4,
   "learning_rate": 3e-05,
-  "experiment_name": "bert-baseline-test",
+  "experiment_name": "bert-baseline",
   "use_comet_experiments": false,
   "comet_api_key": "NVyYXH1De9UgyELocupO1Lge9",
   "comet_project_name": "sentiment-analysis",
-  "comet_workspace": "jerry-crea",
-  "model_save_path": "experiments/bert-baseline-test/20-07-13_16-02-53"
+  "comet_workspace": "jerry-crea"
 }
