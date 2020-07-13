@@ -16,7 +16,6 @@ from utilities.data_loading import (
     save_labels,
     save_tweets_in_test_format,
 )
-from utilities.general_utilities import build_save_path
 
 
 class BertSentimentClassifier(pl.LightningModule):
@@ -93,19 +92,21 @@ class BertSentimentClassifier(pl.LightningModule):
             TensorDataset(train_token_ids, train_attention_mask, labels),
         )
 
-        # set to false when testing!
         if not self.testing:
-            save_path = build_save_path(self.config)
             validation_indices = list(self.validation_data.indices)
             validation_tweets = [all_tweets[i] for i in validation_indices]
             validation_labels = labels[validation_indices]
             save_tweets_in_test_format(
                 validation_tweets,
-                os.path.join(save_path, self.config.validation_tweets_save_path),
+                os.path.join(
+                    self.config.model_save_path, self.config.validation_tweets_save_path
+                ),
             )
             save_labels(
                 validation_labels,
-                os.path.join(save_path, self.config.validation_labels_save_path),
+                os.path.join(
+                    self.config.model_save_path, self.config.validation_labels_save_path
+                ),
             )
 
         if self.config.do_bootstrap_sampling:
@@ -149,7 +150,6 @@ class BertSentimentClassifier(pl.LightningModule):
         out = {"val_loss": loss, "val_acc": accuracy}
 
         logits = torch.cat([output["logits"] for output in outputs], 0).cpu()
-
         predictions = 2 * (logits[:, 1] > logits[:, 0]) - 1
         ids = torch.arange(1, logits.shape[0] + 1)
         prediction_table = torch.stack((ids, predictions), dim=1).numpy()

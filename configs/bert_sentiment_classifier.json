@@ -10,17 +10,18 @@
   "additional_negative_tweets_path": "data/additional_train_neg.txt",
   "additional_positive_tweets_path": "data/additional_train_pos.txt",
   "test_tweets_path": "data/test_data.txt",
-  "validation_tweets_save_path": "data/validation_data.txt",
-  "validation_labels_save_path": "data/validation_labels.txt",
+  "validation_tweets_save_path": "validation_data.txt",
+  "validation_labels_save_path": "validation_labels.txt",
   "max_tokens_per_tweet": 135,
   "validation_size": 0.1,
   "do_bootstrap_sampling": false,
   "batch_size": 32,
   "n_data_loader_workers": 4,
   "learning_rate": 3e-05,
-  "experiment_name": "bert-baseline",
-  "use_comet_experiments": false,
+  "experiment_name": "bert-baseline-test",
+  "use_comet_experiments": true,
   "comet_api_key": "NVyYXH1De9UgyELocupO1Lge9",
   "comet_project_name": "sentiment-analysis",
-  "comet_workspace": "jerry-crea"
+  "comet_workspace": "jerry-crea",
+  "model_save_path": "experiments/bert-baseline-test/20-07-13_15-43-36"
 }
