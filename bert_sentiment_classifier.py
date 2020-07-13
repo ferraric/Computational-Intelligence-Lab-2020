@@ -94,7 +94,7 @@ class BertSentimentClassifier(pl.LightningModule):
         )
 
         # set to false when testing!
-        if self.testing:
+        if not self.testing:
             save_path = build_save_path(self.config)
             validation_indices = list(self.validation_data.indices)
             validation_tweets = [all_tweets[i] for i in validation_indices]
