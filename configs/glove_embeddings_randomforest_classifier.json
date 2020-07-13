@@ -6,20 +6,18 @@
   "glove_vocabulary_path": "data/glove_vocab.pkl",
   "glove_embeddings_path": "data/glove_embeddings.npz",
   "num_workers": 10,
-  "model": "linearsvc",
+  "model": "randomforest",
   "model_parameters": {
-    "C": [
-      0.001,
-      1,
+    "n_estimators": [
+      50,
+      100,
+      250,
+      500
+    ],
+    "max_features": [
+      "sqrt",
+      "log2",
       10
-    ],
-    "penalty": [
-      "l1",
-      "l2"
-    ],
-    "loss": [
-      "hinge",
-      "squared_hinge"
     ]
   },
   "use_comet_experiments": false,

@@ -6,20 +6,23 @@
   "glove_vocabulary_path": "data/glove_vocab.pkl",
   "glove_embeddings_path": "data/glove_embeddings.npz",
   "num_workers": 10,
-  "model": "linearsvc",
+  "model": "logregression",
   "model_parameters": {
+    "penalty": [
+      "l1",
+      "l2",
+      "elastic_net"
+    ],
     "C": [
       0.001,
       1,
-      10
+      10,
+      20
     ],
-    "penalty": [
-      "l1",
-      "l2"
-    ],
-    "loss": [
-      "hinge",
-      "squared_hinge"
+    "l1_ratio": [
+      0.1,
+      0.5,
+      0.9
     ]
   },
   "use_comet_experiments": false,
