@@ -42,8 +42,6 @@ def get_subsets_rule_based(
 
 def print_all_scores(rule_predictions: List[int], labels: List[int]) -> None:
     print("-- all tweets --")
-    print("nr of predictions: ", len([x for x in rule_predictions if x != 0]))
-    print("nr of unknown: ", len([x for x in rule_predictions if x == 0]))
     confusion_matrix_rules = confusion_matrix(labels, rule_predictions)
     print("confusion matrix: ", confusion_matrix_rules)
 
@@ -52,6 +50,8 @@ def print_rule_scores(
     rule_predictions: List[int], bert_predictions: List[int], labels: List[int],
 ) -> None:
     print("-- only tweets predicted with rules --")
+    print("nr of rule_predictions: ", len([x for x in rule_predictions if x != 0]))
+    print("nr of unknown: ", len([x for x in rule_predictions if x == 0]))
     accuracy_rules = accuracy_score(labels, rule_predictions)
     print("accuracy rules: ", accuracy_rules)
     accuracy_bert = accuracy_score(labels, bert_predictions)
