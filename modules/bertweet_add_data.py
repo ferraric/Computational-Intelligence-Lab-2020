@@ -1,4 +1,4 @@
-from bertweet import BERTweet
+from modules.bertweet import BERTweet
 from torch.utils.data import ConcatDataset, TensorDataset
 from utilities.data_loading import generate_bootstrap_dataset
 
