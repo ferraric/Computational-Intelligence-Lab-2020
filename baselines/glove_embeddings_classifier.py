@@ -98,7 +98,7 @@ class GloveEmbeddingsClassifier:
             cv=KFold(shuffle=True, random_state=random_seed),
             param_grid=model_params,
             n_jobs=-1,
-            verbose=1,
+            verbose=100,
         )
         grid_search.fit(features, labels)
         return (

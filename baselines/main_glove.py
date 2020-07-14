@@ -41,7 +41,7 @@ def main() -> None:
 
     training_features, training_labels = classifier.generate_training_data(config)
     best_model, best_model_score, best_model_params = classifier.run_grid_search(
-        config.random_seed, config.svm_parameters, training_features, training_labels
+        config.random_seed, config.model_parameters, training_features, training_labels
     )
 
     comet_experiment.log_metric("mean accuracy", best_model_score)

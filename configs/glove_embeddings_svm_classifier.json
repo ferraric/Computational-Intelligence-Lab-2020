@@ -5,7 +5,7 @@
   "test_data_path": "data/test_data.txt",
   "glove_vocabulary_path": "data/glove_vocab.pkl",
   "glove_embeddings_path": "data/glove_embeddings.npz",
-  "num_workers": 10,
+  "num_workers": 4,
   "model": "linearsvc",
   "model_parameters": {
     "C": [
