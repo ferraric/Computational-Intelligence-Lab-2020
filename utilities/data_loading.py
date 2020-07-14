@@ -2,6 +2,7 @@ import re
 from random import choices
 from typing import List
 
+import torch
 from torch.utils.data import Dataset, Subset
 
 
@@ -26,3 +27,16 @@ def generate_bootstrap_dataset(dataset: Dataset) -> Subset:
     dataset_size = dataset.__len__()
     sampled_indices = choices(range(dataset_size), k=dataset_size)
     return Subset(dataset, sampled_indices)
+
+
+def save_labels(labels: torch.Tensor, save_path: str) -> None:
+    with open(save_path, "w") as out:
+        for label in labels:
+            label_to_save = 2 * label.item() - 1
+            out.write(str(label_to_save) + "\n")
+
+
+def save_tweets_in_test_format(tweets: List[str], save_path: str) -> None:
+    with open(save_path, "w") as out:
+        for i, tweet in enumerate(tweets, 1):
+            out.write("{},{}\n".format(str(i), tweet))

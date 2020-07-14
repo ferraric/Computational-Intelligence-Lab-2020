@@ -18,10 +18,10 @@ def main() -> None:
     pl.seed_everything(config.random_seed)
     save_path = build_save_path(config)
     os.makedirs(save_path)
+    config.model_save_path = save_path
 
     logger = build_comet_logger(save_path, config)
     logger.log_hyperparams(config)
-    logger.log_hyperparams({"model_checkpoint_path": save_path})
 
     trainer = initialize_trainer(save_path, config, logger)
 
