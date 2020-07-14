@@ -1,0 +1,27 @@
+{
+  "random_seed": 0,
+  "neg_tweets_path": "data/train_neg_full.txt",
+  "pos_tweets_path": "data/train_pos_full.txt",
+  "test_data_path": "data/test_data.txt",
+  "glove_vocabulary_path": "data/glove_vocab.pkl",
+  "glove_embeddings_path": "data/glove_embeddings.npz",
+  "num_workers": 4,
+  "model": "randomforest",
+  "model_parameters": {
+    "n_estimators": [
+      50,
+      100,
+      150
+    ],
+    "max_features": [
+      "sqrt",
+      "log2",
+      10
+    ]
+  },
+  "use_comet_experiments": false,
+  "comet_api_key": "NVyYXH1De9UgyELocupO1Lge9",
+  "comet_experiment_name": "glove-embeddings-randomforest",
+  "comet_project_name": "sentiment-analysis",
+  "comet_workspace": "jerry-crea"
+}

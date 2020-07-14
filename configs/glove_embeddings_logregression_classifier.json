@@ -5,33 +5,29 @@
   "test_data_path": "data/test_data.txt",
   "glove_vocabulary_path": "data/glove_vocab.pkl",
   "glove_embeddings_path": "data/glove_embeddings.npz",
-  "num_workers": 10,
-  "svm_parameters": {
+  "num_workers": 4,
+  "model": "logregression",
+  "model_parameters": {
+    "penalty": [
+      "l1",
+      "l2",
+      "elasticnet"
+    ],
     "C": [
       0.001,
       1,
-      10
+      10,
+      20
     ],
-    "kernel": [
-      "linear",
-      "rbf",
-      "poly",
-      "sigmoid"
-    ],
-    "degree": [
-      2,
-      3,
-      4,
-      5
-    ],
-    "gamma": [
-      "auto",
-      "scale"
+    "l1_ratio": [
+      0.1,
+      0.5,
+      0.9
     ]
   },
   "use_comet_experiments": false,
   "comet_api_key": "NVyYXH1De9UgyELocupO1Lge9",
-  "comet_experiment_name": "glove-embeddings-svm",
+  "comet_experiment_name": "glove-embeddings-logregression",
   "comet_project_name": "sentiment-analysis",
   "comet_workspace": "jerry-crea"
 }
