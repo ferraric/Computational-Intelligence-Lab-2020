@@ -11,7 +11,7 @@
     "penalty": [
       "l1",
       "l2",
-      "elastic_net"
+      "elasticnet"
     ],
     "C": [
       0.001,

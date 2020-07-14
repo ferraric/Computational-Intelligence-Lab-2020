@@ -18,9 +18,9 @@
       "l2"
     ],
     "max_iter": [
-      1000,
-      1500,
-      2000
+      3000,
+      5000,
+      10000
     ]
   },
   "use_comet_experiments": false,
