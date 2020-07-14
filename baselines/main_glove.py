@@ -1,6 +1,7 @@
+from comet_ml import Experiment
+
 import numpy as np
 from baselines.glove_embeddings_classifier import GloveEmbeddingsClassifier
-from comet_ml import Experiment
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
