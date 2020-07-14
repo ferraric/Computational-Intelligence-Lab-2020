@@ -17,9 +17,10 @@
       "l1",
       "l2"
     ],
-    "loss": [
-      "hinge",
-      "squared_hinge"
+    "max_iter": [
+      500,
+      1000,
+      2000
     ]
   },
   "use_comet_experiments": false,
