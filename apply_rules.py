@@ -27,11 +27,6 @@ def matched(tweet: str) -> bool:
         return True
 
 
-# (() denn negativ
-# )(( denn unknown
-# )() denn positiv
-
-
 def count_parenthesis(data: List[str]) -> List[int]:
     rule_predictions = []
     for tweet in data:
