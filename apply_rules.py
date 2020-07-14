@@ -4,11 +4,8 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 from utilities.data_loading import load_tweets, remove_indices_from_test_tweets
 
 
-def count_parentheses(data: List[str]) -> Tuple[List[int], int, int, int]:
-    predicted_labels = []
-    pos_count = 0
-    neg_count = 0
-    unknown_count = 0
+def count_parentheses(data: List[str]) -> List[int]:
+    rule_predictions = []
     for tweet in data:
         pos = 0
         neg = 0
@@ -16,16 +13,13 @@ def count_parentheses(data: List[str]) -> Tuple[List[int], int, int, int]:
         neg += tweet.count(" ( ")
 
         if pos > neg:
-            predicted_labels.append(1)
-            pos_count += 1
+            rule_predictions.append(1)
         elif neg > pos:
-            predicted_labels.append(-1)
-            neg_count += 1
+            rule_predictions.append(-1)
         else:
-            predicted_labels.append(0)
-            unknown_count += 1
+            rule_predictions.append(0)
 
-    return predicted_labels, pos_count, neg_count, unknown_count
+    return rule_predictions
 
 
 def get_subsets_rule_based(
@@ -46,12 +40,10 @@ def get_subsets_rule_based(
     )
 
 
-def print_all_scores(
-    count: int, unknown_count: int, predictions: List[int], labels: List[int],
-) -> None:
+def print_all_scores(predictions: List[int], labels: List[int]) -> None:
     print("-- all tweets --")
-    print("nr of predictions: ", count)
-    print("nr of unknown: ", unknown_count)
+    print("nr of predictions: ", len([x for x in predictions if x != 0]))
+    print("nr of unknown: ", len([x for x in predictions if x == 0]))
     confusion_matrix_rules = confusion_matrix(labels, predictions)
     print("confusion matrix: ", confusion_matrix_rules)
 
@@ -79,9 +71,7 @@ def main() -> None:
     # this are gonna be the real predictions of bert once finished
     bert_predictions = labels
 
-    rule_predictions, pos_count, neg_count, unknown_count = count_parentheses(
-        tweets_index_removed
-    )
+    rule_predictions = count_parentheses(tweets_index_removed)
 
     (
         rule_predictions_rule_matched,
@@ -89,9 +79,7 @@ def main() -> None:
         labels_rule_matched,
     ) = get_subsets_rule_based(rule_predictions, bert_predictions, labels)
 
-    print_all_scores(
-        pos_count + neg_count, unknown_count, rule_predictions, labels,
-    )
+    print_all_scores(rule_predictions, labels)
 
     print_rule_scores(
         rule_predictions_rule_matched,
