@@ -4,7 +4,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 from utilities.data_loading import load_tweets, remove_indices_from_test_tweets
 
 
-def count_parentheses(data: List[str]) -> List[int]:
+def count_parenthesis(data: List[str]) -> List[int]:
     rule_predictions = []
     for tweet in data:
         pos = 0
@@ -68,12 +68,12 @@ def main() -> None:
     tweets_index_removed = remove_indices_from_test_tweets(tweets)
 
     with open("data/rules/validation_labels.txt") as f:
-        labels = [int(x) for x in f]
+        labels = [int(label) for label in f]
 
     # this are gonna be the real predictions of bert once finished
     bert_predictions = labels
 
-    rule_predictions = count_parentheses(tweets_index_removed)
+    rule_predictions = count_parenthesis(tweets_index_removed)
 
     (
         rule_predictions_rule_matched,
