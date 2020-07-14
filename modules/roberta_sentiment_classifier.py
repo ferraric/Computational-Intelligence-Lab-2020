@@ -1,6 +1,6 @@
 import pytorch_lightning as pl
-from bert_sentiment_classifier import BertSentimentClassifier
 from bunch import Bunch
+from modules.bert_sentiment_classifier import BertSentimentClassifier
 from torch.nn import CrossEntropyLoss
 from transformers import RobertaForSequenceClassification, RobertaTokenizerFast
 

@@ -1,7 +1,7 @@
 import pytorch_lightning as pl
 import torch
-from bert_sentiment_classifier import BertSentimentClassifier
 from bunch import Bunch
+from modules.bert_sentiment_classifier import BertSentimentClassifier
 from torch.nn import CrossEntropyLoss, Dropout, Linear
 from transformers import BertConfig, BertModel
 
