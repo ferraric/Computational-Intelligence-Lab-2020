@@ -11,8 +11,7 @@
     "n_estimators": [
       50,
       100,
-      250,
-      500
+      150
     ],
     "max_features": [
       "sqrt",

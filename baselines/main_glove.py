@@ -24,11 +24,17 @@ def main() -> None:
     comet_experiment.log_parameters(config)
 
     if config.model == "linearsvc":
-        classifier = GloveEmbeddingsClassifier(LinearSVC(dual=False))
+        classifier = GloveEmbeddingsClassifier(
+            LinearSVC(dual=False, random_state=config.random_seed)
+        )
     elif config.model == "xgboost":
-        classifier = GloveEmbeddingsClassifier(XGBClassifier(n_jobs=1))
+        classifier = GloveEmbeddingsClassifier(
+            XGBClassifier(n_jobs=1, random_state=config.random_seed)
+        )
     elif config.model == "randomforest":
-        classifier = GloveEmbeddingsClassifier(RandomForestClassifier())
+        classifier = GloveEmbeddingsClassifier(
+            RandomForestClassifier(random_state=config.random_seed)
+        )
     elif config.model == "logregression":
         classifier = GloveEmbeddingsClassifier(
             LogisticRegression(solver="saga", random_state=config.random_seed)
@@ -50,7 +56,7 @@ def main() -> None:
 
     test_data_features = classifier.generate_test_data_features(config)
     ids = np.arange(1, test_data_features.shape[0] + 1)
-    predictions = best_model.predict(test_data_features)
+    predictions = best_model.predict(test_data_features).astype(int)
     predictions_table = np.stack([ids, predictions], axis=-1)
 
     comet_experiment.log_table(
