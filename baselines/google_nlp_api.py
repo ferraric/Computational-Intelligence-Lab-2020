@@ -1,7 +1,8 @@
 import time
 
-import numpy as np
 from comet_ml import Experiment
+
+import numpy as np
 from google.cloud import language
 from google.cloud.language import enums, types
 from google.protobuf.json_format import MessageToDict
