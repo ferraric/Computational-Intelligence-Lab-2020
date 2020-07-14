@@ -28,39 +28,43 @@ def count_parentheses(data: List[str]) -> Tuple[List[int], int, int, int]:
     return predicted_labels, pos_count, neg_count, unknown_count
 
 
-def get_rule_based_labels(
-    predicted_labels: List[int], bert_labels: List[int], true_labels: List[int]
+def get_subsets_rule_based(
+    rule_predictions: List[int], bert_predictions: List[int], labels: List[int]
 ) -> Tuple[List[int], List[int], List[int]]:
-    predicted_labels_rule_based = []
-    bert_labels_rule_based = []
-    true_labels_rule_based = []
-    for x, y, z in zip(predicted_labels, bert_labels, true_labels):
+    rule_predictions_rule_subset = []
+    bert_predictions_rule_subset = []
+    labels_rule_subset = []
+    for x, y, z in zip(rule_predictions, bert_predictions, labels):
         if x != 0:
-            predicted_labels_rule_based.append(x)
-            bert_labels_rule_based.append(y)
-            true_labels_rule_based.append(z)
-    return predicted_labels_rule_based, bert_labels_rule_based, true_labels_rule_based
+            rule_predictions_rule_subset.append(x)
+            bert_predictions_rule_subset.append(y)
+            labels_rule_subset.append(z)
+    return (
+        rule_predictions_rule_subset,
+        bert_predictions_rule_subset,
+        labels_rule_subset,
+    )
 
 
-def get_all_scores(
-    count: int, unknown_count: int, predicted_labels: List[int], true_labels: List[int],
+def print_all_scores(
+    count: int, unknown_count: int, predictions: List[int], labels: List[int],
 ) -> None:
     print("-- all tweets --")
     print("nr of predictions: ", count)
     print("nr of unknown: ", unknown_count)
-    confusion_matrix_rules = confusion_matrix(true_labels, predicted_labels)
+    confusion_matrix_rules = confusion_matrix(labels, predictions)
     print("confusion matrix: ", confusion_matrix_rules)
 
 
-def get_rule_scores(
-    predicted_labels: List[int], bert_labels: List[int], true_labels: List[int],
+def print_rule_scores(
+    predictions: List[int], bert_labels: List[int], labels: List[int],
 ) -> None:
     print("-- only tweets predicted with rules --")
-    accuracy_rules = accuracy_score(true_labels, predicted_labels)
+    accuracy_rules = accuracy_score(labels, predictions)
     print("accuracy rules: ", accuracy_rules)
-    accuracy_bert = accuracy_score(true_labels, bert_labels)
+    accuracy_bert = accuracy_score(labels, bert_labels)
     print("accuracy bert: ", accuracy_bert)
-    confusion_matrix_rules = confusion_matrix(true_labels, predicted_labels)
+    confusion_matrix_rules = confusion_matrix(labels, predictions)
     print("confusion matrix: ", confusion_matrix_rules)
 
 
@@ -70,27 +74,27 @@ def main() -> None:
     tweets_index_removed = remove_indices_from_test_tweets(tweets)
 
     with open("data/rules/validation_labels.txt") as f:
-        true_labels = [int(x) for x in f]
+        labels = [int(x) for x in f]
 
     # this are gonna be the real predictions of bert once finished
-    bert_labels = true_labels
+    bert_predictions = labels
 
-    predicted_labels, pos_count, neg_count, unknown_count = count_parentheses(
+    rule_predictions, pos_count, neg_count, unknown_count = count_parentheses(
         tweets_index_removed
     )
 
     (
-        predicted_labels_rule_based,
-        bert_labels_rule_based,
-        true_labels_rule_based,
-    ) = get_rule_based_labels(predicted_labels, bert_labels, true_labels)
+        rule_predictions_rule_subset,
+        bert_predictions_rule_subset,
+        labels_rule_subset,
+    ) = get_subsets_rule_based(rule_predictions, bert_predictions, labels)
 
-    get_all_scores(
-        pos_count + neg_count, unknown_count, predicted_labels, true_labels,
+    print_all_scores(
+        pos_count + neg_count, unknown_count, rule_predictions, labels,
     )
 
-    get_rule_scores(
-        predicted_labels_rule_based, bert_labels_rule_based, true_labels_rule_based,
+    print_rule_scores(
+        rule_predictions_rule_subset, bert_predictions_rule_subset, labels_rule_subset
     )
 
 
