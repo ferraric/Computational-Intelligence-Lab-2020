@@ -18,10 +18,11 @@
       6,
       9
     ],
-    "min_child_weight": [
-      0.5,
-      1,
-      10
+    "n_estimators": [
+      50,
+      100,
+      250,
+      500
     ]
   },
   "use_comet_experiments": false,

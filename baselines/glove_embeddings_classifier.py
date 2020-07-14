@@ -1,16 +1,30 @@
 import pickle
 from concurrent.futures import ProcessPoolExecutor
 from itertools import repeat
-from typing import Any, Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 from bunch import Bunch
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, KFold
+from sklearn.svm import LinearSVC
+from sklearn.tree import DecisionTreeClassifier
 from utilities.data_loading import load_tweets, remove_indices_from_test_tweets
+from xgboost import XGBClassifier
 
 
 class GloveEmbeddingsClassifier:
-    def __init__(self, model: Any):
+    def __init__(
+        self,
+        model: Union[
+            LinearSVC,
+            LogisticRegression,
+            DecisionTreeClassifier,
+            RandomForestClassifier,
+            XGBClassifier,
+        ],
+    ):
         self.model = model
 
     def load_vocabulary(self, vocabulary_path: str) -> List[str]:
@@ -92,7 +106,17 @@ class GloveEmbeddingsClassifier:
         model_params: Dict[str, List[Union[float, str]]],
         features: np.ndarray,
         labels: np.ndarray,
-    ) -> Tuple[Any, float, Dict[str, List[Union[float, str]]]]:
+    ) -> Tuple[
+        Union[
+            LinearSVC,
+            LogisticRegression,
+            DecisionTreeClassifier,
+            RandomForestClassifier,
+            XGBClassifier,
+        ],
+        float,
+        Dict[str, List[Union[float, str]]],
+    ]:
         grid_search = GridSearchCV(
             estimator=self.model,
             cv=KFold(shuffle=True, random_state=random_seed),
