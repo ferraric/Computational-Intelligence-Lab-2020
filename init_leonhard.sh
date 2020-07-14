@@ -7,6 +7,5 @@ pre-commit install
 # (where it doesn't have permission and fails), we create empty config files in the project root folder
 touch .editorconfig
 touch pyproject.toml
-touch .isort.cfg
 touch setup.cfg
 touch tox.ini
