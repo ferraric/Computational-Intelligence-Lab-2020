@@ -1,3 +1,4 @@
+import os
 from typing import Dict, List, Tuple, Union
 
 import pytorch_lightning as pl
@@ -12,6 +13,8 @@ from utilities.data_loading import (
     generate_bootstrap_dataset,
     load_tweets,
     remove_indices_from_test_tweets,
+    save_labels,
+    save_tweets_in_test_format,
 )
 
 
@@ -22,6 +25,7 @@ class BertSentimentClassifier(pl.LightningModule):
         self.model = BertForSequenceClassification.from_pretrained(
             config.pretrained_model
         )
+        self.tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
         self.loss = CrossEntropyLoss()
 
     def _load_tweets(self, path: str) -> List[str]:
@@ -73,18 +77,32 @@ class BertSentimentClassifier(pl.LightningModule):
         return random_split(data, [n_train_samples, n_validation_samples])
 
     def prepare_data(self) -> None:
-        tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
-
         negative_tweets = self._load_unique_tweets(self.config.negative_tweets_path)
         positive_tweets = self._load_unique_tweets(self.config.positive_tweets_path)
+        all_tweets = negative_tweets + positive_tweets
         labels = self._generate_labels(len(negative_tweets), len(positive_tweets))
+
         train_token_ids, train_attention_mask = self._tokenize_tweets(
-            tokenizer, negative_tweets + positive_tweets
+            self.tokenizer, all_tweets
         )
+
         self.train_data, self.validation_data = self._train_validation_split(
             self.config.validation_size,
             TensorDataset(train_token_ids, train_attention_mask, labels),
         )
+
+        if not self.testing:
+            validation_indices = list(self.validation_data.indices)
+            validation_tweets = [all_tweets[i] for i in validation_indices]
+            validation_labels = labels[validation_indices]
+            save_tweets_in_test_format(
+                validation_tweets,
+                os.path.join(self.config.model_save_path, "validation_data.txt"),
+            )
+            save_labels(
+                validation_labels,
+                os.path.join(self.config.model_save_path, "validation_labels.txt"),
+            )
 
         if self.config.do_bootstrap_sampling:
             self.train_data = generate_bootstrap_dataset(self.train_data)
@@ -92,7 +110,7 @@ class BertSentimentClassifier(pl.LightningModule):
         test_tweets = self._load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
         test_token_ids, test_attention_mask = self._tokenize_tweets(
-            tokenizer, test_tweets_index_removed
+            self.tokenizer, test_tweets_index_removed
         )
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
 
