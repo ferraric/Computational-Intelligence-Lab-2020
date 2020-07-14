@@ -51,7 +51,7 @@ def main() -> None:
     test_data_features = classifier.generate_test_data_features(config)
     ids = np.arange(1, test_data_features.shape[0] + 1)
     predictions = best_model.predict(test_data_features)
-    predictions_table = np.hstack((ids, predictions))
+    predictions_table = np.stack([ids, predictions], axis=-1)
 
     comet_experiment.log_table(
         filename="test_predictions.csv",
