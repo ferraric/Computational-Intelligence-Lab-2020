@@ -40,24 +40,26 @@ def get_subsets_rule_based(
     )
 
 
-def print_all_scores(predictions: List[int], labels: List[int]) -> None:
+def print_all_scores(rule_predictions: List[int], labels: List[int]) -> None:
     print("-- all tweets --")
-    print("nr of predictions: ", len([x for x in predictions if x != 0]))
-    print("nr of unknown: ", len([x for x in predictions if x == 0]))
-    confusion_matrix_rules = confusion_matrix(labels, predictions)
+    print("nr of predictions: ", len([x for x in rule_predictions if x != 0]))
+    print("nr of unknown: ", len([x for x in rule_predictions if x == 0]))
+    confusion_matrix_rules = confusion_matrix(labels, rule_predictions)
     print("confusion matrix: ", confusion_matrix_rules)
 
 
 def print_rule_scores(
-    predictions: List[int], bert_labels: List[int], labels: List[int],
+    rule_predictions: List[int], bert_predictions: List[int], labels: List[int],
 ) -> None:
     print("-- only tweets predicted with rules --")
-    accuracy_rules = accuracy_score(labels, predictions)
+    accuracy_rules = accuracy_score(labels, rule_predictions)
     print("accuracy rules: ", accuracy_rules)
-    accuracy_bert = accuracy_score(labels, bert_labels)
+    accuracy_bert = accuracy_score(labels, bert_predictions)
     print("accuracy bert: ", accuracy_bert)
-    confusion_matrix_rules = confusion_matrix(labels, predictions)
-    print("confusion matrix: ", confusion_matrix_rules)
+    confusion_matrix_rules = confusion_matrix(labels, rule_predictions)
+    print("confusion matrix rules:\n", confusion_matrix_rules)
+    confusion_matrix_bert = confusion_matrix(labels, bert_predictions)
+    print("confusion matrix bert:\n", confusion_matrix_bert)
 
 
 def main() -> None:
