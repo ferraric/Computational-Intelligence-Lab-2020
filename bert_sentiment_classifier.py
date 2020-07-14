@@ -1,9 +1,9 @@
 import os
+from collections import OrderedDict
 from typing import Dict, List, Tuple, Union
 
 import pytorch_lightning as pl
 import torch
-from _collections import OrderedDict
 from bunch import Bunch
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
@@ -69,13 +69,19 @@ class BertSentimentClassifier(pl.LightningModule):
         return tokenized_input["input_ids"], tokenized_input["attention_mask"]
 
     def _train_validation_split(
-        self, validation_size: float, data: TensorDataset
+        self, validation_size: float, data: TensorDataset, random_seed: int
     ) -> List[Subset]:
         assert 0 <= validation_size and validation_size <= 1
 
         n_validation_samples = int(validation_size * len(data))
         n_train_samples = len(data) - n_validation_samples
-        return random_split(data, [n_train_samples, n_validation_samples])
+        random_state_before_split = torch.get_rng_state()
+        torch.manual_seed(random_seed)
+        [train_data, validation_data] = random_split(
+            data, [n_train_samples, n_validation_samples]
+        )
+        torch.set_rng_state(random_state_before_split)
+        return [train_data, validation_data]
 
     def prepare_data(self) -> None:
         negative_tweets = self._load_unique_tweets(self.config.negative_tweets_path)
@@ -90,6 +96,7 @@ class BertSentimentClassifier(pl.LightningModule):
         self.train_data, self.validation_data = self._train_validation_split(
             self.config.validation_size,
             TensorDataset(train_token_ids, train_attention_mask, labels),
+            self.config.validation_split_random_seed,
         )
 
         if not self.testing:
