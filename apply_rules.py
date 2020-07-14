@@ -31,18 +31,18 @@ def count_parentheses(data: List[str]) -> Tuple[List[int], int, int, int]:
 def get_subsets_rule_based(
     rule_predictions: List[int], bert_predictions: List[int], labels: List[int]
 ) -> Tuple[List[int], List[int], List[int]]:
-    rule_predictions_rule_subset = []
-    bert_predictions_rule_subset = []
-    labels_rule_subset = []
+    rule_predictions_rule_matched = []
+    bert_predictions_rule_matched = []
+    labels_rule_matched = []
     for x, y, z in zip(rule_predictions, bert_predictions, labels):
         if x != 0:
-            rule_predictions_rule_subset.append(x)
-            bert_predictions_rule_subset.append(y)
-            labels_rule_subset.append(z)
+            rule_predictions_rule_matched.append(x)
+            bert_predictions_rule_matched.append(y)
+            labels_rule_matched.append(z)
     return (
-        rule_predictions_rule_subset,
-        bert_predictions_rule_subset,
-        labels_rule_subset,
+        rule_predictions_rule_matched,
+        bert_predictions_rule_matched,
+        labels_rule_matched,
     )
 
 
@@ -84,9 +84,9 @@ def main() -> None:
     )
 
     (
-        rule_predictions_rule_subset,
-        bert_predictions_rule_subset,
-        labels_rule_subset,
+        rule_predictions_rule_matched,
+        bert_predictions_rule_matched,
+        labels_rule_matched,
     ) = get_subsets_rule_based(rule_predictions, bert_predictions, labels)
 
     print_all_scores(
@@ -94,7 +94,9 @@ def main() -> None:
     )
 
     print_rule_scores(
-        rule_predictions_rule_subset, bert_predictions_rule_subset, labels_rule_subset
+        rule_predictions_rule_matched,
+        bert_predictions_rule_matched,
+        labels_rule_matched,
     )
 
 
