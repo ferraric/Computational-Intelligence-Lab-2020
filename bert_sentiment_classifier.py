@@ -98,15 +98,11 @@ class BertSentimentClassifier(pl.LightningModule):
             validation_labels = labels[validation_indices]
             save_tweets_in_test_format(
                 validation_tweets,
-                os.path.join(
-                    self.config.model_save_path, self.config.validation_tweets_save_path
-                ),
+                os.path.join(self.config.model_save_path, "validation_data.txt"),
             )
             save_labels(
                 validation_labels,
-                os.path.join(
-                    self.config.model_save_path, self.config.validation_labels_save_path
-                ),
+                os.path.join(self.config.model_save_path, "validation_labels.txt"),
             )
 
         if self.config.do_bootstrap_sampling:
