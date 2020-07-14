@@ -136,7 +136,7 @@ class BertSentimentClassifier(pl.LightningModule):
         logits = self.forward(token_ids, attention_mask)
         loss = self.loss(logits, labels)
         accuracy = (logits.argmax(-1) == labels).float().mean()
-        return {"loss": loss, "accuracy": accuracy, "logits": logits}
+        return {"loss": loss, "accuracy": accuracy}
 
     def validation_epoch_end(
         self, outputs: List[Dict[str, torch.Tensor]]
@@ -144,18 +144,6 @@ class BertSentimentClassifier(pl.LightningModule):
         loss = torch.mean(torch.stack([output["loss"] for output in outputs]))
         accuracy = torch.mean(torch.stack([output["accuracy"] for output in outputs]))
         out = {"val_loss": loss, "val_acc": accuracy}
-
-        logits = torch.cat([output["logits"] for output in outputs], 0).cpu()
-        predictions = 2 * (logits[:, 1] > logits[:, 0]) - 1
-        ids = torch.arange(1, logits.shape[0] + 1)
-        prediction_table = torch.stack((ids, predictions), dim=1).numpy()
-
-        self.logger.experiment.log_table(
-            filename=("test_predictions_val_epoch{}.csv".format(self.current_epoch)),
-            tabular_data=prediction_table,
-            headers=["Id", "Prediction"],
-        )
-
         return {**out, "log": out}
 
     def test_step(
