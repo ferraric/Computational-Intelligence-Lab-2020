@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple, Union
 
 import pytorch_lightning as pl
 import torch
+from _collections import OrderedDict
 from bunch import Bunch
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
@@ -37,7 +38,7 @@ class BertSentimentClassifier(pl.LightningModule):
 
     def _load_unique_tweets(self, path: str) -> List[str]:
         def _remove_duplicate_tweets(tweets: List[str]) -> List[str]:
-            return list(set(tweets))
+            return list(OrderedDict.fromkeys(tweets).keys())
 
         unique_tweets = _remove_duplicate_tweets(self._load_tweets(path))
         self.logger.experiment.log_other(
