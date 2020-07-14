@@ -4,10 +4,10 @@ from typing import List
 
 import pytorch_lightning as pl
 import torch
-from bert_sentiment_classifier import BertSentimentClassifier
 from bunch import Bunch
 from fairseq.data import Dictionary
 from fairseq.data.encoders.fastbpe import fastBPE
+from modules.bert_sentiment_classifier import BertSentimentClassifier
 from torch.nn import CrossEntropyLoss
 from torch.utils.data import TensorDataset
 from transformers import RobertaConfig, RobertaModel

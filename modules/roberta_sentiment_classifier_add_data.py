@@ -1,9 +1,9 @@
-from bert_sentiment_classifier import BertSentimentClassifier
+from modules.roberta_sentiment_classifier import RobertaSentimentClassifier
 from torch.utils.data import ConcatDataset, TensorDataset
 from utilities.data_loading import generate_bootstrap_dataset
 
 
-class BertSentimentClassifierAddData(BertSentimentClassifier):
+class RobertaSentimentClassifierAddData(RobertaSentimentClassifier):
     def prepare_data(self) -> None:
         super().prepare_data()
         additional_positive_tweets = self._load_unique_tweets(
