@@ -103,6 +103,7 @@ class BERTweet(BertSentimentClassifier):
         self.train_data, self.validation_data = self._train_validation_split(
             self.config.validation_size,
             TensorDataset(token_ids, attention_mask, labels),
+            self.config.validation_split_random_seed,
         )
 
         if self.config.do_bootstrap_sampling:
