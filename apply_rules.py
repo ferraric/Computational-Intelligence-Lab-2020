@@ -5,49 +5,51 @@ from utilities.data_loading import load_tweets, remove_indices_from_test_tweets
 
 
 def matched(tweet: str) -> bool:
-    diffCounter = 0
-    for i in tweet:
-        if i == "(":
-            diffCounter += 1
-        elif i == ")":
-            diffCounter -= 1
-    if diffCounter == 0:
-        return True
-    else:
+    count = 0
+    if len(tweet) > 0:
+        if tweet[0] == "(":
+            if tweet[1:-1].count(")") == 1:
+                count += 1
+            else:
+                count -= 1
+        elif tweet[0] == ")":
+            if tweet[1:-1].count("(") == 1:
+                count = -1
+            else:
+                count += 1
+        else:
+            tweet = tweet[1:-1]
+            matched(tweet)
+
+    if count <= 0:
         return False
+    else:
+        return True
 
 
-# (() denn positiv
+# (() denn negativ
 # )(( denn unknown
+# )() denn positiv
 
 
 def count_parenthesis(data: List[str]) -> List[int]:
     rule_predictions = []
     for tweet in data:
 
-        pos = 0
-        neg = 0
-        pos += tweet.count(" ) ")
-        neg += tweet.count(" ( ")
-
-        if pos > neg:
-            if neg != 0:
-                if matched(tweet):
-                    rule_predictions.append(1)
-                else:
-                    rule_predictions.append(0)
-            else:
-                rule_predictions.append(1)
-        elif neg > pos:
-            if pos != 0:
-                if matched(tweet):
-                    rule_predictions.append(-1)
-                else:
-                    rule_predictions.append(0)
-            else:
-                rule_predictions.append(-1)
-        else:
+        if matched(tweet):
             rule_predictions.append(0)
+        else:
+            pos = 0
+            neg = 0
+            pos += tweet.count(" ) ")
+            neg += tweet.count(" ( ")
+
+            if pos > neg:
+                rule_predictions.append(1)
+            elif neg > pos:
+                rule_predictions.append(-1)
+            else:
+                rule_predictions.append(0)
 
     return rule_predictions
 
