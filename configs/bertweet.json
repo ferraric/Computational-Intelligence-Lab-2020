@@ -5,6 +5,7 @@
   "epochs": 3,
   "pretrained_model_base_path": "custom_pretrained_models/bertweet/",
   "use_augmented_data": false,
+  "replace_special_tokens": false,
   "negative_tweets_path": "data/train_neg_full.txt",
   "positive_tweets_path": "data/train_pos_full.txt",
   "additional_negative_tweets_path": "data/additional_train_neg.txt",
