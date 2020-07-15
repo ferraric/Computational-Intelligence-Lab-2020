@@ -4,10 +4,8 @@ import numpy as np
 from baselines.glove_embeddings_classifier import GloveEmbeddingsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier
 from utilities.general_utilities import get_args, get_bunch_config_from_json
-from xgboost import XGBClassifier
 
 
 def main() -> None:
@@ -23,15 +21,7 @@ def main() -> None:
     comet_experiment.set_name(config.comet_experiment_name)
     comet_experiment.log_parameters(config)
 
-    if config.model == "linearsvc":
-        classifier = GloveEmbeddingsClassifier(
-            LinearSVC(dual=False, random_state=config.random_seed)
-        )
-    elif config.model == "xgboost":
-        classifier = GloveEmbeddingsClassifier(
-            XGBClassifier(n_jobs=1, random_state=config.random_seed)
-        )
-    elif config.model == "randomforest":
+    if config.model == "randomforest":
         classifier = GloveEmbeddingsClassifier(
             RandomForestClassifier(random_state=config.random_seed)
         )
