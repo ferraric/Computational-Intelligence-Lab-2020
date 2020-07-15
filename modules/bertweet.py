@@ -56,7 +56,11 @@ class BERTweet(BertSentimentClassifier):
         def _replace_special_tokens(tweet: str) -> str:
             return tweet.replace("<url>", "HTTPURL").replace("<user>", "@USER")
 
-        return [_replace_special_tokens(tweet) for tweet in super()._load_tweets(path)]
+        tweets = super()._load_tweets(path)
+        if self.config.replace_special_tokens:
+            return [_replace_special_tokens(tweet) for tweet in tweets]
+        else:
+            return tweets
 
     def _split_into_tokens(self, tweet: str) -> str:
         return "<s> " + self.bpe.encode(tweet) + " <s>"
