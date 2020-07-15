@@ -2,6 +2,7 @@ from collections import deque
 from typing import List
 
 import numpy as np
+import pandas as pd
 from sklearn.metrics import accuracy_score, confusion_matrix
 from utilities.data_loading import load_tweets, remove_indices_from_test_tweets
 
@@ -66,6 +67,18 @@ def predict(tweets: List[str]) -> np.ndarray:
     return np.array(rule_predictions)
 
 
+def print_confusion_matrix(
+    y_true: np.ndarray, y_pred: np.ndarray, label_names: List[str], title: str
+) -> None:
+    print(title)
+    print(
+        pd.DataFrame(
+            confusion_matrix(y_true, y_pred), index=label_names, columns=label_names
+        )
+    )
+    print()
+
+
 def main() -> None:
     tweets = load_tweets("data/rules/validation_data.txt")
     tweets_index_removed = remove_indices_from_test_tweets(tweets)
@@ -77,8 +90,15 @@ def main() -> None:
     rule_predictions = predict(tweets_index_removed)
     rule_predictions = np.array(rule_predictions)
 
-    print("confusion matrix rule based:\n", confusion_matrix(labels, rule_predictions))
-    print("confusion matrix bert:\n", confusion_matrix(labels, bert_predictions))
+    print_confusion_matrix(
+        labels,
+        rule_predictions,
+        label_names=["positive", "unknown", "negative"],
+        title="rule based",
+    )
+    print_confusion_matrix(
+        labels, bert_predictions, label_names=["positive", "negative"], title="bert"
+    )
 
     rule_predictions_rule_matched = rule_predictions[rule_predictions != 0]
     bert_predictions_rule_matched = bert_predictions[rule_predictions != 0]
@@ -93,14 +113,18 @@ def main() -> None:
     accuracy_bert = accuracy_score(labels_rule_matched, bert_predictions_rule_matched)
     print("accuracy bert: ", accuracy_bert)
 
-    confusion_matrix_rules = confusion_matrix(
-        labels_rule_matched, rule_predictions_rule_matched
+    print_confusion_matrix(
+        labels_rule_matched,
+        rule_predictions_rule_matched,
+        label_names=["positive", "negative"],
+        title="rule based on rule match",
     )
-    print("confusion matrix rules:\n", confusion_matrix_rules)
-    confusion_matrix_bert = confusion_matrix(
-        labels_rule_matched, bert_predictions_rule_matched
+    print_confusion_matrix(
+        labels_rule_matched,
+        bert_predictions_rule_matched,
+        label_names=["positive", "negative"],
+        title="bert on rule match",
     )
-    print("confusion matrix bert:\n", confusion_matrix_bert)
 
 
 if __name__ == "__main__":
