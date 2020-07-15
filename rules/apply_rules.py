@@ -43,28 +43,6 @@ def classify(tweet: str, positive_pattern: str, negative_pattern: str) -> int:
         return 0
 
 
-def print_all_scores(rule_predictions: np.ndarray, labels: np.ndarray) -> None:
-    print("-- all tweets --")
-    print("nr of rule_predictions: ", len([x for x in rule_predictions if x != 0]))
-    print("nr of unknown: ", len([x for x in rule_predictions if x == 0]))
-    confusion_matrix_rules = confusion_matrix(labels, rule_predictions)
-    print("confusion matrix:\n", confusion_matrix_rules)
-
-
-def print_rule_scores(
-    rule_predictions: np.ndarray, bert_predictions: np.ndarray, labels: np.ndarray,
-) -> None:
-    print("-- only tweets predicted with rules --")
-    accuracy_rules = accuracy_score(labels, rule_predictions)
-    print("accuracy rules: ", accuracy_rules)
-    accuracy_bert = accuracy_score(labels, bert_predictions)
-    print("accuracy bert: ", accuracy_bert)
-    confusion_matrix_rules = confusion_matrix(labels, rule_predictions)
-    print("confusion matrix rules:\n", confusion_matrix_rules)
-    confusion_matrix_bert = confusion_matrix(labels, bert_predictions)
-    print("confusion matrix bert:\n", confusion_matrix_bert)
-
-
 def predict(tweets: List[str]) -> np.ndarray:
     predictions_parenthesis = [classify_parenthesis(tweet) for tweet in tweets]
     predictions_hearts_nospace = [classify(tweet, "<3", "</3") for tweet in tweets]
@@ -99,17 +77,30 @@ def main() -> None:
     rule_predictions = predict(tweets_index_removed)
     rule_predictions = np.array(rule_predictions)
 
+    print("confusion matrix rule based:\n", confusion_matrix(labels, rule_predictions))
+    print("confusion matrix bert:\n", confusion_matrix(labels, bert_predictions))
+
     rule_predictions_rule_matched = rule_predictions[rule_predictions != 0]
     bert_predictions_rule_matched = bert_predictions[rule_predictions != 0]
     labels_rule_matched = labels[rule_predictions != 0]
 
-    print_all_scores(rule_predictions, labels)
-
-    print_rule_scores(
-        rule_predictions_rule_matched,
-        bert_predictions_rule_matched,
-        labels_rule_matched,
+    print(
+        "Percentage of rule matches:",
+        len(rule_predictions_rule_matched) / len(rule_predictions),
     )
+    accuracy_rules = accuracy_score(labels_rule_matched, rule_predictions_rule_matched)
+    print("accuracy rules: ", accuracy_rules)
+    accuracy_bert = accuracy_score(labels_rule_matched, bert_predictions_rule_matched)
+    print("accuracy bert: ", accuracy_bert)
+
+    confusion_matrix_rules = confusion_matrix(
+        labels_rule_matched, rule_predictions_rule_matched
+    )
+    print("confusion matrix rules:\n", confusion_matrix_rules)
+    confusion_matrix_bert = confusion_matrix(
+        labels_rule_matched, bert_predictions_rule_matched
+    )
+    print("confusion matrix bert:\n", confusion_matrix_bert)
 
 
 if __name__ == "__main__":
