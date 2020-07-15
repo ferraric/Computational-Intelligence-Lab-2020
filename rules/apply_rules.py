@@ -29,7 +29,7 @@ def remove_matching_parenthesis(tweet: str) -> str:
     return _remove_chars_at(matching_indices, tweet)
 
 
-def classify_parenthesis(tweet: str) -> int:
+def parenthesis_rule(tweet: str) -> int:
     return classify(remove_matching_parenthesis(tweet), ")", "(")
 
 
@@ -95,13 +95,12 @@ def main() -> None:
     bert_predictions = labels
 
     rules = [
-        classify_parenthesis,
+        parenthesis_rule,
         heart_rule_no_space,
         heart_rule_space,
         long_eyed_smiley_rule,
     ]
     rule_predictions = predict(tweets_index_removed, rules)
-    rule_predictions = np.array(rule_predictions)
 
     print_confusion_matrix(
         labels,
