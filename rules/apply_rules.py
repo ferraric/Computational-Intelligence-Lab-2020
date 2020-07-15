@@ -1,5 +1,5 @@
 from collections import deque
-from typing import List
+from typing import Callable, List, Sequence
 
 import numpy as np
 import pandas as pd
@@ -33,6 +33,18 @@ def classify_parenthesis(tweet: str) -> int:
     return classify(remove_matching_parenthesis(tweet), ")", "(")
 
 
+def heart_rule_no_space(tweet: str) -> int:
+    return classify(tweet, "<3", "</3")
+
+
+def heart_rule_space(tweet: str) -> int:
+    return classify(tweet, "< 3", "< / 3")
+
+
+def long_eyed_smiley_rule(tweet: str) -> int:
+    return classify(tweet, "=)", "=(")
+
+
 def classify(tweet: str, positive_pattern: str, negative_pattern: str) -> int:
     if (positive_pattern in tweet) and (negative_pattern in tweet):
         return 0
@@ -44,27 +56,22 @@ def classify(tweet: str, positive_pattern: str, negative_pattern: str) -> int:
         return 0
 
 
-def predict(tweets: List[str]) -> np.ndarray:
-    predictions_parenthesis = [classify_parenthesis(tweet) for tweet in tweets]
-    predictions_hearts_nospace = [classify(tweet, "<3", "</3") for tweet in tweets]
-    predictions_hearts_space = [classify(tweet, "< 3", "< / 3") for tweet in tweets]
-    predictions_equal_sign_smileys = [classify(tweet, "=)", "=(") for tweet in tweets]
-    rule_predictions = []
+def apply_rules(tweet: str, rules: Sequence[Callable[[str], int]]) -> List[int]:
+    return [rule(tweet) for rule in rules]
 
-    for a, b, c, d in zip(
-        predictions_parenthesis,
-        predictions_hearts_space,
-        predictions_hearts_nospace,
-        predictions_equal_sign_smileys,
-    ):
-        if sum([a, b, c, d]) > 0:
-            rule_predictions.append(1)
-        elif sum([a, b, c, d]) < 0:
-            rule_predictions.append(-1)
-        else:
-            rule_predictions.append(0)
 
-    return np.array(rule_predictions)
+def aggregate(predictions: List[int]) -> int:
+    return predictions[0]
+
+
+def predict(tweets: List[str], rules: Sequence[Callable[[str], int]]) -> np.ndarray:
+    predictions_all_rules = [apply_rules(tweet, rules) for tweet in tweets]
+    predictions = [
+        aggregate(per_tweet_predictions)
+        for per_tweet_predictions in predictions_all_rules
+    ]
+
+    return np.array(predictions)
 
 
 def print_confusion_matrix(
@@ -87,7 +94,13 @@ def main() -> None:
     # this are gonna be the real predictions of bert once finished
     bert_predictions = labels
 
-    rule_predictions = predict(tweets_index_removed)
+    rules = [
+        classify_parenthesis,
+        heart_rule_no_space,
+        heart_rule_space,
+        long_eyed_smiley_rule,
+    ]
+    rule_predictions = predict(tweets_index_removed, rules)
     rule_predictions = np.array(rule_predictions)
 
     print_confusion_matrix(
