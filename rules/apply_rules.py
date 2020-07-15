@@ -29,25 +29,11 @@ def remove_matching_parenthesis(tweet: str) -> str:
 
 
 def classify_parenthesis(tweet: str) -> int:
-    if "(" in tweet:
-        if ")" in tweet:
-            return 0
-        else:
-            return -1
-    elif ")" in tweet:
-        if "(" in tweet:
-            return 0
-        else:
-            return 1
-    else:
-        return 0
+    return classify(remove_matching_parenthesis(tweet), ")", "(")
 
 
 def predict_parenthesis(tweets: List[str]) -> List[int]:
-    tweets_no_matching_parenthesis = [
-        remove_matching_parenthesis(tweet) for tweet in tweets
-    ]
-    return [classify_parenthesis(tweet) for tweet in tweets_no_matching_parenthesis]
+    return [classify_parenthesis(tweet) for tweet in tweets]
 
 
 def classify(tweet: str, positive_pattern: str, negative_pattern: str) -> int:
