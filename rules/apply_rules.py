@@ -28,7 +28,7 @@ def remove_matching_parenthesis(tweet: str) -> str:
     return _remove_chars_at(matching_indices, tweet)
 
 
-def classify(tweet: str) -> int:
+def classify_parenthesis(tweet: str) -> int:
     if "(" in tweet:
         if ")" in tweet:
             return 0
@@ -43,11 +43,28 @@ def classify(tweet: str) -> int:
         return 0
 
 
-def count_parenthesis(tweets: List[str]) -> List[int]:
+def predict_parenthesis(tweets: List[str]) -> List[int]:
     tweets_no_matching_parenthesis = [
         remove_matching_parenthesis(tweet) for tweet in tweets
     ]
-    return [classify(tweet) for tweet in tweets_no_matching_parenthesis]
+    return [classify_parenthesis(tweet) for tweet in tweets_no_matching_parenthesis]
+
+
+def classify(tweet: str, positive_pattern: str, negative_pattern: str) -> int:
+    if positive_pattern in tweet:
+        return 1
+    elif negative_pattern in tweet:
+        return -1
+    else:
+        return 0
+
+
+def predict_hearts_nospace(tweets: List[str]) -> List[int]:
+    return [classify(tweet, "<3", "</3") for tweet in tweets]
+
+
+def predict_hearts_space(tweets: List[str]) -> List[int]:
+    return [classify(tweet, "< 3", "< / 3") for tweet in tweets]
 
 
 def get_subsets_rule_based(
@@ -91,8 +108,24 @@ def print_rule_scores(
 
 
 def apply_rules(tweets: List[str]) -> List[int]:
-    rule_predictions_parenthesis = count_parenthesis(tweets)
-    return rule_predictions_parenthesis
+    rule_predictions_parenthesis = predict_parenthesis(tweets)
+    rule_predictions_hearts_nospace = predict_hearts_nospace(tweets)
+    rule_predictions_hearts_space = predict_hearts_space(tweets)
+    rule_predictions = []
+
+    for x, y, z in zip(
+        rule_predictions_parenthesis,
+        rule_predictions_hearts_space,
+        rule_predictions_hearts_nospace,
+    ):
+        if x + y + z > 0:
+            rule_predictions.append(1)
+        elif x + y + z < 0:
+            rule_predictions.append(-1)
+        else:
+            rule_predictions.append(0)
+
+    return rule_predictions
 
 
 def main() -> None:
