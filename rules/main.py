@@ -2,7 +2,7 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-from rules import RuleClassifier
+from rules import Rule
 from sklearn.metrics import accuracy_score, confusion_matrix
 from utilities.data_loading import load_tweets, remove_indices_from_test_tweets
 
@@ -27,7 +27,7 @@ def main() -> None:
     # this are gonna be the real predictions of bert once finished
     bert_predictions = labels
 
-    rule_classifier = RuleClassifier()
+    rule_classifier = Rule()
     rule_predictions = rule_classifier.predict(tweets_index_removed)
 
     print_confusion_matrix(
