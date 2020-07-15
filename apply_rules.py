@@ -1,30 +1,31 @@
+from collections import deque
 from typing import List, Tuple
 
+import numpy as np
 from sklearn.metrics import accuracy_score, confusion_matrix
 from utilities.data_loading import load_tweets, remove_indices_from_test_tweets
 
 
-def matched(tweet: str) -> bool:
-    count = 0
-    if len(tweet) > 0:
-        if tweet[0] == "(":
-            if tweet[1:-1].count(")") == 1:
-                count += 1
-            else:
-                count -= 1
-        elif tweet[0] == ")":
-            if tweet[1:-1].count("(") == 1:
-                count = -1
-            else:
-                count += 1
-        else:
-            tweet = tweet[1:-1]
-            matched(tweet)
+def _remove_chars_at(indices: List[int], string: str) -> str:
+    char_array = np.array(list(string))
+    trimmed_char_array = np.delete(char_array, indices)
+    trimmed_string = "".join(trimmed_char_array)
+    return trimmed_string
 
-    if count <= 0:
-        return False
-    else:
-        return True
+
+def matched(tweet: str) -> str:
+    stack: deque = deque()
+    matching_indices = []
+
+    for index, char in enumerate(tweet):
+        if char == "(":
+            stack.append(index)
+        if char == ")":
+            if len(stack) > 0:
+                opening_index = stack.pop()
+                matching_indices.append(opening_index)
+                matching_indices.append(index)
+    return _remove_chars_at(matching_indices, tweet)
 
 
 def count_parenthesis(data: List[str]) -> List[int]:
