@@ -12,6 +12,7 @@
   "test_tweets_path": "data/test_data.txt",
   "max_tokens_per_tweet": 130,
   "validation_size": 0.1,
+  "validation_split_random_seed": 0,
   "do_bootstrap_sampling": false,
   "batch_size": 32,
   "n_data_loader_workers": 4,

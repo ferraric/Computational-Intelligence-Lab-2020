@@ -1,8 +1,7 @@
 import os
 
 import pytorch_lightning as pl
-from roberta_sentiment_classifier import RobertaSentimentClassifier
-from roberta_sentiment_classifier_add_data import RobertaSentimentClassifierAddData
+from modules.bert_pooled_classifier import BertPooledClassifier
 from utilities.general_utilities import (
     build_comet_logger,
     build_save_path,
@@ -26,20 +25,12 @@ def main() -> None:
     trainer = initialize_trainer(save_path, config, logger)
 
     if args.test_model_path is None:
-        if config.use_augmented_data:
-            model = RobertaSentimentClassifierAddData(config)
-        else:
-            model = RobertaSentimentClassifier(config)
+        model = BertPooledClassifier(config)
         trainer.fit(model)
     else:
-        if config.use_augmented_data:
-            model = RobertaSentimentClassifierAddData.load_from_checkpoint(
-                args.test_model_path, config=config
-            )
-        else:
-            model = RobertaSentimentClassifier.load_from_checkpoint(
-                args.test_model_path, config=config
-            )
+        model = BertPooledClassifier.load_from_checkpoint(
+            args.test_model_path, config=config
+        )
     trainer.test(model=model)
 
 
