@@ -29,22 +29,22 @@ def matched(tweet: str) -> bool:
 
 def count_parenthesis(data: List[str]) -> List[int]:
     rule_predictions = []
+
+    # add here remove matching parenthesis function
+
     for tweet in data:
-
-        if matched(tweet):
-            rule_predictions.append(0)
-        else:
-            pos = 0
-            neg = 0
-            pos += tweet.count(" ) ")
-            neg += tweet.count(" ( ")
-
-            if pos > neg:
-                rule_predictions.append(1)
-            elif neg > pos:
-                rule_predictions.append(-1)
-            else:
+        if "(" in tweet:
+            if ")" in tweet:
                 rule_predictions.append(0)
+            else:
+                rule_predictions.append(-1)
+        elif ")" in tweet:
+            if "(" in tweet:
+                rule_predictions.append(0)
+            else:
+                rule_predictions.append(1)
+        else:
+            rule_predictions.append(0)
 
     return rule_predictions
 
