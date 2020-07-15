@@ -1,24 +1,20 @@
 from collections import deque
-from typing import Callable, List, Sequence
+from typing import List
 
 import numpy as np
 
 
 class RuleClassifier:
-    def __init__(self, tweets: List[str]) -> None:
-        self.tweets = tweets
+    def __init__(self) -> None:
         self.rules = [
             self.parenthesis_rule,
             self.heart_rule_no_space,
             self.heart_rule_space,
             self.long_eyed_smiley_rule,
         ]
-        self.predictions = self.predict(tweets, self.rules)
 
-    def predict(
-        self, tweets: List[str], rules: Sequence[Callable[[str], int]]
-    ) -> np.ndarray:
-        predictions_all_rules = [self._apply_rules(tweet, rules) for tweet in tweets]
+    def predict(self, tweets: List[str]) -> np.ndarray:
+        predictions_all_rules = [self._apply_rules(tweet) for tweet in tweets]
         predictions = [
             self._aggregate(per_tweet_predictions)
             for per_tweet_predictions in predictions_all_rules
@@ -26,10 +22,8 @@ class RuleClassifier:
 
         return np.array(predictions)
 
-    def _apply_rules(
-        self, tweet: str, rules: Sequence[Callable[[str], int]]
-    ) -> List[int]:
-        return [rule(tweet) for rule in rules]
+    def _apply_rules(self, tweet: str) -> List[int]:
+        return [rule(tweet) for rule in self.rules]
 
     def _aggregate(self, predictions: List[int]) -> int:
         return predictions[0]
