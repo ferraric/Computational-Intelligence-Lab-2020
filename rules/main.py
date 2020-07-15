@@ -27,7 +27,8 @@ def main() -> None:
     # this are gonna be the real predictions of bert once finished
     bert_predictions = labels
 
-    rule_predictions = RuleClassifier(tweets_index_removed).predictions
+    rule_classifier = RuleClassifier()
+    rule_predictions = rule_classifier.predict(tweets_index_removed)
 
     print_confusion_matrix(
         labels,
