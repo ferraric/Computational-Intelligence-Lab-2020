@@ -51,7 +51,9 @@ def predict_parenthesis(tweets: List[str]) -> List[int]:
 
 
 def classify(tweet: str, positive_pattern: str, negative_pattern: str) -> int:
-    if positive_pattern in tweet:
+    if (positive_pattern in tweet) and (negative_pattern in tweet):
+        return 0
+    elif positive_pattern in tweet:
         return 1
     elif negative_pattern in tweet:
         return -1
