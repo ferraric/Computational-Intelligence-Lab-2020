@@ -32,10 +32,6 @@ def classify_parenthesis(tweet: str) -> int:
     return classify(remove_matching_parenthesis(tweet), ")", "(")
 
 
-def predict_parenthesis(tweets: List[str]) -> List[int]:
-    return [classify_parenthesis(tweet) for tweet in tweets]
-
-
 def classify(tweet: str, positive_pattern: str, negative_pattern: str) -> int:
     if (positive_pattern in tweet) and (negative_pattern in tweet):
         return 0
@@ -45,18 +41,6 @@ def classify(tweet: str, positive_pattern: str, negative_pattern: str) -> int:
         return -1
     else:
         return 0
-
-
-def predict_hearts_nospace(tweets: List[str]) -> List[int]:
-    return [classify(tweet, "<3", "</3") for tweet in tweets]
-
-
-def predict_hearts_space(tweets: List[str]) -> List[int]:
-    return [classify(tweet, "< 3", "< / 3") for tweet in tweets]
-
-
-def predict_equal_sign_smileys(tweets: List[str]) -> List[int]:
-    return [classify(tweet, "=)", "=(") for tweet in tweets]
 
 
 def get_subsets_rule_based(
@@ -100,10 +84,10 @@ def print_rule_scores(
 
 
 def predict(tweets: List[str]) -> List[int]:
-    predictions_parenthesis = predict_parenthesis(tweets)
-    predictions_hearts_nospace = predict_hearts_nospace(tweets)
-    predictions_hearts_space = predict_hearts_space(tweets)
-    predictions_equal_sign_smileys = predict_equal_sign_smileys(tweets)
+    predictions_parenthesis = [classify_parenthesis(tweet) for tweet in tweets]
+    predictions_hearts_nospace = [classify(tweet, "<3", "</3") for tweet in tweets]
+    predictions_hearts_space = [classify(tweet, "< 3", "< / 3") for tweet in tweets]
+    predictions_equal_sign_smileys = [classify(tweet, "=)", "=(") for tweet in tweets]
     rule_predictions = []
 
     for a, b, c, d in zip(
