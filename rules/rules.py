@@ -8,7 +8,8 @@ class ParenthesisRule:
     def parenthesis_rule(self, tweet: str) -> int:
         return self._classify(self._remove_matching_parenthesis(tweet), ")", "(")
 
-    def clean_tweet(selfs, tweet: str) -> str:
+    def tweet_without_matching_parentheses(selfs, tweet: str) -> str:
+        # new function needed
         return tweet
 
     def _remove_chars_at(self, indices: List[int], string: str) -> str:
@@ -47,8 +48,15 @@ class HeartRule:
     def heart_rule(self, tweet: str) -> int:
         return self._classify(tweet, "< 3", "< / 3")
 
-    def clean_tweet(selfs, tweet: str) -> str:
-        return tweet
+    def tweet_without_hearts(selfs, tweet: str) -> str:
+        if ("< 3" in tweet) and ("< / 3" in tweet):
+            return tweet
+        elif "< 3" in tweet:
+            return tweet.replace("< 3", " ")
+        elif "< / 3" in tweet:
+            return tweet.replace("< 3", " ")
+        else:
+            return tweet
 
     def _classify(
         self, tweet: str, positive_pattern: str, negative_pattern: str
@@ -67,7 +75,8 @@ class HappySad_HashtagRule:
     def happy_sad_hashtag_rule(self, tweet: str) -> int:
         return self._classify(tweet, "#happy", "#sad")
 
-    def clean_tweet(selfs, tweet: str) -> str:
+    def tweet_without_happysad_hashtags(selfs, tweet: str) -> str:
+        # handle longer hastags
         return tweet
 
     def _classify(
@@ -90,8 +99,11 @@ class Fml_HashtagRule:
         else:
             return 0
 
-    def clean_tweet(selfs, tweet: str) -> str:
-        return tweet
+    def tweet_without_fml_hashtags(selfs, tweet: str) -> str:
+        if "#fml " in tweet:
+            return tweet.replace("#fml", "")
+        else:
+            return tweet
 
 
 class BarSmileyRule:
@@ -101,8 +113,11 @@ class BarSmileyRule:
         else:
             return 0
 
-    def clean_tweet(selfs, tweet: str) -> str:
-        return tweet
+    def tweet_without_barsmiley(selfs, tweet: str) -> str:
+        if ": |" in tweet:
+            return tweet.replace(": |", "")
+        else:
+            return tweet
 
 
 class Rule(
@@ -123,8 +138,16 @@ class Rule(
             self._aggregate(per_tweet_predictions)
             for per_tweet_predictions in predictions_all_rules
         ]
-
         return np.array(predictions)
+
+    def tweets_without_rules(self, tweets: List[str]) -> List[str]:
+        for tweet in tweets:
+            tweet = self.tweet_without_matching_parentheses(tweet)
+            tweet = self.tweet_without_hearts(tweet)
+            tweet = self.tweet_without_happysad_hashtags(tweet)
+            tweet = self.tweet_without_fml_hashtags(tweet)
+            tweet = self.tweet_without_barsmiley(tweet)
+        return tweets
 
     def _apply_rules(self, tweet: str) -> List[int]:
         return [rule(tweet) for rule in self.rules]
