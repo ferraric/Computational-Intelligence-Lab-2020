@@ -1,5 +1,5 @@
 from collections import deque
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
 from sklearn.metrics import accuracy_score, confusion_matrix
@@ -43,25 +43,7 @@ def classify(tweet: str, positive_pattern: str, negative_pattern: str) -> int:
         return 0
 
 
-def get_subsets_rule_based(
-    rule_predictions: List[int], bert_predictions: List[int], labels: List[int]
-) -> Tuple[List[int], List[int], List[int]]:
-    rule_predictions_rule_matched = []
-    bert_predictions_rule_matched = []
-    labels_rule_matched = []
-    for x, y, z in zip(rule_predictions, bert_predictions, labels):
-        if x != 0:
-            rule_predictions_rule_matched.append(x)
-            bert_predictions_rule_matched.append(y)
-            labels_rule_matched.append(z)
-    return (
-        rule_predictions_rule_matched,
-        bert_predictions_rule_matched,
-        labels_rule_matched,
-    )
-
-
-def print_all_scores(rule_predictions: List[int], labels: List[int]) -> None:
+def print_all_scores(rule_predictions: np.ndarray, labels: np.ndarray) -> None:
     print("-- all tweets --")
     print("nr of rule_predictions: ", len([x for x in rule_predictions if x != 0]))
     print("nr of unknown: ", len([x for x in rule_predictions if x == 0]))
@@ -70,7 +52,7 @@ def print_all_scores(rule_predictions: List[int], labels: List[int]) -> None:
 
 
 def print_rule_scores(
-    rule_predictions: List[int], bert_predictions: List[int], labels: List[int],
+    rule_predictions: np.ndarray, bert_predictions: np.ndarray, labels: np.ndarray,
 ) -> None:
     print("-- only tweets predicted with rules --")
     accuracy_rules = accuracy_score(labels, rule_predictions)
@@ -83,7 +65,7 @@ def print_rule_scores(
     print("confusion matrix bert:\n", confusion_matrix_bert)
 
 
-def predict(tweets: List[str]) -> List[int]:
+def predict(tweets: List[str]) -> np.ndarray:
     predictions_parenthesis = [classify_parenthesis(tweet) for tweet in tweets]
     predictions_hearts_nospace = [classify(tweet, "<3", "</3") for tweet in tweets]
     predictions_hearts_space = [classify(tweet, "< 3", "< / 3") for tweet in tweets]
@@ -103,26 +85,23 @@ def predict(tweets: List[str]) -> List[int]:
         else:
             rule_predictions.append(0)
 
-    return rule_predictions
+    return np.array(rule_predictions)
 
 
 def main() -> None:
     tweets = load_tweets("data/rules/validation_data.txt")
     tweets_index_removed = remove_indices_from_test_tweets(tweets)
 
-    with open("data/rules/validation_labels.txt") as f:
-        labels = [int(label) for label in f]
-
+    labels = np.loadtxt("data/rules/validation_labels.txt", dtype=np.int)
     # this are gonna be the real predictions of bert once finished
     bert_predictions = labels
 
     rule_predictions = predict(tweets_index_removed)
+    rule_predictions = np.array(rule_predictions)
 
-    (
-        rule_predictions_rule_matched,
-        bert_predictions_rule_matched,
-        labels_rule_matched,
-    ) = get_subsets_rule_based(rule_predictions, bert_predictions, labels)
+    rule_predictions_rule_matched = rule_predictions[rule_predictions != 0]
+    bert_predictions_rule_matched = bert_predictions[rule_predictions != 0]
+    labels_rule_matched = labels[rule_predictions != 0]
 
     print_all_scores(rule_predictions, labels)
 
