@@ -1,3 +1,4 @@
+import re
 from collections import deque
 from typing import List
 
@@ -76,8 +77,14 @@ class HappySad_HashtagRule:
         return self._classify(tweet, "#happy", "#sad")
 
     def tweet_without_happysad_hashtags(selfs, tweet: str) -> str:
-        # handle longer hastags
-        return tweet
+        if ("#happy" in tweet) and ("#sad" in tweet):
+            return tweet
+        elif "#happy" in tweet:
+            return re.sub(r"\#happy\w+", "", tweet)
+        elif "#sad" in tweet:
+            return re.sub(r"\#sad\w+", "", tweet)
+        else:
+            return tweet
 
     def _classify(
         self, tweet: str, positive_pattern: str, negative_pattern: str
