@@ -13,7 +13,7 @@ def _remove_chars_at(indices: List[int], string: str) -> str:
     return trimmed_string
 
 
-def matched(tweet: str) -> str:
+def remove_matching_parenthesis(tweet: str) -> str:
     stack: deque = deque()
     matching_indices = []
 
