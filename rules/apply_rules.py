@@ -67,6 +67,10 @@ def predict_hearts_space(tweets: List[str]) -> List[int]:
     return [classify(tweet, "< 3", "< / 3") for tweet in tweets]
 
 
+def predict_equal_sign_smileys(tweets: List[str]) -> List[int]:
+    return [classify(tweet, "=)", "=(") for tweet in tweets]
+
+
 def get_subsets_rule_based(
     rule_predictions: List[int], bert_predictions: List[int], labels: List[int]
 ) -> Tuple[List[int], List[int], List[int]]:
@@ -107,20 +111,22 @@ def print_rule_scores(
     print("confusion matrix bert:\n", confusion_matrix_bert)
 
 
-def apply_rules(tweets: List[str]) -> List[int]:
-    rule_predictions_parenthesis = predict_parenthesis(tweets)
-    rule_predictions_hearts_nospace = predict_hearts_nospace(tweets)
-    rule_predictions_hearts_space = predict_hearts_space(tweets)
+def predict(tweets: List[str]) -> List[int]:
+    predictions_parenthesis = predict_parenthesis(tweets)
+    predictions_hearts_nospace = predict_hearts_nospace(tweets)
+    predictions_hearts_space = predict_hearts_space(tweets)
+    predictions_equal_sign_smileys = predict_equal_sign_smileys(tweets)
     rule_predictions = []
 
-    for x, y, z in zip(
-        rule_predictions_parenthesis,
-        rule_predictions_hearts_space,
-        rule_predictions_hearts_nospace,
+    for a, b, c, d in zip(
+        predictions_parenthesis,
+        predictions_hearts_space,
+        predictions_hearts_nospace,
+        predictions_equal_sign_smileys,
     ):
-        if x + y + z > 0:
+        if sum([a, b, c, d]) > 0:
             rule_predictions.append(1)
-        elif x + y + z < 0:
+        elif sum([a, b, c, d]) < 0:
             rule_predictions.append(-1)
         else:
             rule_predictions.append(0)
@@ -138,7 +144,7 @@ def main() -> None:
     # this are gonna be the real predictions of bert once finished
     bert_predictions = labels
 
-    rule_predictions = apply_rules(tweets_index_removed)
+    rule_predictions = predict(tweets_index_removed)
 
     (
         rule_predictions_rule_matched,
