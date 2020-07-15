@@ -8,9 +8,10 @@ class RuleClassifier:
     def __init__(self) -> None:
         self.rules = [
             self.parenthesis_rule,
-            self.heart_rule_no_space,
-            self.heart_rule_space,
-            self.long_eyed_smiley_rule,
+            self.heart_rule,
+            self.happy_sad_hashtag_rule,
+            self.fml_hashtag_rule,
+            self.bar_smiley_rule,
         ]
 
     def predict(self, tweets: List[str]) -> np.ndarray:
@@ -27,18 +28,37 @@ class RuleClassifier:
 
     def _aggregate(self, predictions: List[int]) -> int:
         return predictions[0]
+        """
+        if (1 in predictions) and (-1 in predictions):
+            return 0
+        if sum(predictions) > 0:
+            return 1
+        elif sum(predictions) < 0:
+            return -1
+        else:
+            return 0
+        """
 
     def parenthesis_rule(self, tweet: str) -> int:
         return self._classify(self._remove_matching_parenthesis(tweet), ")", "(")
 
-    def heart_rule_no_space(self, tweet: str) -> int:
-        return self._classify(tweet, "<3", "</3")
-
-    def heart_rule_space(self, tweet: str) -> int:
+    def heart_rule(self, tweet: str) -> int:
         return self._classify(tweet, "< 3", "< / 3")
 
-    def long_eyed_smiley_rule(self, tweet: str) -> int:
-        return self._classify(tweet, "=)", "=(")
+    def happy_sad_hashtag_rule(self, tweet: str) -> int:
+        return self._classify(tweet, "#happy", "#sad")
+
+    def fml_hashtag_rule(self, tweet: str) -> int:
+        if "#fml" in tweet:
+            return -1
+        else:
+            return 0
+
+    def bar_smiley_rule(self, tweet: str) -> int:
+        if ": |" in tweet:
+            return -1
+        else:
+            return 0
 
     def _remove_chars_at(self, indices: List[int], string: str) -> str:
         char_array = np.array(list(string))
