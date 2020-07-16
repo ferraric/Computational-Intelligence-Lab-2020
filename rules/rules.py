@@ -9,7 +9,7 @@ class Rule:
     def __init__(self) -> None:
         pass
 
-    def apply_rule(self, tweet: str) -> int:
+    def apply(self, tweet: str) -> int:
         pass
 
     def clean_tweet(self, tweet: str) -> str:
@@ -21,13 +21,7 @@ class PositiveNegativeRule(Rule):
         self.positive_pattern = pos
         self.negative_pattern = neg
 
-    def apply_rule(self, tweet: str) -> int:
-        return self.classify(tweet)
-
-    def clean_tweet(selfs, tweet: str) -> str:
-        pass
-
-    def classify(self, tweet: str) -> int:
+    def apply(self, tweet: str) -> int:
         if (self.positive_pattern in tweet) and (self.negative_pattern in tweet):
             return 0
         elif self.positive_pattern in tweet:
@@ -37,13 +31,19 @@ class PositiveNegativeRule(Rule):
         else:
             return 0
 
+    def clean_tweet(selfs, tweet: str) -> str:
+        pass
+
 
 class NegativeRule(Rule):
     def __init__(self, neg: str):
         self.negative_pattern = neg
 
-    def apply_rule(self, tweet: str) -> int:
-        return self.classify(tweet)
+    def apply(self, tweet: str) -> int:
+        if self.negative_pattern in tweet:
+            return -1
+        else:
+            return 0
 
     def clean_tweet(self, tweet: str) -> str:
         if self.negative_pattern in tweet:
@@ -51,16 +51,10 @@ class NegativeRule(Rule):
         else:
             return tweet
 
-    def classify(self, tweet: str) -> int:
-        if self.negative_pattern in tweet:
-            return -1
-        else:
-            return 0
-
 
 class ParenthesisRule(PositiveNegativeRule):
-    def apply_rule(self, tweet: str) -> int:
-        return self.classify(self._remove_matching_parenthesis(tweet))
+    def apply(self, tweet: str) -> int:
+        return super().apply(self._remove_matching_parenthesis(tweet))
 
     def clean_tweet(selfs, tweet: str) -> str:
         return tweet
@@ -86,8 +80,8 @@ class ParenthesisRule(PositiveNegativeRule):
 
 
 class HeartRule(PositiveNegativeRule):
-    def apply_rule(self, tweet: str) -> int:
-        return self.classify(tweet)
+    def apply(self, tweet: str) -> int:
+        return super().apply(tweet)
 
     def clean_tweet(selfs, tweet: str) -> str:
         if ("< 3" in tweet) and ("< / 3" in tweet):
@@ -101,8 +95,8 @@ class HeartRule(PositiveNegativeRule):
 
 
 class HappySadHashtagRule(PositiveNegativeRule):
-    def apply_rule(self, tweet: str) -> int:
-        return self.classify(tweet)
+    def apply(self, tweet: str) -> int:
+        return super().apply(tweet)
 
     def clean_tweet(selfs, tweet: str) -> str:
         if ("#happy" in tweet) and ("#sad" in tweet):
@@ -137,7 +131,7 @@ class RuleClassifier(Rule):
         pass
 
     def _apply_rules(self, tweet: str) -> List[int]:
-        return [rule.apply_rule(tweet) for rule in self.rules]
+        return [rule.apply(tweet) for rule in self.rules]
 
     def _aggregate(self, predictions: List[int]) -> int:
         # return predictions[0]
