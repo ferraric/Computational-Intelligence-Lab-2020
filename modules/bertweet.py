@@ -15,6 +15,8 @@ from transformers.modeling_roberta import RobertaClassificationHead
 from utilities.data_loading import (
     generate_bootstrap_dataset,
     remove_indices_from_test_tweets,
+    save_labels,
+    save_tweets_in_test_format,
 )
 
 
@@ -109,6 +111,19 @@ class BERTweet(BertSentimentClassifier):
             TensorDataset(token_ids, attention_mask, labels),
             self.config.validation_split_random_seed,
         )
+
+        if not self.testing:
+            validation_indices = list(self.validation_data.indices)
+            validation_tweets = [all_tweets[i] for i in validation_indices]
+            validation_labels = labels[validation_indices]
+            save_tweets_in_test_format(
+                validation_tweets,
+                os.path.join(self.config.model_save_path, "validation_data.txt"),
+            )
+            save_labels(
+                validation_labels,
+                os.path.join(self.config.model_save_path, "validation_labels.txt"),
+            )
 
         if self.config.do_bootstrap_sampling:
             self.train_data = generate_bootstrap_dataset(self.train_data)
