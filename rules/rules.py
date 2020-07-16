@@ -70,8 +70,15 @@ class ParenthesisRule(PositiveNegativeRule):
             unmatching_parentheses_indices = set(parenthesis_indices) ^ set(
                 matching_parenthesis_indices
             )
-            print(unmatching_parentheses_indices)
+            tweet = "".join(
+                [
+                    char
+                    for index, char in enumerate(tweet)
+                    if index not in unmatching_parentheses_indices
+                ]
+            )
             return tweet
+
         elif self.positive_pattern in tweet:
             return tweet.replace(self.positive_pattern, "")
         elif self.negative_pattern in tweet:
