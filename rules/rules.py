@@ -132,11 +132,11 @@ class HappySadHashtagRule(PositiveNegativeRule):
 class RuleClassifier(Rule):
     def __init__(self) -> None:
         self.rules = [
-            PositiveNegativeRule(" < 3 ", " < / 3"),
-            HappySadHashtagRule("#happy", "#sad"),
             ParenthesisRule(")", "("),
-            NegativeRule("#fml "),
-            NegativeRule(": | "),
+            # PositiveNegativeRule(" < 3 ", " < / 3"),
+            # HappySadHashtagRule("#happy", "#sad"),
+            # NegativeRule("#fml "),
+            # NegativeRule(": | "),
         ]
 
     def predict(self, tweets: List[str]) -> np.ndarray:
@@ -151,7 +151,6 @@ class RuleClassifier(Rule):
         return [rule.apply(tweet) for rule in self.rules]
 
     def _aggregate(self, predictions: List[int]) -> int:
-        # return predictions[0]
         if (1 in predictions) and (-1 in predictions):
             return 0
         if sum(predictions) > 0:

@@ -38,7 +38,7 @@ def main() -> None:
     )
     bert_predictions = bert_predictions["Prediction"]
 
-    save_path = "data/rules/all_rules.txt"
+    save_path = "data/rules/tweets_with_parenthesis_rule.txt"
 
     rule_classifier = RuleClassifier()
     rule_predictions = rule_classifier.predict(tweets_index_removed)
