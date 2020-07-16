@@ -23,6 +23,10 @@ def print_confusion_matrix(
     print()
 
 
+def remove_double_whitespaces(tweets: List[str], save_path: str) -> List[str]:
+    return [" ".join(tweet.split()) for tweet in tweets]
+
+
 def main() -> None:
     tweets = load_tweets("data/rules/validation_data.txt")
     tweets_index_removed = remove_indices_from_test_tweets(tweets)
@@ -38,8 +42,9 @@ def main() -> None:
     tweets_without_rule_patterns = rule_classifier.remove_rule_patterns_from(
         tweets_index_removed
     )
-
-    save_tweets_in_test_format(tweets_without_rule_patterns, save_path)
+    save_tweets_in_test_format(
+        remove_indices_from_test_tweets(tweets_without_rule_patterns), save_path
+    )
 
     print_confusion_matrix(
         labels,
