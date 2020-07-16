@@ -12,7 +12,7 @@ class Rule:
     def apply(self, tweet: str) -> int:
         pass
 
-    def clean_tweet(self, tweet: str) -> str:
+    def remove_rule_pattern_from(self, tweet: str) -> str:
         pass
 
 
@@ -31,13 +31,13 @@ class PositiveNegativeRule(Rule):
         else:
             return 0
 
-    def clean_tweet(self, tweet: str) -> str:
+    def remove_rule_pattern_from(self, tweet: str) -> str:
         if (self.positive_pattern in tweet) and (self.negative_pattern in tweet):
             return tweet
         elif self.positive_pattern in tweet:
-            return tweet.replace(self.positive_pattern, " ")
+            return tweet.replace(self.positive_pattern, "")
         elif self.negative_pattern in tweet:
-            return tweet.replace(self.negative_pattern, " ")
+            return tweet.replace(self.negative_pattern, "")
         else:
             return tweet
 
@@ -52,7 +52,7 @@ class NegativeRule(Rule):
         else:
             return 0
 
-    def clean_tweet(self, tweet: str) -> str:
+    def remove_rule_pattern_from(self, tweet: str) -> str:
         if self.negative_pattern in tweet:
             return tweet.replace(self.negative_pattern, "")
         else:
@@ -63,7 +63,7 @@ class ParenthesisRule(PositiveNegativeRule):
     def apply(self, tweet: str) -> int:
         return super().apply(self._remove_matching_parenthesis(tweet))
 
-    def clean_tweet(selfs, tweet: str) -> str:
+    def remove_rule_pattern_from(selfs, tweet: str) -> str:
         # TODO
         return tweet
 
@@ -88,7 +88,7 @@ class ParenthesisRule(PositiveNegativeRule):
 
 
 class HappySadHashtagRule(PositiveNegativeRule):
-    def clean_tweet(selfs, tweet: str) -> str:
+    def remove_rule_pattern_from(selfs, tweet: str) -> str:
         if ("#happy" in tweet) and ("#sad" in tweet):
             return tweet
         elif "#happy" in tweet:
@@ -117,7 +117,7 @@ class RuleClassifier(Rule):
         ]
         return np.array(predictions)
 
-    def tweets_without_rules(self, tweets: List[str]) -> List[str]:
+    def remove_rule_patterns_from(self, tweets: List[str]) -> List[str]:
         pass
 
     def _apply_rules(self, tweet: str) -> List[int]:
