@@ -63,10 +63,21 @@ class ParenthesisRule(PositiveNegativeRule):
     def apply(self, tweet: str) -> int:
         return super().apply(self._remove_matching_parenthesis(tweet))
 
-    def remove_rule_pattern_from(selfs, tweet: str) -> str:
-        # TODO
-
-        return tweet
+    def remove_rule_pattern_from(self, tweet: str) -> str:
+        if (self.positive_pattern in tweet) and (self.negative_pattern in tweet):
+            parenthesis_indices = self._get_parenthesis_indices(tweet, "(", ")")
+            matching_parenthesis_indices = self._get_matching_parenthesis(tweet)
+            unmatching_parentheses_indices = set(parenthesis_indices) ^ set(
+                matching_parenthesis_indices
+            )
+            print(unmatching_parentheses_indices)
+            return tweet
+        elif self.positive_pattern in tweet:
+            return tweet.replace(self.positive_pattern, "")
+        elif self.negative_pattern in tweet:
+            return tweet.replace(self.negative_pattern, "")
+        else:
+            return tweet
 
     def _remove_chars_at(self, indices: List[int], string: str) -> str:
         char_array = np.array(list(string))
@@ -91,16 +102,14 @@ class ParenthesisRule(PositiveNegativeRule):
         matching_indices = self._get_matching_parenthesis(tweet)
         return self._remove_chars_at(matching_indices, tweet)
 
-    def _get_char_indices(self, tweet: str, char: str) -> List[int]:
+    def _get_parenthesis_indices(
+        self, tweet: str, open_parenthesis: str, closed_parenthesis: str
+    ) -> List[int]:
         indices = []
-        for n in range(len(tweet)):
-            if tweet[n] == char:
-                indices.append(n)
+        for i in range(len(tweet)):
+            if (tweet[i] == open_parenthesis) or (tweet[i] == closed_parenthesis):
+                indices.append(i)
         return indices
-
-    # alli indices vo allne chlammere
-    # remove all matching
-    # indices vo set diff
 
 
 class HappySadHashtagRule(PositiveNegativeRule):
