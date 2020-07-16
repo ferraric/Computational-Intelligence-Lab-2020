@@ -31,8 +31,15 @@ class PositiveNegativeRule(Rule):
         else:
             return 0
 
-    def clean_tweet(selfs, tweet: str) -> str:
-        pass
+    def clean_tweet(self, tweet: str) -> str:
+        if (self.positive_pattern in tweet) and (self.negative_pattern in tweet):
+            return tweet
+        elif self.positive_pattern in tweet:
+            return tweet.replace(self.positive_pattern, " ")
+        elif self.negative_pattern in tweet:
+            return tweet.replace(self.negative_pattern, " ")
+        else:
+            return tweet
 
 
 class NegativeRule(Rule):
@@ -57,6 +64,7 @@ class ParenthesisRule(PositiveNegativeRule):
         return super().apply(self._remove_matching_parenthesis(tweet))
 
     def clean_tweet(selfs, tweet: str) -> str:
+        # TODO
         return tweet
 
     def _remove_chars_at(self, indices: List[int], string: str) -> str:
@@ -79,25 +87,7 @@ class ParenthesisRule(PositiveNegativeRule):
         return self._remove_chars_at(matching_indices, tweet)
 
 
-class HeartRule(PositiveNegativeRule):
-    def apply(self, tweet: str) -> int:
-        return super().apply(tweet)
-
-    def clean_tweet(selfs, tweet: str) -> str:
-        if ("< 3" in tweet) and ("< / 3" in tweet):
-            return tweet
-        elif "< 3" in tweet:
-            return tweet.replace("< 3", " ")
-        elif "< / 3" in tweet:
-            return tweet.replace("< 3", " ")
-        else:
-            return tweet
-
-
 class HappySadHashtagRule(PositiveNegativeRule):
-    def apply(self, tweet: str) -> int:
-        return super().apply(tweet)
-
     def clean_tweet(selfs, tweet: str) -> str:
         if ("#happy" in tweet) and ("#sad" in tweet):
             return tweet
@@ -112,7 +102,7 @@ class HappySadHashtagRule(PositiveNegativeRule):
 class RuleClassifier(Rule):
     def __init__(self) -> None:
         self.rules = [
-            HeartRule(" < 3 ", " < / 3"),
+            PositiveNegativeRule(" < 3 ", " < / 3"),
             HappySadHashtagRule("#happy", "#sad"),
             ParenthesisRule(" ) ", " ( "),
             NegativeRule("#fml "),
