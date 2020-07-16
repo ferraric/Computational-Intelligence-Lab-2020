@@ -5,12 +5,64 @@ from typing import List
 import numpy as np
 
 
-class ParenthesisRule:
-    def parenthesis_rule(self, tweet: str) -> int:
-        return self._classify(self._remove_matching_parenthesis(tweet), ")", "(")
+class Rule:
+    def __init__(self) -> None:
+        pass
 
-    def tweet_without_matching_parentheses(selfs, tweet: str) -> str:
-        # new function needed
+    def apply_rule(self, tweet: str) -> int:
+        pass
+
+    def clean_tweet(self, tweet: str) -> str:
+        pass
+
+
+class PositiveNegativeRule(Rule):
+    def __init__(self, pos: str, neg: str):
+        self.positive_pattern = pos
+        self.negative_pattern = neg
+
+    def apply_rule(self, tweet: str) -> int:
+        return self.classify(tweet)
+
+    def clean_tweet(selfs, tweet: str) -> str:
+        pass
+
+    def classify(self, tweet: str) -> int:
+        if (self.positive_pattern in tweet) and (self.negative_pattern in tweet):
+            return 0
+        elif self.positive_pattern in tweet:
+            return 1
+        elif self.negative_pattern in tweet:
+            return -1
+        else:
+            return 0
+
+
+class NegativeRule(Rule):
+    def __init__(self, neg: str):
+        self.negative_pattern = neg
+
+    def apply_rule(self, tweet: str) -> int:
+        return self.classify(tweet)
+
+    def clean_tweet(self, tweet: str) -> str:
+        if self.negative_pattern in tweet:
+            return tweet.replace(self.negative_pattern, "")
+        else:
+            return tweet
+
+    def classify(self, tweet: str) -> int:
+        if self.negative_pattern in tweet:
+            return -1
+        else:
+            return 0
+
+
+class ParenthesisRule(PositiveNegativeRule):
+    def apply_rule(self, tweet: str) -> int:
+        return self.classify(self._remove_matching_parenthesis(tweet))
+
+    def clean_tweet(selfs, tweet: str) -> str:
         return tweet
 
     def _remove_chars_at(self, indices: List[int], string: str) -> str:
@@ -32,24 +84,12 @@ class ParenthesisRule:
                     matching_indices.append(index)
         return self._remove_chars_at(matching_indices, tweet)
 
-    def _classify(
-        self, tweet: str, positive_pattern: str, negative_pattern: str
-    ) -> int:
-        if (positive_pattern in tweet) and (negative_pattern in tweet):
-            return 0
-        elif positive_pattern in tweet:
-            return 1
-        elif negative_pattern in tweet:
-            return -1
-        else:
-            return 0
 
+class HeartRule(PositiveNegativeRule):
+    def apply_rule(self, tweet: str) -> int:
+        return self.classify(tweet)
 
-class HeartRule:
-    def heart_rule(self, tweet: str) -> int:
-        return self._classify(tweet, "< 3", "< / 3")
-
-    def tweet_without_hearts(selfs, tweet: str) -> str:
+    def clean_tweet(selfs, tweet: str) -> str:
         if ("< 3" in tweet) and ("< / 3" in tweet):
             return tweet
         elif "< 3" in tweet:
@@ -59,24 +99,12 @@ class HeartRule:
         else:
             return tweet
 
-    def _classify(
-        self, tweet: str, positive_pattern: str, negative_pattern: str
-    ) -> int:
-        if (positive_pattern in tweet) and (negative_pattern in tweet):
-            return 0
-        elif positive_pattern in tweet:
-            return 1
-        elif negative_pattern in tweet:
-            return -1
-        else:
-            return 0
 
+class HappySadHashtagRule(PositiveNegativeRule):
+    def apply_rule(self, tweet: str) -> int:
+        return self.classify(tweet)
 
-class HappySad_HashtagRule:
-    def happy_sad_hashtag_rule(self, tweet: str) -> int:
-        return self._classify(tweet, "#happy", "#sad")
-
-    def tweet_without_happysad_hashtags(selfs, tweet: str) -> str:
+    def clean_tweet(selfs, tweet: str) -> str:
         if ("#happy" in tweet) and ("#sad" in tweet):
             return tweet
         elif "#happy" in tweet:
@@ -86,57 +114,15 @@ class HappySad_HashtagRule:
         else:
             return tweet
 
-    def _classify(
-        self, tweet: str, positive_pattern: str, negative_pattern: str
-    ) -> int:
-        if (positive_pattern in tweet) and (negative_pattern in tweet):
-            return 0
-        elif positive_pattern in tweet:
-            return 1
-        elif negative_pattern in tweet:
-            return -1
-        else:
-            return 0
 
-
-class Fml_HashtagRule:
-    def fml_hashtag_rule(self, tweet: str) -> int:
-        if "#fml " in tweet:
-            return -1
-        else:
-            return 0
-
-    def tweet_without_fml_hashtags(selfs, tweet: str) -> str:
-        if "#fml " in tweet:
-            return tweet.replace("#fml", "")
-        else:
-            return tweet
-
-
-class BarSmileyRule:
-    def bar_smiley_rule(self, tweet: str) -> int:
-        if ": |" in tweet:
-            return -1
-        else:
-            return 0
-
-    def tweet_without_barsmiley(selfs, tweet: str) -> str:
-        if ": |" in tweet:
-            return tweet.replace(": |", "")
-        else:
-            return tweet
-
-
-class Rule(
-    ParenthesisRule, HeartRule, HappySad_HashtagRule, Fml_HashtagRule, BarSmileyRule
-):
+class RuleClassifier(Rule):
     def __init__(self) -> None:
         self.rules = [
-            self.parenthesis_rule,
-            self.heart_rule,
-            self.happy_sad_hashtag_rule,
-            self.fml_hashtag_rule,
-            self.bar_smiley_rule,
+            HeartRule(" < 3 ", " < / 3"),
+            HappySadHashtagRule("#happy", "#sad"),
+            ParenthesisRule(" ) ", " ( "),
+            NegativeRule("#fml "),
+            NegativeRule(": | "),
         ]
 
     def predict(self, tweets: List[str]) -> np.ndarray:
@@ -148,16 +134,10 @@ class Rule(
         return np.array(predictions)
 
     def tweets_without_rules(self, tweets: List[str]) -> List[str]:
-        for tweet in tweets:
-            tweet = self.tweet_without_matching_parentheses(tweet)
-            tweet = self.tweet_without_hearts(tweet)
-            tweet = self.tweet_without_happysad_hashtags(tweet)
-            tweet = self.tweet_without_fml_hashtags(tweet)
-            tweet = self.tweet_without_barsmiley(tweet)
-        return tweets
+        pass
 
     def _apply_rules(self, tweet: str) -> List[int]:
-        return [rule(tweet) for rule in self.rules]
+        return [rule.apply_rule(tweet) for rule in self.rules]
 
     def _aggregate(self, predictions: List[int]) -> int:
         # return predictions[0]
