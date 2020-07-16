@@ -10,11 +10,12 @@ from fairseq.data.encoders.fastbpe import fastBPE
 from modules.bert_sentiment_classifier import BertSentimentClassifier
 from torch.nn import CrossEntropyLoss
 from torch.utils.data import TensorDataset
-from transformers import RobertaConfig, RobertaModel
-from transformers.modeling_roberta import RobertaClassificationHead
+from transformers import RobertaConfig, RobertaForSequenceClassification
 from utilities.data_loading import (
     generate_bootstrap_dataset,
     remove_indices_from_test_tweets,
+    save_labels,
+    save_tweets_in_test_format,
 )
 
 
@@ -42,14 +43,13 @@ class BERTweet(BertSentimentClassifier):
                 "BERTweet_base_transformers/config.json",
             )
         )
-        self.bertweet = RobertaModel.from_pretrained(
+        self.model = RobertaForSequenceClassification.from_pretrained(
             os.path.join(
                 config.pretrained_model_base_path,
                 "BERTweet_base_transformers/model.bin",
             ),
             config=model_config,
         )
-        self.classifier = RobertaClassificationHead(model_config)
         self.loss = CrossEntropyLoss()
 
     def _load_tweets(self, path: str) -> List[str]:
@@ -91,7 +91,7 @@ class BERTweet(BertSentimentClassifier):
 
     def _generate_attention_mask(self, token_ids: torch.Tensor) -> torch.Tensor:
         pad_token_id = self.vocab.pad()
-        return (token_ids != pad_token_id).float()
+        return torch.tensor(token_ids != pad_token_id, dtype=torch.int64)
 
     def prepare_data(self) -> None:
         negative_tweets = self._load_unique_tweets(self.config.negative_tweets_path)
@@ -110,6 +110,19 @@ class BERTweet(BertSentimentClassifier):
             self.config.validation_split_random_seed,
         )
 
+        if not self.testing:
+            validation_indices = list(self.validation_data.indices)
+            validation_tweets = [all_tweets[i] for i in validation_indices]
+            validation_labels = labels[validation_indices]
+            save_tweets_in_test_format(
+                validation_tweets,
+                os.path.join(self.config.model_save_path, "validation_data.txt"),
+            )
+            save_labels(
+                validation_labels,
+                os.path.join(self.config.model_save_path, "validation_labels.txt"),
+            )
+
         if self.config.do_bootstrap_sampling:
             self.train_data = generate_bootstrap_dataset(self.train_data)
 
@@ -122,10 +135,3 @@ class BERTweet(BertSentimentClassifier):
         test_token_ids = self._pad(test_token_id_list, self.config.max_tokens_per_tweet)
         test_attention_mask = self._generate_attention_mask(test_token_ids)
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
-
-    def forward(
-        self, token_ids: torch.Tensor, attention_mask: torch.Tensor
-    ) -> torch.Tensor:
-        outputs = self.bertweet(token_ids, attention_mask)
-        sequence_output = outputs[0]
-        return self.classifier(sequence_output)
