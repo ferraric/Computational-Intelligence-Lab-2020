@@ -11,6 +11,9 @@ class Rule:
     def remove_rule_pattern_from(self, tweet: str) -> str:
         raise NotImplementedError()
 
+    def remove_double_whitespaces(self, tweet: str) -> str:
+        return " ".join(tweet.split())
+
 
 class PositiveNegativeRule(Rule):
     def __init__(self, positive_pattern: str, negative_pattern: str):
@@ -29,13 +32,15 @@ class PositiveNegativeRule(Rule):
 
     def remove_rule_pattern_from(self, tweet: str) -> str:
         if self.apply(tweet) == 0:
-            return tweet
+            tweet_without_rule_pattern = tweet
         elif self.apply(tweet) == 1:
-            return tweet.replace(self.positive_pattern, "")
+            tweet_without_rule_pattern = tweet.replace(self.positive_pattern, "")
         elif self.apply(tweet) == -1:
-            return tweet.replace(self.negative_pattern, "")
+            tweet_without_rule_pattern = tweet.replace(self.negative_pattern, "")
         else:
             raise ValueError("rule application returned unexpected value")
+
+        return self.remove_double_whitespaces(tweet_without_rule_pattern)
 
 
 class NegativeRule(Rule):
@@ -50,11 +55,13 @@ class NegativeRule(Rule):
 
     def remove_rule_pattern_from(self, tweet: str) -> str:
         if self.apply(tweet) == 0:
-            return tweet
+            tweet_without_rule_pattern = tweet
         elif self.apply(tweet) == -1:
-            return tweet.replace(self.negative_pattern, "")
+            tweet_without_rule_pattern = tweet.replace(self.negative_pattern, "")
         else:
             raise ValueError("rule application returned unexpected value")
+
+        return self.remove_double_whitespaces(tweet_without_rule_pattern)
 
 
 class ParenthesisRule(PositiveNegativeRule):
@@ -72,9 +79,13 @@ class ParenthesisRule(PositiveNegativeRule):
                 for index in parenthesis_indices
                 if index not in matching_parenthesis_indices
             ]
-            return self._remove_chars_at(unmatching_parentheses_indices, tweet)
+            tweet_without_rule_pattern = self._remove_chars_at(
+                unmatching_parentheses_indices, tweet
+            )
         else:
-            return tweet
+            tweet_without_rule_pattern = tweet
+
+        return self.remove_double_whitespaces(tweet_without_rule_pattern)
 
     def _remove_chars_at(self, indices: List[int], string: str) -> str:
         char_array = np.array(list(string))
@@ -109,22 +120,24 @@ class ParenthesisRule(PositiveNegativeRule):
 
 class HappySadHashtagRule(PositiveNegativeRule):
     def remove_rule_pattern_from(self, tweet: str) -> str:
-        if (self.positive_pattern in tweet) and (self.negative_pattern in tweet):
-            return tweet
-        elif self.positive_pattern in tweet:
-            return " ".join(
+        if self.apply(tweet) == 0:
+            tweet_without_rule_pattern = tweet
+        elif self.apply(tweet) == 1:
+            tweet_without_rule_pattern = " ".join(
                 word
                 for word in tweet.split(" ")
                 if not word.startswith(self.positive_pattern)
             )
-        elif self.negative_pattern in tweet:
-            return " ".join(
+        elif self.apply(tweet) == -1:
+            tweet_without_rule_pattern = " ".join(
                 word
                 for word in tweet.split(" ")
                 if not word.startswith(self.negative_pattern)
             )
         else:
-            return tweet
+            raise ValueError("rule application returned unexpected value")
+
+        return self.remove_double_whitespaces(tweet_without_rule_pattern)
 
 
 class RuleClassifier(Rule):
