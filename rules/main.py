@@ -23,7 +23,7 @@ def print_confusion_matrix(
     print()
 
 
-def remove_double_whitespaces(tweets: List[str], save_path: str) -> List[str]:
+def remove_double_whitespaces(tweets: List[str]) -> List[str]:
     return [" ".join(tweet.split()) for tweet in tweets]
 
 
@@ -32,8 +32,11 @@ def main() -> None:
     tweets_index_removed = remove_indices_from_test_tweets(tweets)
 
     labels = np.loadtxt("data/rules/validation_labels.txt", dtype=np.int)
-    # this are gonna be the real predictions of bert once finished
-    bert_predictions = labels
+
+    bert_predictions = np.genfromtxt(
+        "data/rules/test_predictions.csv", dtype=np.int, delimiter=",", names=True
+    )
+    bert_predictions = bert_predictions["Prediction"]
 
     save_path = "data/rules/all_rules.txt"
 
@@ -43,7 +46,7 @@ def main() -> None:
         tweets_index_removed
     )
     save_tweets_in_test_format(
-        remove_indices_from_test_tweets(tweets_without_rule_patterns), save_path
+        remove_double_whitespaces(tweets_without_rule_patterns), save_path
     )
 
     print_confusion_matrix(
