@@ -35,7 +35,7 @@ def main() -> None:
     # this are gonna be the real predictions of bert once finished
     bert_predictions = labels
 
-    save_path = "data/rules/tweets_without_hearts.txt"
+    save_path = "data/rules/all_rules.txt"
 
     rule_classifier = RuleClassifier()
     rule_predictions = rule_classifier.predict(tweets_index_removed)
