@@ -1,4 +1,4 @@
-module load gcc/6.3.0 python_gpu/3.7.4 cuda/10.1.243 cudnn/7.6.4 eth_proxy
+module load gcc/6.3.0 python_gpu/3.7.1 cuda/10.1.243 cudnn/7.6.4 eth_proxy
 source venv/bin/activate
 pip3 install -r requirements.txt
 pre-commit install
