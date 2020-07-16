@@ -1,3 +1,4 @@
+import unittest
 from unittest import TestCase
 
 from rules.rules import ParenthesisRule
@@ -80,5 +81,15 @@ class RemoveUnmatchingParenthesisTest(TestCase):
     def test_remove_parenthesis_open_closed(self) -> None:
         assert (
             ParenthesisRule(" )", " (").remove_rule_pattern_from(" ( ( hi ) ")
-            == " ( ( hi ) "  # EDIT CASE!!
+            == " (  hi  "
         )
+
+    def test_remove_parenthesis_open_closed_double(self) -> None:
+        assert (
+            ParenthesisRule(" )", " (").remove_rule_pattern_from(" ( hi ) ) ) ")
+            == "  hi  ) ) "
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()

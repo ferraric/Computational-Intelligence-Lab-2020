@@ -64,6 +64,7 @@ class ParenthesisRule(PositiveNegativeRule):
         return super().apply(self.remove_matching_parenthesis(tweet))
 
     def remove_rule_pattern_from(self, tweet: str) -> str:
+
         if (self.positive_pattern in tweet) and (self.negative_pattern in tweet):
             parenthesis_indices = self._get_parenthesis_indices(tweet)
             matching_parenthesis_indices = self._get_indices_of_matching_parenthesis(
@@ -74,6 +75,7 @@ class ParenthesisRule(PositiveNegativeRule):
                 for index in parenthesis_indices
                 if index not in matching_parenthesis_indices
             ]
+
             return self._remove_chars_at(unmatching_parentheses_indices, tweet)
 
         elif self.positive_pattern in tweet:
