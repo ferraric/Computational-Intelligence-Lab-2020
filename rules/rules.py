@@ -64,19 +64,20 @@ class ParenthesisRule(PositiveNegativeRule):
         return super().apply(self.remove_matching_parenthesis(tweet))
 
     def remove_rule_pattern_from(self, tweet: str) -> str:
-
         if (self.positive_pattern in tweet) and (self.negative_pattern in tweet):
-            parenthesis_indices = self._get_parenthesis_indices(tweet)
-            matching_parenthesis_indices = self._get_indices_of_matching_parenthesis(
-                tweet
-            )
-            unmatching_parentheses_indices = [
-                index
-                for index in parenthesis_indices
-                if index not in matching_parenthesis_indices
-            ]
-
-            return self._remove_chars_at(unmatching_parentheses_indices, tweet)
+            if tweet.count(self.positive_pattern) == tweet.count(self.negative_pattern):
+                return tweet
+            else:
+                parenthesis_indices = self._get_parenthesis_indices(tweet)
+                matching_parenthesis_indices = self._get_indices_of_matching_parenthesis(
+                    tweet
+                )
+                unmatching_parentheses_indices = [
+                    index
+                    for index in parenthesis_indices
+                    if index not in matching_parenthesis_indices
+                ]
+                return self._remove_chars_at(unmatching_parentheses_indices, tweet)
 
         elif self.positive_pattern in tweet:
             return tweet.replace(self.positive_pattern, "")
@@ -95,9 +96,9 @@ class ParenthesisRule(PositiveNegativeRule):
         stack: deque = deque()
         matching_indices = []
         for index, char in enumerate(tweet):
-            if char == "(":
+            if char == self.negative_pattern:
                 stack.append(index)
-            if char == ")":
+            if char == self.positive_pattern:
                 if len(stack) > 0:
                     opening_index = stack.pop()
                     matching_indices.append(opening_index)
@@ -133,7 +134,7 @@ class RuleClassifier(Rule):
         self.rules = [
             PositiveNegativeRule(" < 3 ", " < / 3"),
             HappySadHashtagRule("#happy", "#sad"),
-            ParenthesisRule(" )", " ("),
+            ParenthesisRule(")", "("),
             NegativeRule("#fml "),
             NegativeRule(": | "),
         ]
