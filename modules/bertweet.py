@@ -93,7 +93,7 @@ class BERTweet(BertSentimentClassifier):
 
     def _generate_attention_mask(self, token_ids: torch.Tensor) -> torch.Tensor:
         pad_token_id = self.vocab.pad()
-        return (token_ids != pad_token_id).float()
+        return torch.tensor(token_ids != pad_token_id, dtype=torch.int64)
 
     def prepare_data(self) -> None:
         negative_tweets = self._load_unique_tweets(self.config.negative_tweets_path)
