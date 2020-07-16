@@ -144,10 +144,6 @@ class RuleClassifier(Rule):
         ]
         return np.array(predictions)
 
-    def remove_rule_patterns_from(self, tweets: List[str]) -> List[str]:
-        # TODO
-        pass
-
     def _apply_rules(self, tweet: str) -> List[int]:
         return [rule.apply(tweet) for rule in self.rules]
 
@@ -161,3 +157,10 @@ class RuleClassifier(Rule):
             return -1
         else:
             return 0
+
+    def remove_rule_patterns_from(self, tweets: List[str]) -> List[str]:
+        return [
+            rule.remove_rule_pattern_from(tweet)
+            for rule in self.rules
+            for tweet in tweets
+        ]

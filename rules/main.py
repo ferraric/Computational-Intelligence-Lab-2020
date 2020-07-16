@@ -4,7 +4,11 @@ import numpy as np
 import pandas as pd
 from rules import RuleClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
-from utilities.data_loading import load_tweets, remove_indices_from_test_tweets
+from utilities.data_loading import (
+    load_tweets,
+    remove_indices_from_test_tweets,
+    save_tweets_in_test_format,
+)
 
 
 def print_confusion_matrix(
@@ -27,8 +31,15 @@ def main() -> None:
     # this are gonna be the real predictions of bert once finished
     bert_predictions = labels
 
+    save_path = "data/rules/tweets_without_hearts.txt"
+
     rule_classifier = RuleClassifier()
     rule_predictions = rule_classifier.predict(tweets_index_removed)
+    tweets_without_rule_patterns = rule_classifier.remove_rule_patterns_from(
+        tweets_index_removed
+    )
+
+    save_tweets_in_test_format(tweets_without_rule_patterns, save_path)
 
     print_confusion_matrix(
         labels,
