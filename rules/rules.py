@@ -61,7 +61,7 @@ class NegativeRule(Rule):
 
 class ParenthesisRule(PositiveNegativeRule):
     def apply(self, tweet: str) -> int:
-        return super().apply(self._remove_matching_parenthesis(tweet))
+        return super().apply(self.remove_matching_parenthesis(tweet))
 
     def remove_rule_pattern_from(self, tweet: str) -> str:
         if (self.positive_pattern in tweet) and (self.negative_pattern in tweet):
@@ -93,16 +93,16 @@ class ParenthesisRule(PositiveNegativeRule):
         stack: deque = deque()
         matching_indices = []
         for index, char in enumerate(tweet):
-            if char == self.positive_pattern:
+            if char == "(":
                 stack.append(index)
-            if char == self.negative_pattern:
+            if char == ")":
                 if len(stack) > 0:
                     opening_index = stack.pop()
                     matching_indices.append(opening_index)
                     matching_indices.append(index)
         return matching_indices
 
-    def _remove_matching_parenthesis(self, tweet: str) -> str:
+    def remove_matching_parenthesis(self, tweet: str) -> str:
         matching_indices = self._get_indices_of_matching_parenthesis(tweet)
         return self._remove_chars_at(matching_indices, tweet)
 
@@ -131,7 +131,7 @@ class RuleClassifier(Rule):
         self.rules = [
             PositiveNegativeRule(" < 3 ", " < / 3"),
             HappySadHashtagRule("#happy", "#sad"),
-            ParenthesisRule(" ) ", " ( "),
+            ParenthesisRule(" )", " ("),
             NegativeRule("#fml "),
             NegativeRule(": | "),
         ]
