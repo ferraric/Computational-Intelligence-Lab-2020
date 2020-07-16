@@ -31,14 +31,14 @@ class PositiveNegativeRule(Rule):
             return 0
 
     def remove_rule_pattern_from(self, tweet: str) -> str:
-        if (self.positive_pattern in tweet) and (self.negative_pattern in tweet):
+        if self.apply(tweet) == 0:
             return tweet
-        elif self.positive_pattern in tweet:
+        elif self.apply(tweet) == 1:
             return tweet.replace(self.positive_pattern, "")
-        elif self.negative_pattern in tweet:
+        elif self.apply(tweet) == -1:
             return tweet.replace(self.negative_pattern, "")
         else:
-            return tweet
+            raise ValueError("rule application returned unexpected value")
 
 
 class NegativeRule(Rule):
@@ -52,10 +52,12 @@ class NegativeRule(Rule):
             return 0
 
     def remove_rule_pattern_from(self, tweet: str) -> str:
-        if self.negative_pattern in tweet:
+        if self.apply(tweet) == 0:
+            return tweet
+        elif self.apply(tweet) == -1:
             return tweet.replace(self.negative_pattern, "")
         else:
-            return tweet
+            raise ValueError("rule application returned unexpected value")
 
 
 class ParenthesisRule(PositiveNegativeRule):
@@ -87,9 +89,9 @@ class ParenthesisRule(PositiveNegativeRule):
         stack: deque = deque()
         matching_indices = []
         for index, char in enumerate(tweet):
-            if char == self.negative_pattern:
+            if char == "(":
                 stack.append(index)
-            if char == self.positive_pattern:
+            if char == ")":
                 if len(stack) > 0:
                     opening_index = stack.pop()
                     matching_indices.append(opening_index)
