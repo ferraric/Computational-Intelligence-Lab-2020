@@ -65,8 +65,10 @@ class ParenthesisRule(PositiveNegativeRule):
 
     def remove_rule_pattern_from(self, tweet: str) -> str:
         if (self.positive_pattern in tweet) and (self.negative_pattern in tweet):
-            parenthesis_indices = self._get_parenthesis_indices(tweet, "(", ")")
-            matching_parenthesis_indices = self._get_matching_parenthesis(tweet)
+            parenthesis_indices = self._get_parenthesis_indices(tweet)
+            matching_parenthesis_indices = self._get_indices_of_matching_parenthesis(
+                tweet
+            )
             unmatching_parentheses_indices = set(parenthesis_indices) ^ set(
                 matching_parenthesis_indices
             )
@@ -92,13 +94,13 @@ class ParenthesisRule(PositiveNegativeRule):
         trimmed_string = "".join(trimmed_char_array)
         return trimmed_string
 
-    def _get_matching_parenthesis(self, tweet: str) -> List[int]:
+    def _get_indices_of_matching_parenthesis(self, tweet: str) -> List[int]:
         stack: deque = deque()
         matching_indices = []
         for index, char in enumerate(tweet):
-            if char == "(":
+            if char == self.positive_pattern:
                 stack.append(index)
-            if char == ")":
+            if char == self.negative_pattern:
                 if len(stack) > 0:
                     opening_index = stack.pop()
                     matching_indices.append(opening_index)
@@ -106,15 +108,13 @@ class ParenthesisRule(PositiveNegativeRule):
         return matching_indices
 
     def _remove_matching_parenthesis(self, tweet: str) -> str:
-        matching_indices = self._get_matching_parenthesis(tweet)
+        matching_indices = self._get_indices_of_matching_parenthesis(tweet)
         return self._remove_chars_at(matching_indices, tweet)
 
-    def _get_parenthesis_indices(
-        self, tweet: str, open_parenthesis: str, closed_parenthesis: str
-    ) -> List[int]:
+    def _get_parenthesis_indices(self, tweet: str) -> List[int]:
         indices = []
-        for i in range(len(tweet)):
-            if (tweet[i] == open_parenthesis) or (tweet[i] == closed_parenthesis):
+        for i, char in enumerate(tweet):
+            if (char == self.positive_pattern) or (char == self.negative_pattern):
                 indices.append(i)
         return indices
 
@@ -150,6 +150,7 @@ class RuleClassifier(Rule):
         return np.array(predictions)
 
     def remove_rule_patterns_from(self, tweets: List[str]) -> List[str]:
+        # TODO
         pass
 
     def _apply_rules(self, tweet: str) -> List[int]:
