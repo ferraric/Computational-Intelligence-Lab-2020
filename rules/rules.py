@@ -5,14 +5,11 @@ import numpy as np
 
 
 class Rule:
-    def __init__(self) -> None:
-        pass
-
     def apply(self, tweet: str) -> int:
-        pass
+        raise NotImplementedError()
 
     def remove_rule_pattern_from(self, tweet: str) -> str:
-        pass
+        raise NotImplementedError()
 
 
 class PositiveNegativeRule(Rule):
