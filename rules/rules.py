@@ -1,4 +1,3 @@
-import re
 from collections import deque
 from typing import List
 
@@ -119,12 +118,20 @@ class ParenthesisRule(PositiveNegativeRule):
 
 class HappySadHashtagRule(PositiveNegativeRule):
     def remove_rule_pattern_from(self, tweet: str) -> str:
-        if ("#happy" in tweet) and ("#sad" in tweet):
+        if (self.positive_pattern in tweet) and (self.negative_pattern in tweet):
             return tweet
-        elif "#happy" in tweet:
-            return re.sub(r"\#happy\w+", "", tweet)
-        elif "#sad" in tweet:
-            return re.sub(r"\#sad\w+", "", tweet)
+        elif self.positive_pattern in tweet:
+            return " ".join(
+                word
+                for word in tweet.split(" ")
+                if not word.startswith(self.positive_pattern)
+            )
+        elif self.negative_pattern in tweet:
+            return " ".join(
+                word
+                for word in tweet.split(" ")
+                if not word.startswith(self.negative_pattern)
+            )
         else:
             return tweet
 
@@ -134,7 +141,7 @@ class RuleClassifier(Rule):
         self.rules = [
             ParenthesisRule(")", "("),
             # PositiveNegativeRule(" < 3 ", " < / 3"),
-            # HappySadHashtagRule("#happy", "#sad"),
+            # HappySadHashtagRule("#happ", "#sad"),
             # NegativeRule("#fml "),
             # NegativeRule(": | "),
         ]
