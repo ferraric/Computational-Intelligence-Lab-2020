@@ -65,6 +65,7 @@ class ParenthesisRule(PositiveNegativeRule):
 
     def remove_rule_pattern_from(selfs, tweet: str) -> str:
         # TODO
+
         return tweet
 
     def _remove_chars_at(self, indices: List[int], string: str) -> str:
@@ -89,6 +90,13 @@ class ParenthesisRule(PositiveNegativeRule):
     def _remove_matching_parenthesis(self, tweet: str) -> str:
         matching_indices = self._get_matching_parenthesis(tweet)
         return self._remove_chars_at(matching_indices, tweet)
+
+    def _get_char_indices(self, tweet: str, char: str) -> List[int]:
+        indices = []
+        for n in range(len(tweet)):
+            if tweet[n] == char:
+                indices.append(n)
+        return indices
 
     # alli indices vo allne chlammere
     # remove all matching
