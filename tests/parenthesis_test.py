@@ -4,7 +4,7 @@ from rules.rules import ParenthesisRule
 
 
 class RemoveMatchingParenthesisTest(TestCase):
-    def __init__(self) -> None:
+    def setUp(self) -> None:
         self.parenthesis_rule = ParenthesisRule(")", "(")
 
     def test_single_parenthesis_open(self) -> None:
@@ -49,37 +49,33 @@ class RemoveMatchingParenthesisTest(TestCase):
 
 
 class RemoveUnmatchingParenthesisTest(TestCase):
-    def __init__(self) -> None:
+    def setUp(self) -> None:
         self.parenthesis_rule = ParenthesisRule(")", "(")
 
     def test_remove_parenthesis_closed(self) -> None:
-        assert self.parenthesis_rule.remove_rule_pattern_from(" ( hi ) ") == " ( hi ) "
+        assert self.parenthesis_rule.remove_rule_pattern_from(" ( hi ) ") == "( hi )"
 
     def test_remove_parenthesis_single(self) -> None:
-        assert self.parenthesis_rule.remove_rule_pattern_from(" ) ") == "  "
+        assert self.parenthesis_rule.remove_rule_pattern_from(" ) ") == ""
 
     def test_remove_parenthesis_triple(self) -> None:
-        assert self.parenthesis_rule.remove_rule_pattern_from(" ( ( ( ") == "    "
+        assert self.parenthesis_rule.remove_rule_pattern_from(" ( ( ( ") == ""
 
     def test_remove_parenthesis_closed_open(self) -> None:
         assert (
             self.parenthesis_rule.remove_rule_pattern_from(" ( hi ) ) ( ")
-            == " ( hi ) ) ( "
+            == "( hi ) ) ("
         )
 
     def test_remove_parenthesis_open_closed(self) -> None:
-        assert (
-            self.parenthesis_rule.remove_rule_pattern_from(" ( ( hi ) ") == "  ( hi ) "
-        )
+        assert self.parenthesis_rule.remove_rule_pattern_from(" ( ( hi ) ") == "( hi )"
 
     def test_remove_parenthesis_open_closed_double(self) -> None:
         assert (
-            self.parenthesis_rule.remove_rule_pattern_from(" ( hi ) ) ) ")
-            == " ( hi )   "
+            self.parenthesis_rule.remove_rule_pattern_from(" ( hi ) ) ) ") == "( hi )"
         )
 
     def test_remove_parenthesis_closed_unmatching_triple(self) -> None:
         assert (
-            self.parenthesis_rule.remove_rule_pattern_from(" ( ) ) ) ( ")
-            == " ( ) ) ) ( "
+            self.parenthesis_rule.remove_rule_pattern_from(" ( ) ) ) ( ") == "( ) ) ) ("
         )
