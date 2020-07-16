@@ -3,7 +3,7 @@ from unittest import TestCase
 from rules.rules import ParenthesisRule
 
 
-class ParenthesisTest(TestCase):
+class RemoveMatchingParenthesisTest(TestCase):
     def test_single_parenthesis_open(self) -> None:
         assert ParenthesisRule._remove_matching_parenthesis("(") == "("
 
@@ -41,3 +41,23 @@ class ParenthesisTest(TestCase):
         assert (
             ParenthesisRule._remove_matching_parenthesis("( hello ) ( ") == " hello  ( "
         )
+
+
+class RemoveUnmatchingParenthesisTest(TestCase):
+    def test_remove_parenthesis_closed(self) -> None:
+        assert ParenthesisRule.remove_rule_pattern_from(" ( hi ) ") == " ( hi ) "
+
+    def test_remove_parenthesis_single(self) -> None:
+        assert ParenthesisRule.remove_rule_pattern_from(" ) ") == "  "
+
+    def test_remove_parenthesis_double(self) -> None:
+        assert ParenthesisRule.remove_rule_pattern_from(" ( ( ") == "  "
+
+    def test_remove_parenthesis_closed_open(self) -> None:
+        assert ParenthesisRule.remove_rule_pattern_from(" ( hi ) ( ") == " ( hi ) "
+
+    def test_remove_parenthesis_open_closed(self) -> None:
+        assert ParenthesisRule.remove_rule_pattern_from(" ( ( hi ) ") == " ( hi ) "
+
+    def test_remove_parenthesis_closed_closed(self) -> None:
+        assert ParenthesisRule.remove_rule_pattern_from(" ( ( hi ) ") == " ( hi ) "
