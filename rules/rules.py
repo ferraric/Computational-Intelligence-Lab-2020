@@ -17,9 +17,9 @@ class Rule:
 
 
 class PositiveNegativeRule(Rule):
-    def __init__(self, pos: str, neg: str):
-        self.positive_pattern = pos
-        self.negative_pattern = neg
+    def __init__(self, positive_pattern: str, negative_pattern: str):
+        self.positive_pattern = positive_pattern
+        self.negative_pattern = negative_pattern
 
     def apply(self, tweet: str) -> int:
         if (self.positive_pattern in tweet) and (self.negative_pattern in tweet):
@@ -43,8 +43,8 @@ class PositiveNegativeRule(Rule):
 
 
 class NegativeRule(Rule):
-    def __init__(self, neg: str):
-        self.negative_pattern = neg
+    def __init__(self, negative_pattern: str):
+        self.negative_pattern = negative_pattern
 
     def apply(self, tweet: str) -> int:
         if self.negative_pattern in tweet:
@@ -73,7 +73,7 @@ class ParenthesisRule(PositiveNegativeRule):
         trimmed_string = "".join(trimmed_char_array)
         return trimmed_string
 
-    def _remove_matching_parenthesis(self, tweet: str) -> str:
+    def _get_matching_parenthesis(self, tweet: str) -> List[int]:
         stack: deque = deque()
         matching_indices = []
         for index, char in enumerate(tweet):
@@ -84,11 +84,19 @@ class ParenthesisRule(PositiveNegativeRule):
                     opening_index = stack.pop()
                     matching_indices.append(opening_index)
                     matching_indices.append(index)
+        return matching_indices
+
+    def _remove_matching_parenthesis(self, tweet: str) -> str:
+        matching_indices = self._get_matching_parenthesis(tweet)
         return self._remove_chars_at(matching_indices, tweet)
+
+    # alli indices vo allne chlammere
+    # remove all matching
+    # indices vo set diff
 
 
 class HappySadHashtagRule(PositiveNegativeRule):
-    def remove_rule_pattern_from(selfs, tweet: str) -> str:
+    def remove_rule_pattern_from(self, tweet: str) -> str:
         if ("#happy" in tweet) and ("#sad" in tweet):
             return tweet
         elif "#happy" in tweet:
