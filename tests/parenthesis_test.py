@@ -81,3 +81,9 @@ class RemoveUnmatchingParenthesisTest(TestCase):
             ParenthesisRule(")", "(").remove_rule_pattern_from(" ( hi ) ) ) ")
             == " ( hi )   "
         )
+
+    def test_remove_parenthesis_closed_unmatching_triple(self) -> None:
+        assert (
+            ParenthesisRule(")", "(").remove_rule_pattern_from(" ( ) ) ) ( ")
+            == " ( ) ) ) ( "
+        )
