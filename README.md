@@ -37,8 +37,10 @@ To test the model on a trained checkpoint, run your main with the corresponding 
 
 
 ## Rule Approach 
-To reconstruct the experiments, train a BERT baseline model. Move the generated into a local folder, for example into data/rules. 
-To select the rules which you want to apply, comment the corresponding rules out in the rules/rules.py file on line 145.
+To reconstruct the experiments, train a BERT baseline model. Move the generated validation_data.txt and validation_labels.txt into a local folder, for example into data/rules. 
+
+To select the rules which you want to apply, comment the corresponding rules out in the rules/rules.py file on line 145. To select the rules which you want to apply, comment the corresponding rules out in the rules/rules.py file on line 145. Per default only the parenthesis rule is applied.
+
 
 First create the tweets which have patterns of the rules removed:
 
