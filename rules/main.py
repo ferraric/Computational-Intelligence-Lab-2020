@@ -27,10 +27,7 @@ def get_args() -> argparse.Namespace:
         help="Path to the validation labels",
     )
     argparser.add_argument(
-        "-b",
-        "--bert_predictions_path",
-        required=True,
-        help="Path to the BERT predictions (csv)",
+        "-b", "--bert_predictions_path", help="Path to the BERT predictions (csv)",
     )
     argparser.add_argument(
         "-s",
@@ -69,6 +66,7 @@ def main() -> None:
             tweets_index_removed
         )
         save_tweets_in_test_format(tweets_without_rule_patterns, save_path)
+        print("tweets saved")
 
     if args.bert_predictions_path is not None:
         bert_predictions = np.loadtxt(
