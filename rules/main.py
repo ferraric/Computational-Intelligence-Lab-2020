@@ -1,3 +1,4 @@
+import argparse
 from typing import List
 
 import numpy as np
@@ -9,6 +10,34 @@ from utilities.data_loading import (
     remove_indices_from_test_tweets,
     save_tweets_in_test_format,
 )
+
+
+def get_args() -> argparse.Namespace:
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument(
+        "-d",
+        "--validation_data_path",
+        required=True,
+        help="Path to the validation data",
+    )
+    argparser.add_argument(
+        "-l",
+        "--validation_labels_path",
+        required=True,
+        help="Path to the validation labels",
+    )
+    argparser.add_argument(
+        "-b",
+        "--bert_predictions_path",
+        required=True,
+        help="Path to the BERT predictions (csv)",
+    )
+    argparser.add_argument(
+        "-s",
+        "--save_path",
+        help="Path where to save the tweets without the rule patterns",
+    )
+    return argparser.parse_args()
 
 
 def print_confusion_matrix(
@@ -24,26 +53,29 @@ def print_confusion_matrix(
 
 
 def main() -> None:
-    tweets = load_tweets("data/rules/validation_data.txt")
+    args = get_args()
+
+    tweets = load_tweets(args.validation_data_path)
     tweets_index_removed = remove_indices_from_test_tweets(tweets)
 
-    labels = np.loadtxt("data/rules/validation_labels.txt", dtype=np.int)
+    labels = np.loadtxt(args.validation_labels_path, dtype=np.int)
     bert_predictions = np.loadtxt(
-        "data/rules/test_predictions.csv",
+        args.bert_predictions_path,
         delimiter=",",
         dtype=np.int,
         skiprows=1,
         usecols=(1,),
     )
 
-    save_path = "data/rules/tweets_parenthesis_rule.txt"
-
     rule_classifier = RuleClassifier()
     rule_predictions = rule_classifier.predict(tweets_index_removed)
-    tweets_without_rule_patterns = rule_classifier.remove_rule_patterns_from(
-        tweets_index_removed
-    )
-    save_tweets_in_test_format(tweets_without_rule_patterns, save_path)
+
+    if args.save_path is not None:
+        save_path = args.save_path
+        tweets_without_rule_patterns = rule_classifier.remove_rule_patterns_from(
+            tweets_index_removed
+        )
+        save_tweets_in_test_format(tweets_without_rule_patterns, save_path)
 
     print_confusion_matrix(
         labels,
