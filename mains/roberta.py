@@ -8,6 +8,7 @@ from modules.roberta_sentiment_classifier_add_data import (
 from utilities.general_utilities import (
     build_comet_logger,
     build_save_path,
+    find_model_checkpoint_path_in,
     get_args,
     get_bunch_config_from_json,
     initialize_trainer,
@@ -34,15 +35,19 @@ def main() -> None:
         else:
             model = RobertaSentimentClassifier(config)
         trainer.fit(model)
+
+        best_model_checkpoint_path = find_model_checkpoint_path_in(save_path)
     else:
-        if config.use_augmented_data:
-            model = RobertaSentimentClassifierAddData.load_from_checkpoint(
-                args.test_model_path, config=config
-            )
-        else:
-            model = RobertaSentimentClassifier.load_from_checkpoint(
-                args.test_model_path, config=config
-            )
+        best_model_checkpoint_path = args.test_model_path
+
+    if config.use_augmented_data:
+        model = RobertaSentimentClassifierAddData.load_from_checkpoint(
+            best_model_checkpoint_path, config=config
+        )
+    else:
+        model = RobertaSentimentClassifier.load_from_checkpoint(
+            best_model_checkpoint_path, config=config
+        )
     trainer.test(model=model)
 
 
