@@ -144,10 +144,10 @@ class RuleClassifier(Rule):
     def __init__(self) -> None:
         self.rules = [
             ParenthesisRule(")", "("),
-            # PositiveNegativeRule(" < 3 ", " < / 3"),
-            # HappySadHashtagRule("#happ", "#sad"),
-            # NegativeRule("#fml "),
-            # NegativeRule(": | "),
+            PositiveNegativeRule("< 3 ", "< / 3"),
+            HappySadHashtagRule("#happ", "#sad"),
+            NegativeRule("#fml"),
+            NegativeRule(": |"),
         ]
 
     def predict(self, tweets: List[str]) -> np.ndarray:
