@@ -29,7 +29,7 @@ def main() -> None:
 
     labels = np.loadtxt("data/rules/bert_rs0_validation_labels.txt", dtype=np.int)
     bert_predictions = np.loadtxt(
-        open("data/rules/test_predictions.csv", "rb"),
+        "data/rules/test_predictions.csv",
         delimiter=",",
         dtype=np.int,
         skiprows=1,
