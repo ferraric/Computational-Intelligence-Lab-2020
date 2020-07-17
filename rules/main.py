@@ -59,13 +59,6 @@ def main() -> None:
     tweets_index_removed = remove_indices_from_test_tweets(tweets)
 
     labels = np.loadtxt(args.validation_labels_path, dtype=np.int)
-    bert_predictions = np.loadtxt(
-        args.bert_predictions_path,
-        delimiter=",",
-        dtype=np.int,
-        skiprows=1,
-        usecols=(1,),
-    )
 
     rule_classifier = RuleClassifier()
     rule_predictions = rule_classifier.predict(tweets_index_removed)
@@ -77,41 +70,54 @@ def main() -> None:
         )
         save_tweets_in_test_format(tweets_without_rule_patterns, save_path)
 
-    print_confusion_matrix(
-        labels,
-        rule_predictions,
-        label_names=["negative", "unknown", "positive"],
-        title="rule based",
-    )
-    print_confusion_matrix(
-        labels, bert_predictions, label_names=["negative", "positive"], title="bert"
-    )
+    if args.bert_predictions_path is not None:
+        bert_predictions = np.loadtxt(
+            args.bert_predictions_path,
+            delimiter=",",
+            dtype=np.int,
+            skiprows=1,
+            usecols=(1,),
+        )
 
-    rule_predictions_rule_matched = rule_predictions[rule_predictions != 0]
-    bert_predictions_rule_matched = bert_predictions[rule_predictions != 0]
-    labels_rule_matched = labels[rule_predictions != 0]
+        print_confusion_matrix(
+            labels,
+            rule_predictions,
+            label_names=["negative", "unknown", "positive"],
+            title="rule based",
+        )
+        print_confusion_matrix(
+            labels, bert_predictions, label_names=["negative", "positive"], title="bert"
+        )
 
-    print(
-        "Percentage of rule matches:",
-        len(rule_predictions_rule_matched) / len(rule_predictions),
-    )
-    accuracy_rules = accuracy_score(labels_rule_matched, rule_predictions_rule_matched)
-    print("accuracy rules: ", accuracy_rules)
-    accuracy_bert = accuracy_score(labels_rule_matched, bert_predictions_rule_matched)
-    print("accuracy bert: ", accuracy_bert)
+        rule_predictions_rule_matched = rule_predictions[rule_predictions != 0]
+        bert_predictions_rule_matched = bert_predictions[rule_predictions != 0]
+        labels_rule_matched = labels[rule_predictions != 0]
 
-    print_confusion_matrix(
-        labels_rule_matched,
-        rule_predictions_rule_matched,
-        label_names=["negative", "positive"],
-        title="rule based on rule match",
-    )
-    print_confusion_matrix(
-        labels_rule_matched,
-        bert_predictions_rule_matched,
-        label_names=["negative", "positive"],
-        title="bert on rule match",
-    )
+        print(
+            "Percentage of rule matches:",
+            len(rule_predictions_rule_matched) / len(rule_predictions),
+        )
+        accuracy_rules = accuracy_score(
+            labels_rule_matched, rule_predictions_rule_matched
+        )
+        print("accuracy rules: ", accuracy_rules)
+        accuracy_bert = accuracy_score(
+            labels_rule_matched, bert_predictions_rule_matched
+        )
+        print("accuracy bert: ", accuracy_bert)
+
+        print_confusion_matrix(
+            labels_rule_matched,
+            rule_predictions_rule_matched,
+            label_names=["negative", "positive"],
+            title="rule based on rule match",
+        )
+        print_confusion_matrix(
+            labels_rule_matched,
+            bert_predictions_rule_matched,
+            label_names=["negative", "positive"],
+            title="bert on rule match",
+        )
 
 
 if __name__ == "__main__":
