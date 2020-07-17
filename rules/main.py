@@ -24,10 +24,10 @@ def print_confusion_matrix(
 
 
 def main() -> None:
-    tweets = load_tweets("data/rules/bert_rs0_validation_data.txt")
+    tweets = load_tweets("data/rules/validation_data.txt")
     tweets_index_removed = remove_indices_from_test_tweets(tweets)
 
-    labels = np.loadtxt("data/rules/bert_rs0_validation_labels.txt", dtype=np.int)
+    labels = np.loadtxt("data/rules/validation_labels.txt", dtype=np.int)
     bert_predictions = np.loadtxt(
         "data/rules/test_predictions.csv",
         delimiter=",",
@@ -36,7 +36,7 @@ def main() -> None:
         usecols=(1,),
     )
 
-    save_path = "data/rules/tweets_all_rules.txt"
+    save_path = "data/rules/tweets_parenthesis_rule.txt"
 
     rule_classifier = RuleClassifier()
     rule_predictions = rule_classifier.predict(tweets_index_removed)
@@ -48,11 +48,11 @@ def main() -> None:
     print_confusion_matrix(
         labels,
         rule_predictions,
-        label_names=["positive", "unknown", "negative"],
+        label_names=["negative", "unknown", "positive"],
         title="rule based",
     )
     print_confusion_matrix(
-        labels, bert_predictions, label_names=["positive", "negative"], title="bert"
+        labels, bert_predictions, label_names=["negative", "positive"], title="bert"
     )
 
     rule_predictions_rule_matched = rule_predictions[rule_predictions != 0]
@@ -71,13 +71,13 @@ def main() -> None:
     print_confusion_matrix(
         labels_rule_matched,
         rule_predictions_rule_matched,
-        label_names=["positive", "negative"],
+        label_names=["negative", "positive"],
         title="rule based on rule match",
     )
     print_confusion_matrix(
         labels_rule_matched,
         bert_predictions_rule_matched,
-        label_names=["positive", "negative"],
+        label_names=["negative", "positive"],
         title="bert on rule match",
     )
 
