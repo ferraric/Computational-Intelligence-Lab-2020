@@ -41,14 +41,21 @@ To reconstruct the experiments, train a BERT baseline model. Move the generated 
 To select the rules which you want to apply, comment the corresponding rules out in the rules/rules.py file on line 145.
 
 First create the tweets which have patterns of the rules removed:
+
 ```rules/main.py -d "validation_data_path" -l "validation_labels_path" -s "save_path_and_name"```
-For example: ```rules/main.py -d "data/rules/validation_data.txt" -l "data/rules/validation_labels.txt" -s "data/rules/test_predictions_all_rules.csv"```
+
+For example: ```rules/main.py -d "data/rules/validation_data.txt" -l "data/rules/validation_labels.txt" -s "data/rules/tweets_parenthesis_rule.txt"```
+
 
 To compare the performance of BERT:
+
 Test BERT on the validation_data.txt. To do this, change the test_path in the config file to path to the validation_data.txt file. Then download the predictions.The checkpoint to test on should be the BERT baseline model you trained on before. This are the predictions on the unmodified tweets. 
 
 Test BERT on the newly saved tweets which have patterns of the rules. Change the test_path in the config file to the tweet txt file you created. Then download the predictions. The checkpoint to test on should be the BERT baseline model you trained on before. This are the predictions on the unmodified tweets. 
 
+
 Then run the main file with the corresponding predictions from BERT to get the accuracy and the confusion matrix of bert and the rule based predictions: 
+
 ```rules/main.py -d "validation_data_path" -l "validation_labels_path" -b "bert_predictions_path"```
+
 For example: ```rules/main.py -d "data/rules/validation_data.txt" -l "data/rules/validation_labels.txt" -b "data/rules/test_predictions.csv"```
