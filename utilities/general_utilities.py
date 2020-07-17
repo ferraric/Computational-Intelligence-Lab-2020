@@ -57,7 +57,7 @@ def build_comet_logger(save_dir: str, config: Bunch) -> CometLogger:
 
 def initialize_trainer(save_path: str, config: Bunch, logger: CometLogger) -> Trainer:
     save_model_callback = ModelCheckpoint(
-        os.path.join(save_path, "{epoch}-{val_loss:.2f}"), monitor="val_loss"
+        os.path.join(save_path, "{epoch}-{val_acc:.2f}"), monitor="val_acc"
     )
     number_of_gpus = 1 if torch.cuda.is_available() else 0
     return Trainer(
