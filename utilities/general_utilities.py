@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 from datetime import datetime
+from glob import glob
 
 import torch
 from bunch import Bunch
@@ -43,6 +44,12 @@ def build_save_path(config: Bunch) -> str:
     return os.path.join(
         config.model_save_directory, config.experiment_name, current_timestamp
     )
+
+
+def find_model_checkpoint_path_in(dir: str) -> str:
+    checkpoint_names = glob(os.path.join(dir, "*.ckpt"))
+    assert len(checkpoint_names) == 1, "exactly one checkpoint expected"
+    return checkpoint_names[0]
 
 
 def build_comet_logger(save_dir: str, config: Bunch) -> CometLogger:
