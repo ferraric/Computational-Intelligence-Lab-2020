@@ -7,12 +7,12 @@ import pandas as pd
 
 
 def get_model_probability_files(input_folder: str) -> List[str]:
-    model_probabilty_files = []
+    model_probability_files = []
     for file_name in os.listdir(input_folder):
         file_path = os.path.join(input_folder, file_name)
         if is_valid_input_file(file_path):
-            model_probabilty_files.append(file_path)
-    return model_probabilty_files
+            model_probability_files.append(file_path)
+    return model_probability_files
 
 
 def is_valid_input_file(file_name: str) -> bool:
