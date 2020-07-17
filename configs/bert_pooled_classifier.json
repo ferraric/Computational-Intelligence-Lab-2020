@@ -12,7 +12,7 @@
   "validation_split_random_seed": 0,
   "batch_size": 32,
   "n_data_loader_workers": 4,
-  "learning_rate": 3e-05,
+  "learning_rate": 2e-05,
   "experiment_name": "bert-pooled",
   "use_comet_experiments": false,
   "comet_api_key": "NVyYXH1De9UgyELocupO1Lge9",
