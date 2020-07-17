@@ -24,17 +24,19 @@ def print_confusion_matrix(
 
 
 def main() -> None:
-    tweets = load_tweets("data/rules/validation_data.txt")
+    tweets = load_tweets("data/rules/bert_rs0_validation_data.txt")
     tweets_index_removed = remove_indices_from_test_tweets(tweets)
 
-    labels = np.loadtxt("data/rules/validation_labels.txt", dtype=np.int)
-
-    bert_predictions = np.genfromtxt(
-        "data/rules/test_predictions.csv", dtype=np.int, delimiter=",", names=True
+    labels = np.loadtxt("data/rules/bert_rs0_validation_labels.txt", dtype=np.int)
+    bert_predictions = np.loadtxt(
+        open("data/rules/test_predictions.csv", "rb"),
+        delimiter=",",
+        dtype=np.int,
+        skiprows=1,
+        usecols=(1,),
     )
-    bert_predictions = bert_predictions["Prediction"]
 
-    save_path = "data/rules/tweets_with_parenthesis_rule.txt"
+    save_path = "data/rules/tweets_all_rules.txt"
 
     rule_classifier = RuleClassifier()
     rule_predictions = rule_classifier.predict(tweets_index_removed)
