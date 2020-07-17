@@ -6,13 +6,13 @@ import numpy as np
 import pandas as pd
 
 
-def get_model_probabilty_files(input_folder: str) -> List[str]:
-    model_probabilitiy_files = []
+def get_model_probability_files(input_folder: str) -> List[str]:
+    model_probabilty_files = []
     for file_name in os.listdir(input_folder):
         file_path = os.path.join(input_folder, file_name)
         if is_valid_input_file(file_path):
-            model_probabilitiy_files.append(file_path)
-    return model_probabilitiy_files
+            model_probabilty_files.append(file_path)
+    return model_probabilty_files
 
 
 def is_valid_input_file(file_name: str) -> bool:
@@ -24,7 +24,7 @@ def is_valid_input_file(file_name: str) -> bool:
 
 
 def get_probabilities(path: str) -> np.ndarray:
-    return np.loadtxt(path, delimiter=",", dtype=np.float, skiprows=1, usecols=(1,),)
+    return np.loadtxt(path, delimiter=",", dtype=np.float64, skiprows=1, usecols=(1,))
 
 
 def main() -> None:
@@ -43,17 +43,19 @@ def main() -> None:
     )
     args = argparser.parse_args()
 
-    model_probabilitiy_files = get_model_probabilty_files(args.input_folder)
+    model_probability_files = get_model_probability_files(args.input_folder)
     model_probabilities = np.array(
-        [get_probabilities(f) for f in model_probabilitiy_files]
+        [get_probabilities(f) for f in model_probability_files]
     )
 
     avg_model_probabilities = np.mean(model_probabilities, axis=0)
-    ensemble_predictions = (2 * (avg_model_probabilities > 0.5) - 1).astype(np.int32)
-    ids = np.arange(1, ensemble_predictions.shape[0] + 1).astype(np.int32)
+    ensemble_predictions = 2 * (avg_model_probabilities > 0.5) - 1
+    ids = np.arange(1, ensemble_predictions.shape[0] + 1)
 
     prediction_table = pd.DataFrame(
-        np.stack([ids, ensemble_predictions], axis=1), columns=["Id", "Prediction"]
+        np.stack([ids, ensemble_predictions], axis=1),
+        columns=["Id", "Prediction"],
+        dtype=np.int32,
     )
     prediction_table.to_csv(
         os.path.join(args.output_path, "ensemble_predictions.csv"), index=False
