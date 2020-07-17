@@ -144,10 +144,10 @@ class RuleClassifier(Rule):
     def __init__(self) -> None:
         self.rules = [
             ParenthesisRule(")", "("),
-            PositiveNegativeRule(" < 3 ", " < / 3"),
-            HappySadHashtagRule("#happ", "#sad"),
-            NegativeRule("#fml "),
-            NegativeRule(": | "),
+            # PositiveNegativeRule(" < 3 ", " < / 3"),
+            # HappySadHashtagRule("#happ", "#sad"),
+            # NegativeRule("#fml "),
+            # NegativeRule(": | "),
         ]
 
     def predict(self, tweets: List[str]) -> np.ndarray:
@@ -174,8 +174,11 @@ class RuleClassifier(Rule):
     def remove_rule_patterns_from(self, tweets: List[str]) -> List[str]:
         tweets_without_rule_patterns = []
         for tweet in tweets:
+            tweet_without_rule_pattern = tweet
             for rule in self.rules:
-                tweet_without_rule_pattern = rule.remove_rule_pattern_from(tweet)
+                tweet_without_rule_pattern = rule.remove_rule_pattern_from(
+                    tweet_without_rule_pattern
+                )
             tweets_without_rule_patterns.append(tweet_without_rule_pattern)
 
         assert len(tweets) == len(tweets_without_rule_patterns)
