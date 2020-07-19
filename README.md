@@ -39,14 +39,14 @@ To test the model on a trained checkpoint, run your main with the corresponding 
 ## Rule Approach 
 To reconstruct the experiments, train a BERT baseline model. Move the generated validation_data.txt and validation_labels.txt into a local folder, for example into data/rules. 
 
-To select the rules which you want to apply, comment the corresponding rules out in the rules/rules.py file on line 145. To select the rules which you want to apply, comment the corresponding rules out in the rules/rules.py file on line 145. Per default only the parenthesis rule is applied.
+To select the rules which you want to apply, use the command line -r. Set -r "all" if you want to apply all rules or -r "default" which  will only apply the parenthesis rule. 
 
 
 First create the tweets which have patterns of the rules removed:
 
-```rules/main.py -d "validation_data_path" -l "validation_labels_path" -s "save_path_and_name"```
+```rules/main.py -r "rules" -d "validation_data_path" -l "validation_labels_path" -s "save_path_and_name"```
 
-For example: ```rules/main.py -d "data/rules/validation_data.txt" -l "data/rules/validation_labels.txt" -s "data/rules/tweets_parenthesis_rule.txt"```
+For example: ```rules/main.py -r "all" -d "data/rules/validation_data.txt" -l "data/rules/validation_labels.txt" -s "data/rules/tweets_parenthesis_rule.txt"```
 
 
 To compare the performance of BERT:
@@ -58,6 +58,6 @@ Test BERT on the newly saved tweets which have patterns of the rules. Change the
 
 Then run the main file with the corresponding predictions from BERT to get the accuracy and the confusion matrix of bert and the rule based predictions: 
 
-```rules/main.py -d "validation_data_path" -l "validation_labels_path" -b "bert_predictions_path"```
+```rules/main.py -r "rules" -d "validation_data_path" -l "validation_labels_path" -b "bert_predictions_path"```
 
-For example: ```rules/main.py -d "data/rules/validation_data.txt" -l "data/rules/validation_labels.txt" -b "data/rules/test_predictions.csv"```
+For example: ```rules/main.py -r "all" -d "data/rules/validation_data.txt" -l "data/rules/validation_labels.txt" -b "data/rules/test_predictions.csv"```
