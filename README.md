@@ -37,10 +37,7 @@ To test the model on a trained checkpoint, run your main with the corresponding 
 
 
 ## Rule Approach 
-To reproduce the experiments, train a BERT baseline model. Move the generated validation_data.txt and validation_labels.txt into a local folder, for example into data/rules. 
-
-Per default, only the parenthesis rule is applied. *note to self: handle command line -r rules if want to add more rules*
-
+To reproduce the experiments, train a BERT baseline model. 
 
 First create the tweets which have patterns of the rules removed:
 
@@ -61,3 +58,8 @@ Then run the main file with the corresponding predictions from BERT to get the a
 ```rules/main.py -d "validation_data_path" -l "validation_labels_path" -b "bert_predictions_path"```
 
 For example: ```rules/main.py -d "data/rules/validation_data.txt" -l "data/rules/validation_labels.txt" -b "data/rules/test_predictions.csv"```
+
+
+
+
+ *note to self: handle command line -r rules if want to add more rules* Per default, only the parenthesis rule is applied.
