@@ -14,10 +14,8 @@ def main() -> None:
     )
     args = argparser.parse_args()
 
-    predictions = np.loadtxt(
-        args.input_file, delimiter=",", dtype=np.float64, skiprows=1, usecols=(1,)
-    )
-    labels = np.loadtxt(args.labels, dtype=np.int)
+    predictions = np.loadtxt(args.input_file, delimiter=",", skiprows=1, usecols=(1,))
+    labels = np.loadtxt(args.labels)
 
     print("Accuracy:", accuracy_score(labels, predictions))
 
