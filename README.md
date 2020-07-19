@@ -58,8 +58,3 @@ Then run the main file with the corresponding predictions from BERT to get the a
 ```rules/main.py -d "validation_data_path" -l "validation_labels_path" -b "bert_predictions_path"```
 
 For example: ```rules/main.py -d "data/rules/validation_data.txt" -l "data/rules/validation_labels.txt" -b "data/rules/test_predictions.csv"```
-
-
-
-
- *note to self: handle command line -r rules if want to add more rules* Per default, only the parenthesis rule is applied.
