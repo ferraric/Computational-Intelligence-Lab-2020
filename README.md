@@ -43,8 +43,6 @@ First create the tweets which have patterns of the rules removed:
 
 ```rules/main.py -d "validation_data_path" -l "validation_labels_path" -s "save_path"```
 
-For example: ```rules/main.py -d "data/rules/validation_data.txt" -l "data/rules/validation_labels.txt" -s "data/rules/tweets_parenthesis_rule.txt"```
-
 
 To compare the performance of BERT:
 
@@ -57,4 +55,3 @@ Then run the main file with the corresponding predictions from BERT to get the a
 
 ```rules/main.py -d "validation_data_path" -l "validation_labels_path" -b "bert_predictions_path"```
 
-For example: ```rules/main.py -d "data/rules/validation_data.txt" -l "data/rules/validation_labels.txt" -b "data/rules/test_predictions.csv"```
