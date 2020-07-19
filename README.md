@@ -46,9 +46,9 @@ First create the tweets which have patterns of the rules removed:
 
 To compare the performance of BERT:
 
-Test BERT on the validation_data.txt. To do this, change the test_path in the config file to path to the validation_data.txt file. Download the predictions from comet.ml - access on request. The checkpoint to test on should be the BERT baseline model you trained on before. This are the predictions on the unmodified tweets. 
+Test BERT on the validation_data.txt. To do this, change the test_path in the config file to path to the validation_data.txt file. Download the predictions (predictions are stored on comet.ml, access can be given on request). The checkpoint to test on should be the BERT baseline model you trained on before. This are the predictions on the unmodified tweets. 
 
-Test BERT on the newly saved tweets where patterns of the rules are present. Change the test_path in the config file to the tweet txt file you created. Download the predictions from comet.ml - access on request. The checkpoint to test on should be the BERT baseline model you trained on before. This are the predictions on the unmodified tweets. 
+Test BERT on the newly saved tweets where patterns of the rules are present. To do this, change the test_path in the config file to the tweet txt file you created. Download the predictions (predictions are stored on comet.ml, access can be given on request). The checkpoint to test on should be the BERT baseline model you trained on before. This are the predictions on the unmodified tweets. 
 
 
 Then run the main file with the corresponding predictions from BERT to get the accuracy and the confusion matrix of bert and the rule based predictions: 

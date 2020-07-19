@@ -134,7 +134,6 @@ class HappySadHashtagRule(PositiveNegativeRule):
                 for word in tweet.split(" ")
                 if not word.startswith(self.negative_pattern)
             )
-            print(tweet_without_rule_pattern)
         else:
             raise ValueError("rule application returned unexpected value")
 

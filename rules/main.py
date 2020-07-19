@@ -118,7 +118,7 @@ def main() -> None:
         )
 
     else:
-        print("Error: -b or -s flag not specified")
+        raise ValueError("-b and -s flag not specified")
 
 
 if __name__ == "__main__":
