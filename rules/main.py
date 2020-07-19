@@ -55,7 +55,7 @@ def main() -> None:
     tweets = load_tweets(args.validation_data_path)
     tweets_index_removed = remove_indices_from_test_tweets(tweets)
 
-    rule_classifier = RuleClassifier(args.rules)
+    rule_classifier = RuleClassifier()
 
     if args.save_path is not None:
         tweets_without_rule_patterns = rule_classifier.remove_rule_patterns_from(

@@ -1,21 +1,18 @@
 from typing import List
 
 import numpy as np
-from rules.rules import ParenthesisRule, Rule
+from rules import ParenthesisRule, Rule
 
 
 class RuleClassifier(Rule):
-    def __init__(self, rules: str) -> None:
-        if rules == "all":
-            self.rules = [
-                ParenthesisRule(")", "("),
-                # PositiveNegativeRule("< 3 ", "< / 3"),
-                # HappySadHashtagRule("#happ", "#sad"),
-                # NegativeRule("#fml"),
-                # NegativeRule(": |"),
-            ]
-        else:
-            self.rules = [ParenthesisRule(")", "(")]
+    def __init__(self) -> None:
+        self.rules = [
+            ParenthesisRule(")", "("),
+            # PositiveNegativeRule("< 3 ", "< / 3"),
+            # HappySadHashtagRule("#happ", "#sad"),
+            # NegativeRule("#fml"),
+            # NegativeRule(": |"),
+        ]
 
     def predict(self, tweets: List[str]) -> np.ndarray:
         predictions_all_rules = [self._apply_rules(tweet) for tweet in tweets]
