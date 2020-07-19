@@ -37,7 +37,7 @@ To test the model on a trained checkpoint, run your main with the corresponding 
 
 
 ## Rule Approach 
-To reconstruct the experiments, train a BERT baseline model. Move the generated validation_data.txt and validation_labels.txt into a local folder, for example into data/rules. 
+To reproduce the experiments, train a BERT baseline model. Move the generated validation_data.txt and validation_labels.txt into a local folder, for example into data/rules. 
 
 Per default, only the parenthesis rule is applied. *note to self: handle command line -r rules if want to add more rules*
 
