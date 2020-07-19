@@ -58,14 +58,13 @@ def main() -> None:
     rule_classifier = RuleClassifier(args.rules)
 
     if args.save_path is not None:
-        save_path = args.save_path
         tweets_without_rule_patterns = rule_classifier.remove_rule_patterns_from(
             tweets_index_removed
         )
-        save_tweets_in_test_format(tweets_without_rule_patterns, save_path)
+        save_tweets_in_test_format(tweets_without_rule_patterns, args.save_path)
         print("tweets saved")
 
-    if args.bert_predictions_path is not None:
+    elif args.bert_predictions_path is not None:
         labels = np.loadtxt(args.validation_labels_path, dtype=np.int)
 
         bert_predictions = np.loadtxt(
@@ -117,6 +116,9 @@ def main() -> None:
             label_names=["negative", "positive"],
             title="bert on rule match",
         )
+
+    else:
+        print("Error: -b or -s flag not specified")
 
 
 if __name__ == "__main__":
