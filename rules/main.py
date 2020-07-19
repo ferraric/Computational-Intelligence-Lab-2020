@@ -3,7 +3,7 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-from rules import RuleClassifier
+from rule_classifier import RuleClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
 from utilities.data_loading import (
     load_tweets,
