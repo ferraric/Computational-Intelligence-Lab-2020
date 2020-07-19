@@ -44,7 +44,7 @@ Per default, only the parenthesis rule is applied. *note to self: handle command
 
 First create the tweets which have patterns of the rules removed:
 
-```rules/main.py -d "validation_data_path" -l "validation_labels_path" -s "save_path_and_name"```
+```rules/main.py -d "validation_data_path" -l "validation_labels_path" -s "save_path"```
 
 For example: ```rules/main.py -d "data/rules/validation_data.txt" -l "data/rules/validation_labels.txt" -s "data/rules/tweets_parenthesis_rule.txt"```
 
