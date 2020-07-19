@@ -15,6 +15,12 @@ from utilities.data_loading import (
 def get_args() -> argparse.Namespace:
     argparser = argparse.ArgumentParser()
     argparser.add_argument(
+        "-r",
+        "--rules",
+        required=True,
+        help="Which rules should be appliced (all or parenthesis)",
+    )
+    argparser.add_argument(
         "-d",
         "--validation_data_path",
         required=True,
@@ -55,10 +61,7 @@ def main() -> None:
     tweets = load_tweets(args.validation_data_path)
     tweets_index_removed = remove_indices_from_test_tweets(tweets)
 
-    labels = np.loadtxt(args.validation_labels_path, dtype=np.int)
-
-    rule_classifier = RuleClassifier()
-    rule_predictions = rule_classifier.predict(tweets_index_removed)
+    rule_classifier = RuleClassifier(args.rules)
 
     if args.save_path is not None:
         save_path = args.save_path
@@ -69,6 +72,8 @@ def main() -> None:
         print("tweets saved")
 
     if args.bert_predictions_path is not None:
+        labels = np.loadtxt(args.validation_labels_path, dtype=np.int)
+
         bert_predictions = np.loadtxt(
             args.bert_predictions_path,
             delimiter=",",
@@ -76,6 +81,8 @@ def main() -> None:
             skiprows=1,
             usecols=(1,),
         )
+
+        rule_predictions = rule_classifier.predict(tweets_index_removed)
 
         print_confusion_matrix(
             labels,
