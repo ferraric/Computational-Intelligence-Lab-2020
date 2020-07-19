@@ -15,12 +15,6 @@ from utilities.data_loading import (
 def get_args() -> argparse.Namespace:
     argparser = argparse.ArgumentParser()
     argparser.add_argument(
-        "-r",
-        "--rules",
-        required=True,
-        help="Which rules should be appliced (all or parenthesis)",
-    )
-    argparser.add_argument(
         "-d",
         "--validation_data_path",
         required=True,

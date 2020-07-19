@@ -134,6 +134,7 @@ class HappySadHashtagRule(PositiveNegativeRule):
                 for word in tweet.split(" ")
                 if not word.startswith(self.negative_pattern)
             )
+            print(tweet_without_rule_pattern)
         else:
             raise ValueError("rule application returned unexpected value")
 
@@ -145,10 +146,10 @@ class RuleClassifier(Rule):
         if rules == "all":
             self.rules = [
                 ParenthesisRule(")", "("),
-                PositiveNegativeRule("< 3 ", "< / 3"),
-                HappySadHashtagRule("#happ", "#sad"),
-                NegativeRule("#fml"),
-                NegativeRule(": |"),
+                # PositiveNegativeRule("< 3 ", "< / 3"),
+                # HappySadHashtagRule("#happ", "#sad"),
+                # NegativeRule("#fml"),
+                # NegativeRule(": |"),
             ]
         else:
             self.rules = [ParenthesisRule(")", "(")]
