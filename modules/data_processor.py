@@ -1,6 +1,6 @@
 import os
 from collections import OrderedDict
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import torch
 from bunch import Bunch
@@ -22,14 +22,14 @@ class DataProcessor:
         self,
         config: Bunch,
         logger: CometLogger,
-        tokenizer: PreTrainedTokenizerFast,
         testing: bool,
+        tokenizer: PreTrainedTokenizerFast = None,
     ):
         self.config = config
 
         self.logger = logger
-        self.tokenizer = tokenizer.from_pretrained(self.config.pretrained_model)
         self.testing = testing
+        self.tokenizer = tokenizer
 
     def load_tweets(self, path: str) -> List[str]:
         loaded_tweets = load_tweets(path)
@@ -59,16 +59,19 @@ class DataProcessor:
         )
 
     def tokenize_tweets(
-        self, tokenizer: BertTokenizerFast, tweets: List[str]
+        self, tokenizer: Optional[BertTokenizerFast], tweets: List[str]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        tokenized_input = tokenizer.batch_encode_plus(
-            tweets,
-            max_length=self.config.max_tokens_per_tweet,
-            pad_to_max_length=True,
-            return_token_type_ids=False,
-            return_tensors="pt",
-        )
-        return tokenized_input["input_ids"], tokenized_input["attention_mask"]
+        if tokenizer is not None:
+            tokenized_input = tokenizer.batch_encode_plus(
+                tweets,
+                max_length=self.config.max_tokens_per_tweet,
+                pad_to_max_length=True,
+                return_token_type_ids=False,
+                return_tensors="pt",
+            )
+            return tokenized_input["input_ids"], tokenized_input["attention_mask"]
+        else:
+            raise ValueError("Tokenizer is None")
 
     def train_validation_split(
         self, validation_size: float, data: TensorDataset, random_seed: int
