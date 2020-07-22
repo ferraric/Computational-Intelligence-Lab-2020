@@ -5,7 +5,7 @@ from typing import List, Tuple
 import torch
 from bunch import Bunch
 from pytorch_lightning.loggers import CometLogger
-from torch.utils.data import ConcatDataset, Subset, TensorDataset, random_split
+from torch.utils.data import ConcatDataset, Dataset, Subset, TensorDataset, random_split
 from transformers import BertTokenizerFast
 from transformers.tokenization_utils import PreTrainedTokenizerFast
 from utilities.data_loading import (
@@ -85,7 +85,7 @@ class DataProcessor:
         torch.set_rng_state(random_state_before_split)
         return [train_data, validation_data]
 
-    def prepare_data(self) -> None:
+    def prepare_data(self) -> Tuple[Dataset, Dataset, Dataset]:
         negative_tweets = self._load_unique_tweets(self.config.negative_tweets_path)
         positive_tweets = self._load_unique_tweets(self.config.positive_tweets_path)
         all_tweets = negative_tweets + positive_tweets
@@ -147,3 +147,5 @@ class DataProcessor:
 
         if self.config.do_bootstrap_sampling:
             self.train_data = generate_bootstrap_dataset(self.train_data)
+
+        return self.train_data, self.validation_data, self.test_data

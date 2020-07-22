@@ -25,7 +25,11 @@ class BertSentimentClassifier(pl.LightningModule):
         self.loss = CrossEntropyLoss()
 
     def prepare_data(self) -> None:
-        self.data_processor.prepare_data()
+        (
+            self.train_data,
+            self.validation_data,
+            self.test_data,
+        ) = self.data_processor.prepare_data()
 
     def forward(
         self, token_ids: torch.Tensor, attention_mask: torch.Tensor
