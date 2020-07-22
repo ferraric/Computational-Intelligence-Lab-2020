@@ -31,3 +31,27 @@ pip install -r requirements.txt
 We use pre-commit hooks to format our code to comply with black and pep8. If you want to contribute execute: 
 ```pre-commit install```
  
+
+## Testing
+To test the model on a trained checkpoint, run your main with the corresponding config file and add the -t flag which is the path to the checkpoint. 
+
+
+## Rule Approach 
+To reproduce the experiments, train a BERT baseline model. 
+
+First create the tweets which have patterns of the rules removed:
+
+```rules/main.py -d "validation_data_path" -l "validation_labels_path" -s "save_path"```
+
+
+To compare the performance of BERT:
+
+Test BERT on the validation_data.txt. To do this, change the test_path in the config file to path to the validation_data.txt file. Download the predictions (predictions are stored on comet.ml, access can be given on request). The checkpoint to test on should be the BERT baseline model you trained on before. This are the predictions on the unmodified tweets. 
+
+Test BERT on the newly saved tweets where patterns of the rules are present. To do this, change the test_path in the config file to the tweet txt file you created. Download the predictions (predictions are stored on comet.ml, access can be given on request). The checkpoint to test on should be the BERT baseline model you trained on before. This are the predictions on the unmodified tweets. 
+
+
+Then run the main file with the corresponding predictions from BERT to get the accuracy and the confusion matrix of bert and the rule based predictions: 
+
+```rules/main.py -d "validation_data_path" -l "validation_labels_path" -b "bert_predictions_path"```
+
