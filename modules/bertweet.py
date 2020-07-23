@@ -28,7 +28,7 @@ class BERTweet(BertSentimentClassifier):
             )
         )
 
-        self.data_processor = BertweetDataProcessor(config, self.logger, bpe, vocab)
+        self.data_processor = BertweetDataProcessor(config, bpe, vocab)
 
         model_config = RobertaConfig.from_pretrained(
             os.path.join(

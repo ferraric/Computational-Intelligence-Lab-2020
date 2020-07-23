@@ -15,9 +15,9 @@ from utilities.data_loading import (
 
 class BertweetDataProcessor(DataProcessor):
     def __init__(
-        self, config: Bunch, logger: CometLogger, bpe: fastBPE, vocab: Dictionary,
+        self, config: Bunch, bpe: fastBPE, vocab: Dictionary,
     ):
-        super().__init__(config, logger)
+        super().__init__(config)
         self.bpe = bpe
         self.vocab = vocab
 
@@ -62,7 +62,9 @@ class BertweetDataProcessor(DataProcessor):
         pad_token_id = self.vocab.pad()
         return torch.tensor(token_ids != pad_token_id, dtype=torch.int64)
 
-    def prepare_data(self) -> Tuple[Dataset, Subset, Dataset]:
+    def prepare_data(self, logger: CometLogger) -> Tuple[Dataset, Subset, Dataset]:
+        self.logger = logger
+
         negative_tweets, positive_tweets, labels = super().get_tweets_and_labels(
             self.config.negative_tweets_path, self.config.positive_tweets_path
         )

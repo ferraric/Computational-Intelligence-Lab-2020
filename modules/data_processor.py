@@ -16,14 +16,9 @@ from utilities.data_loading import (
 
 class DataProcessor:
     def __init__(
-        self,
-        config: Bunch,
-        logger: CometLogger,
-        tokenizer: PreTrainedTokenizerFast = None,
+        self, config: Bunch, tokenizer: PreTrainedTokenizerFast = None,
     ):
         self.config = config
-
-        self.logger = logger
         self.tokenizer = tokenizer
 
     def load_tweets(self, path: str) -> List[str]:
@@ -91,7 +86,9 @@ class DataProcessor:
         labels = self.generate_labels(len(negative_tweets), len(positive_tweets))
         return negative_tweets, positive_tweets, labels
 
-    def prepare_data(self) -> Tuple[Dataset, Subset, Dataset]:
+    def prepare_data(self, logger: CometLogger) -> Tuple[Dataset, Subset, Dataset]:
+        self.logger = logger
+
         negative_tweets, positive_tweets, labels = self.get_tweets_and_labels(
             self.config.negative_tweets_path, self.config.positive_tweets_path
         )
