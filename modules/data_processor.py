@@ -1,4 +1,3 @@
-import os
 from collections import OrderedDict
 from typing import List, Optional, Tuple
 
@@ -12,8 +11,6 @@ from utilities.data_loading import (
     generate_bootstrap_dataset,
     load_tweets,
     remove_indices_from_test_tweets,
-    save_labels,
-    save_tweets_in_test_format,
 )
 
 
@@ -88,11 +85,19 @@ class DataProcessor:
         torch.set_rng_state(random_state_before_split)
         return [train_data, validation_data]
 
-    def prepare_data(self) -> Tuple[Dataset, Dataset, Dataset]:
-        negative_tweets = self.load_unique_tweets(self.config.negative_tweets_path)
-        positive_tweets = self.load_unique_tweets(self.config.positive_tweets_path)
-        all_tweets = negative_tweets + positive_tweets
+    def get_tweets_and_labels(
+        self, negative_tweets_path: str, positive_tweets_path: str
+    ) -> Tuple[List[str], List[str], torch.Tensor]:
+        negative_tweets = self.load_unique_tweets(negative_tweets_path)
+        positive_tweets = self.load_unique_tweets(positive_tweets_path)
         labels = self.generate_labels(len(negative_tweets), len(positive_tweets))
+        return negative_tweets, positive_tweets, labels
+
+    def prepare_data(self) -> Tuple[Dataset, Subset, Dataset]:
+        negative_tweets, positive_tweets, labels = self.get_tweets_and_labels(
+            self.config.negative_tweets_path, self.config.positive_tweets_path
+        )
+        all_tweets = negative_tweets + positive_tweets
 
         train_token_ids, train_attention_mask = self.tokenize_tweets(
             self.tokenizer, all_tweets
@@ -104,19 +109,6 @@ class DataProcessor:
             self.config.validation_split_random_seed,
         )
 
-        if not self.testing:
-            validation_indices = list(self.validation_data.indices)
-            validation_tweets = [all_tweets[i] for i in validation_indices]
-            validation_labels = labels[validation_indices]
-            save_tweets_in_test_format(
-                validation_tweets,
-                os.path.join(self.config.model_save_path, "validation_data.txt"),
-            )
-            save_labels(
-                validation_labels,
-                os.path.join(self.config.model_save_path, "validation_labels.txt"),
-            )
-
         test_tweets = self.load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
         test_token_ids, test_attention_mask = self.tokenize_tweets(
@@ -125,11 +117,11 @@ class DataProcessor:
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
 
         if self.config.use_augmented_data:
-            additional_positive_tweets = self.load_unique_tweets(
-                self.config.additional_positive_tweets_path
-            )
             additional_negative_tweets = self.load_unique_tweets(
                 self.config.additional_negative_tweets_path
+            )
+            additional_positive_tweets = self.load_unique_tweets(
+                self.config.additional_positive_tweets_path
             )
             additional_labels = self.generate_labels(
                 len(additional_negative_tweets), len(additional_positive_tweets)

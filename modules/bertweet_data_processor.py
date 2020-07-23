@@ -1,4 +1,3 @@
-import os
 from typing import List, Tuple
 
 import torch
@@ -7,12 +6,10 @@ from fairseq.data import Dictionary
 from fairseq.data.encoders.fastbpe import fastBPE
 from modules.data_processor import DataProcessor
 from pytorch_lightning.loggers import CometLogger
-from torch.utils.data import ConcatDataset, Dataset, TensorDataset
+from torch.utils.data import ConcatDataset, Dataset, Subset, TensorDataset
 from utilities.data_loading import (
     generate_bootstrap_dataset,
     remove_indices_from_test_tweets,
-    save_labels,
-    save_tweets_in_test_format,
 )
 
 
@@ -70,11 +67,11 @@ class BertweetDataProcessor(DataProcessor):
         pad_token_id = self.vocab.pad()
         return torch.tensor(token_ids != pad_token_id, dtype=torch.int64)
 
-    def prepare_data(self) -> Tuple[Dataset, Dataset, Dataset]:
-        negative_tweets = super().load_unique_tweets(self.config.negative_tweets_path)
-        positive_tweets = super().load_unique_tweets(self.config.positive_tweets_path)
+    def prepare_data(self) -> Tuple[Dataset, Subset, Dataset]:
+        negative_tweets, positive_tweets, labels = super().get_tweets_and_labels(
+            self.config.negative_tweets_path, self.config.positive_tweets_path
+        )
         all_tweets = negative_tweets + positive_tweets
-        labels = super().generate_labels(len(negative_tweets), len(positive_tweets))
 
         train_token_id_list = [
             self.encode(self.split_into_tokens(tweet)) for tweet in all_tweets
@@ -88,19 +85,6 @@ class BertweetDataProcessor(DataProcessor):
             TensorDataset(train_token_ids, train_attention_mask, labels),
             self.config.validation_split_random_seed,
         )
-
-        if not self.testing:
-            validation_indices = list(self.validation_data.indices)
-            validation_tweets = [all_tweets[i] for i in validation_indices]
-            validation_labels = labels[validation_indices]
-            save_tweets_in_test_format(
-                validation_tweets,
-                os.path.join(self.config.model_save_path, "validation_data.txt"),
-            )
-            save_labels(
-                validation_labels,
-                os.path.join(self.config.model_save_path, "validation_labels.txt"),
-            )
 
         test_tweets = self.load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
@@ -125,24 +109,24 @@ class BertweetDataProcessor(DataProcessor):
             all_additional_tweets = (
                 additional_negative_tweets + additional_positive_tweets
             )
-            additional_token_id_list = [
+            additional_train_token_id_list = [
                 self.encode(self.split_into_tokens(tweet))
                 for tweet in all_additional_tweets
             ]
 
-            additional_token_ids = self.pad(
-                additional_token_id_list, self.config.max_tokens_per_tweet
+            additional_train_token_ids = self.pad(
+                additional_train_token_id_list, self.config.max_tokens_per_tweet
             )
-            additional_attention_mask = self.generate_attention_mask(
-                additional_token_ids
+            additional_train_attention_mask = self.generate_attention_mask(
+                additional_train_token_ids
             )
             additional_train_data = TensorDataset(
-                additional_token_ids, additional_attention_mask, additional_labels,
+                additional_train_token_ids,
+                additional_train_attention_mask,
+                additional_labels,
             )
 
-            self.train_data = ConcatDataset(  # type: ignore
-                [self.train_data, additional_train_data]
-            )
+            self.train_data = ConcatDataset([self.train_data, additional_train_data])  # type: ignore
 
         if self.config.do_bootstrap_sampling:
             self.train_data = generate_bootstrap_dataset(self.train_data)
