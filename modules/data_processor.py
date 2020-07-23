@@ -19,13 +19,11 @@ class DataProcessor:
         self,
         config: Bunch,
         logger: CometLogger,
-        testing: bool,
         tokenizer: PreTrainedTokenizerFast = None,
     ):
         self.config = config
 
         self.logger = logger
-        self.testing = testing
         self.tokenizer = tokenizer
 
     def load_tweets(self, path: str) -> List[str]:

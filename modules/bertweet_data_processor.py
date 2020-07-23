@@ -15,14 +15,9 @@ from utilities.data_loading import (
 
 class BertweetDataProcessor(DataProcessor):
     def __init__(
-        self,
-        config: Bunch,
-        logger: CometLogger,
-        testing: bool,
-        bpe: fastBPE,
-        vocab: Dictionary,
+        self, config: Bunch, logger: CometLogger, bpe: fastBPE, vocab: Dictionary,
     ):
-        super().__init__(config, logger, testing)
+        super().__init__(config, logger)
         self.bpe = bpe
         self.vocab = vocab
 

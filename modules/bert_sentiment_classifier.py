@@ -21,9 +21,7 @@ class BertSentimentClassifier(pl.LightningModule):
             config.pretrained_model
         )
         tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
-        self.data_processor = DataProcessor(
-            config, self.logger, tokenizer, self.testing
-        )
+        self.data_processor = DataProcessor(config, self.logger, tokenizer)
         self.loss = CrossEntropyLoss()
 
     def save_validation_tweets_and_labels(

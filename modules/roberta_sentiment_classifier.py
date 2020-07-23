@@ -14,7 +14,5 @@ class RobertaSentimentClassifier(BertSentimentClassifier):
             config.pretrained_model
         )
         tokenizer = RobertaTokenizerFast.from_pretrained(self.config.pretrained_model)
-        self.data_processor = DataProcessor(
-            config, self.logger, tokenizer, self.testing
-        )
+        self.data_processor = DataProcessor(config, self.logger, tokenizer)
         self.loss = CrossEntropyLoss()
