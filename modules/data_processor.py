@@ -1,3 +1,4 @@
+import os
 from collections import OrderedDict
 from typing import List, Optional, Tuple
 
@@ -11,6 +12,8 @@ from utilities.data_loading import (
     generate_bootstrap_dataset,
     load_tweets,
     remove_indices_from_test_tweets,
+    save_labels,
+    save_tweets_in_test_format,
 )
 
 
@@ -86,7 +89,24 @@ class DataProcessor:
         labels = self.generate_labels(len(negative_tweets), len(positive_tweets))
         return negative_tweets, positive_tweets, labels
 
-    def prepare_data(self, logger: CometLogger) -> Tuple[Dataset, Subset, Dataset]:
+    def save_validation_tweets_and_labels(
+        self, all_tweets: List[str], labels: torch.Tensor, validation_data: Subset
+    ) -> None:
+        validation_indices = list(validation_data.indices)
+        validation_tweets = [all_tweets[i] for i in validation_indices]
+        validation_labels = labels[validation_indices]
+        save_tweets_in_test_format(
+            validation_tweets,
+            os.path.join(self.config.model_save_path, "validation_data.txt"),
+        )
+        save_labels(
+            validation_labels,
+            os.path.join(self.config.model_save_path, "validation_labels.txt"),
+        )
+
+    def prepare_data(
+        self, testing: bool, logger: CometLogger
+    ) -> Tuple[Dataset, Subset, Dataset]:
         self.logger = logger
 
         negative_tweets, positive_tweets, labels = self.get_tweets_and_labels(
@@ -103,6 +123,11 @@ class DataProcessor:
             TensorDataset(train_token_ids, train_attention_mask, labels),
             self.config.validation_split_random_seed,
         )
+
+        if not testing:
+            self.save_validation_tweets_and_labels(
+                all_tweets, labels, self.validation_data
+            )
 
         test_tweets = self.load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)

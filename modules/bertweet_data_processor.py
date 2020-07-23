@@ -62,7 +62,9 @@ class BertweetDataProcessor(DataProcessor):
         pad_token_id = self.vocab.pad()
         return torch.tensor(token_ids != pad_token_id, dtype=torch.int64)
 
-    def prepare_data(self, logger: CometLogger) -> Tuple[Dataset, Subset, Dataset]:
+    def prepare_data(
+        self, testing: bool, logger: CometLogger
+    ) -> Tuple[Dataset, Subset, Dataset]:
         self.logger = logger
 
         negative_tweets, positive_tweets, labels = super().get_tweets_and_labels(
@@ -82,6 +84,11 @@ class BertweetDataProcessor(DataProcessor):
             TensorDataset(train_token_ids, train_attention_mask, labels),
             self.config.validation_split_random_seed,
         )
+
+        if not testing:
+            super().save_validation_tweets_and_labels(
+                all_tweets, labels, self.validation_data
+            )
 
         test_tweets = self.load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)

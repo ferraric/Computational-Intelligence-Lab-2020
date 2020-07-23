@@ -1,4 +1,3 @@
-import os
 from typing import Dict, List, Union
 
 import pytorch_lightning as pl
@@ -8,9 +7,8 @@ from modules.data_processor import DataProcessor
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 from torch.optim.optimizer import Optimizer
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import DataLoader
 from transformers import BertForSequenceClassification, BertTokenizerFast
-from utilities.data_loading import save_labels, save_tweets_in_test_format
 
 
 class BertSentimentClassifier(pl.LightningModule):
@@ -24,41 +22,12 @@ class BertSentimentClassifier(pl.LightningModule):
         self.data_processor = DataProcessor(config, tokenizer)
         self.loss = CrossEntropyLoss()
 
-    def save_validation_tweets_and_labels(
-        self, all_tweets: List[str], labels: torch.Tensor, validation_data: Subset
-    ) -> None:
-        validation_indices = list(validation_data.indices)
-        validation_tweets = [all_tweets[i] for i in validation_indices]
-        validation_labels = labels[validation_indices]
-        save_tweets_in_test_format(
-            validation_tweets,
-            os.path.join(self.config.model_save_path, "validation_data.txt"),
-        )
-        save_labels(
-            validation_labels,
-            os.path.join(self.config.model_save_path, "validation_labels.txt"),
-        )
-
     def prepare_data(self) -> None:
         (
             self.train_data,
             self.validation_data,
             self.test_data,
-        ) = self.data_processor.prepare_data(self.logger)
-
-        (
-            negative_tweets,
-            positive_tweets,
-            labels,
-        ) = self.data_processor.get_tweets_and_labels(
-            self.config.negative_tweets_path, self.config.positive_tweets_path
-        )
-        all_tweets = negative_tweets + positive_tweets
-
-        if not self.testing:
-            self.save_validation_tweets_and_labels(
-                all_tweets, labels, self.validation_data
-            )
+        ) = self.data_processor.prepare_data(self.testing, self.logger)
 
     def forward(
         self, token_ids: torch.Tensor, attention_mask: torch.Tensor
