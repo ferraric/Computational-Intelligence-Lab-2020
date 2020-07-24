@@ -3,8 +3,7 @@ import time
 from comet_ml import Experiment
 
 import numpy as np
-from google.cloud import language
-from google.cloud.language import enums, types
+from google.cloud.language import LanguageServiceClient, enums, types
 from google.protobuf.json_format import MessageToDict
 from utilities.data_loading import load_tweets, remove_indices_from_test_tweets
 from utilities.general_utilities import get_args, get_bunch_config_from_json
@@ -26,7 +25,7 @@ def main() -> None:
     test_tweets = load_tweets(config.test_data_path)
     test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
 
-    client = language.LanguageServiceClient()
+    client = LanguageServiceClient()
     result = []
     predictions = np.zeros(len(test_tweets_index_removed), dtype=np.int32)
 
