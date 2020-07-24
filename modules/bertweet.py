@@ -3,7 +3,8 @@ from argparse import Namespace
 
 import pytorch_lightning as pl
 from bunch import Bunch
-from data_processing.bertweet_data_processor import BertweetDataProcessor
+from data_processing.bertweet_tokenizer import BertweetTokenizer
+from data_processing.data_processor import DataProcessor
 from fairseq.data import Dictionary
 from fairseq.data.encoders.fastbpe import fastBPE
 from modules.bert_sentiment_classifier import BertSentimentClassifier
@@ -28,7 +29,8 @@ class BERTweet(BertSentimentClassifier):
             )
         )
 
-        self.data_processor = BertweetDataProcessor(config, bpe, vocab)
+        tokenizer = BertweetTokenizer(self.config.max_tokens_per_tweet, bpe, vocab)
+        self.data_processor = DataProcessor(config, tokenizer)
 
         model_config = RobertaConfig.from_pretrained(
             os.path.join(
