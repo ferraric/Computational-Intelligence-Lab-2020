@@ -17,9 +17,7 @@ from utilities.general_utilities import remove_indices_from_test_tweets
 
 
 class DataProcessor:
-    def __init__(
-        self, config: Bunch, tokenizer: Tokenizer,
-    ):
+    def __init__(self, config: Bunch, tokenizer: Tokenizer,) -> None:
         self.config = config
         self.tokenizer = tokenizer
 

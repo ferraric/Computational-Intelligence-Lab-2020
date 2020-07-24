@@ -1,7 +1,7 @@
 import pytorch_lightning as pl
 from bunch import Bunch
 from data_processing.data_processor import DataProcessor
-from data_processing.tokenizer import Tokenizer
+from data_processing.pretrained_tokenizer import PreTrainedTokenizer
 from modules.bert_sentiment_classifier import BertSentimentClassifier
 from torch.nn import CrossEntropyLoss
 from transformers import RobertaForSequenceClassification, RobertaTokenizerFast
@@ -17,6 +17,8 @@ class RobertaSentimentClassifier(BertSentimentClassifier):
         roberta_tokenizer = RobertaTokenizerFast.from_pretrained(
             self.config.pretrained_model
         )
-        tokenizer = Tokenizer(self.config.max_tokens_per_tweet, roberta_tokenizer)
+        tokenizer = PreTrainedTokenizer(
+            self.config.max_tokens_per_tweet, roberta_tokenizer
+        )
         self.data_processor = DataProcessor(config, tokenizer)
         self.loss = CrossEntropyLoss()

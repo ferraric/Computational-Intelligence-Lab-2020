@@ -4,7 +4,7 @@ import pytorch_lightning as pl
 import torch
 from bunch import Bunch
 from data_processing.data_processor import DataProcessor
-from data_processing.tokenizer import Tokenizer
+from data_processing.pretrained_tokenizer import PreTrainedTokenizer
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 from torch.optim.optimizer import Optimizer
@@ -20,7 +20,9 @@ class BertSentimentClassifier(pl.LightningModule):
             config.pretrained_model
         )
         bert_tokenizer = BertTokenizerFast.from_pretrained(self.config.pretrained_model)
-        tokenizer = Tokenizer(self.config.max_tokens_per_tweet, bert_tokenizer)
+        tokenizer = PreTrainedTokenizer(
+            self.config.max_tokens_per_tweet, bert_tokenizer
+        )
         self.data_processor = DataProcessor(config, tokenizer)
         self.loss = CrossEntropyLoss()
 
