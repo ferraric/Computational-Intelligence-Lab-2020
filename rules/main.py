@@ -3,13 +3,13 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-from rule_classifier import RuleClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix
-from utilities.data_loading import (
+from data_processing.data_loading import (
     load_tweets,
     remove_indices_from_test_tweets,
     save_tweets_in_test_format,
 )
+from rule_classifier import RuleClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
 
 
 def get_args() -> argparse.Namespace:

@@ -3,7 +3,7 @@ from typing import Dict, List, Union
 import pytorch_lightning as pl
 import torch
 from bunch import Bunch
-from modules.data_processor import DataProcessor
+from data_processing.data_processor import DataProcessor
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 from torch.optim.optimizer import Optimizer

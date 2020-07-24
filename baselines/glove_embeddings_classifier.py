@@ -5,9 +5,9 @@ from typing import Dict, List, Tuple, Union
 
 import numpy as np
 from bunch import Bunch
+from data_processing.data_loading import load_tweets, remove_indices_from_test_tweets
 from sklearn.base import BaseEstimator
 from sklearn.model_selection import GridSearchCV, KFold
-from utilities.data_loading import load_tweets, remove_indices_from_test_tweets
 
 
 class GloveEmbeddingsClassifier:

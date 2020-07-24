@@ -4,17 +4,17 @@ from typing import List, Optional, Tuple
 
 import torch
 from bunch import Bunch
-from pytorch_lightning.loggers import CometLogger
-from torch.utils.data import ConcatDataset, Dataset, Subset, TensorDataset, random_split
-from transformers import BertTokenizerFast
-from transformers.tokenization_utils import PreTrainedTokenizerFast
-from utilities.data_loading import (
+from data_processing.data_loading import (
     generate_bootstrap_dataset,
     load_tweets,
     remove_indices_from_test_tweets,
     save_labels,
     save_tweets_in_test_format,
 )
+from pytorch_lightning.loggers import CometLogger
+from torch.utils.data import ConcatDataset, Dataset, Subset, TensorDataset, random_split
+from transformers import BertTokenizerFast
+from transformers.tokenization_utils import PreTrainedTokenizerFast
 
 
 class DataProcessor:
@@ -24,24 +24,24 @@ class DataProcessor:
         self.config = config
         self.tokenizer = tokenizer
 
-    def load_tweets(self, path: str) -> List[str]:
+    def _load_tweets(self, path: str) -> List[str]:
         loaded_tweets = load_tweets(path)
         self.logger.experiment.log_other(
             key="n_tweets_from:" + path, value=len(loaded_tweets)
         )
         return loaded_tweets
 
-    def load_unique_tweets(self, path: str) -> List[str]:
+    def _load_unique_tweets(self, path: str) -> List[str]:
         def _remove_duplicate_tweets(tweets: List[str]) -> List[str]:
             return list(OrderedDict.fromkeys(tweets).keys())
 
-        unique_tweets = _remove_duplicate_tweets(self.load_tweets(path))
+        unique_tweets = _remove_duplicate_tweets(self._load_tweets(path))
         self.logger.experiment.log_other(
             key="n_unique_tweets_from:" + path, value=len(unique_tweets)
         )
         return unique_tweets
 
-    def generate_labels(
+    def _generate_labels(
         self, n_negative_samples: int, n_positive_samples: int
     ) -> torch.Tensor:
         return torch.cat(
@@ -51,7 +51,7 @@ class DataProcessor:
             )
         )
 
-    def tokenize_tweets(
+    def _tokenize_tweets(
         self, tokenizer: Optional[BertTokenizerFast], tweets: List[str]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         if tokenizer is not None:
@@ -66,7 +66,7 @@ class DataProcessor:
         else:
             raise ValueError("Tokenizer is None")
 
-    def train_validation_split(
+    def _train_validation_split(
         self, validation_size: float, data: TensorDataset, random_seed: int
     ) -> List[Subset]:
         assert 0 <= validation_size and validation_size <= 1
@@ -81,15 +81,16 @@ class DataProcessor:
         torch.set_rng_state(random_state_before_split)
         return [train_data, validation_data]
 
-    def get_tweets_and_labels(
+    def _get_tweets_and_labels(
         self, negative_tweets_path: str, positive_tweets_path: str
-    ) -> Tuple[List[str], List[str], torch.Tensor]:
-        negative_tweets = self.load_unique_tweets(negative_tweets_path)
-        positive_tweets = self.load_unique_tweets(positive_tweets_path)
-        labels = self.generate_labels(len(negative_tweets), len(positive_tweets))
-        return negative_tweets, positive_tweets, labels
+    ) -> Tuple[List[str], torch.Tensor]:
+        negative_tweets = self._load_unique_tweets(negative_tweets_path)
+        positive_tweets = self._load_unique_tweets(positive_tweets_path)
+        all_tweets = negative_tweets + positive_tweets
+        labels = self._generate_labels(len(negative_tweets), len(positive_tweets))
+        return all_tweets, labels
 
-    def save_validation_tweets_and_labels(
+    def _save_validation_tweets_and_labels(
         self, all_tweets: List[str], labels: torch.Tensor, validation_data: Subset
     ) -> None:
         validation_indices = list(validation_data.indices)
@@ -109,47 +110,46 @@ class DataProcessor:
     ) -> Tuple[Dataset, Subset, Dataset]:
         self.logger = logger
 
-        negative_tweets, positive_tweets, labels = self.get_tweets_and_labels(
+        all_tweets, labels = self._get_tweets_and_labels(
             self.config.negative_tweets_path, self.config.positive_tweets_path
         )
-        all_tweets = negative_tweets + positive_tweets
 
-        train_token_ids, train_attention_mask = self.tokenize_tweets(
+        train_token_ids, train_attention_mask = self._tokenize_tweets(
             self.tokenizer, all_tweets
         )
 
-        self.train_data, self.validation_data = self.train_validation_split(
+        self.train_data, self.validation_data = self._train_validation_split(
             self.config.validation_size,
             TensorDataset(train_token_ids, train_attention_mask, labels),
             self.config.validation_split_random_seed,
         )
 
         if not testing:
-            self.save_validation_tweets_and_labels(
+            self._save_validation_tweets_and_labels(
                 all_tweets, labels, self.validation_data
             )
 
-        test_tweets = self.load_tweets(self.config.test_tweets_path)
+        test_tweets = self._load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
-        test_token_ids, test_attention_mask = self.tokenize_tweets(
+        test_token_ids, test_attention_mask = self._tokenize_tweets(
             self.tokenizer, test_tweets_index_removed
         )
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
 
         if self.config.use_augmented_data:
-            additional_negative_tweets = self.load_unique_tweets(
+            additional_negative_tweets = self._load_unique_tweets(
                 self.config.additional_negative_tweets_path
             )
-            additional_positive_tweets = self.load_unique_tweets(
+            additional_positive_tweets = self._load_unique_tweets(
                 self.config.additional_positive_tweets_path
             )
-            additional_labels = self.generate_labels(
+            additional_labels = self._generate_labels(
                 len(additional_negative_tweets), len(additional_positive_tweets)
             )
             (
                 additional_train_token_ids,
                 additional_train_attention_mask,
-            ) = self.tokenize_tweets(
+            ) = self._tokenize_tweets(
                 self.tokenizer, additional_negative_tweets + additional_positive_tweets
             )
             additional_train_data = TensorDataset(
