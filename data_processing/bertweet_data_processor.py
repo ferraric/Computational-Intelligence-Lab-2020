@@ -67,10 +67,9 @@ class BertweetDataProcessor(DataProcessor):
     ) -> Tuple[Dataset, Subset, Dataset]:
         self.logger = logger
 
-        negative_tweets, positive_tweets, labels = super()._get_tweets_and_labels(
+        all_tweets, labels = super()._get_tweets_and_labels(
             self.config.negative_tweets_path, self.config.positive_tweets_path
         )
-        all_tweets = negative_tweets + positive_tweets
 
         train_token_id_list = [
             self._encode(self._split_into_tokens(tweet)) for tweet in all_tweets
