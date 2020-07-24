@@ -1,4 +1,3 @@
-import os
 from collections import OrderedDict
 from random import choices
 from typing import List, Tuple
@@ -6,14 +5,13 @@ from typing import List, Tuple
 import torch
 from bunch import Bunch
 from data_processing.data_loading_and_storing import (
+    load_test_tweets,
     load_tweets,
-    save_labels,
-    save_tweets_in_test_format,
+    save_validation_tweets_and_labels,
 )
 from data_processing.tokenizer import Tokenizer
 from pytorch_lightning.loggers import CometLogger
 from torch.utils.data import ConcatDataset, Dataset, Subset, TensorDataset, random_split
-from utilities.general_utilities import remove_indices_from_test_tweets
 
 
 class DataProcessor:
@@ -21,14 +19,22 @@ class DataProcessor:
         self.config = config
         self.tokenizer = tokenizer
 
-    def _load_tweets(self, path: str) -> List[str]:
-        def _replace_special_tokens(tweet: str) -> str:
-            return tweet.replace("<url>", "HTTPURL").replace("<user>", "@USER")
+    def _replace_special_tokens(self, tweet: str) -> str:
+        return tweet.replace("<url>", "HTTPURL").replace("<user>", "@USER")
 
+    def _load_tweets(self, path: str) -> List[str]:
         tweets = load_tweets(path)
         self.logger.experiment.log_other(key="n_tweets_from:" + path, value=len(tweets))
         if self.config.replace_special_tokens:
-            return [_replace_special_tokens(tweet) for tweet in tweets]
+            return [self._replace_special_tokens(tweet) for tweet in tweets]
+        else:
+            return tweets
+
+    def _load_test_tweets(self, path: str) -> List[str]:
+        tweets = load_test_tweets(path)
+        self.logger.experiment.log_other(key="n_tweets_from:" + path, value=len(tweets))
+        if self.config.replace_special_tokens:
+            return [self._replace_special_tokens(tweet) for tweet in tweets]
         else:
             return tweets
 
@@ -76,21 +82,6 @@ class DataProcessor:
         labels = self._generate_labels(len(negative_tweets), len(positive_tweets))
         return all_tweets, labels
 
-    def _save_validation_tweets_and_labels(
-        self, all_tweets: List[str], labels: torch.Tensor, validation_data: Subset
-    ) -> None:
-        validation_indices = list(validation_data.indices)
-        validation_tweets = [all_tweets[i] for i in validation_indices]
-        validation_labels = labels[validation_indices]
-        save_tweets_in_test_format(
-            validation_tweets,
-            os.path.join(self.config.model_save_path, "validation_data.txt"),
-        )
-        save_labels(
-            validation_labels,
-            os.path.join(self.config.model_save_path, "validation_labels.txt"),
-        )
-
     def _generate_bootstrap_dataset(self, dataset: Dataset) -> Subset:
         dataset_size = dataset.__len__()
         sampled_indices = choices(range(dataset_size), k=dataset_size)
@@ -116,14 +107,13 @@ class DataProcessor:
         )
 
         if not testing:
-            self._save_validation_tweets_and_labels(
-                all_tweets, labels, self.validation_data
+            save_validation_tweets_and_labels(
+                all_tweets, labels, self.validation_data, self.config.model_save_path
             )
 
-        test_tweets = self._load_tweets(self.config.test_tweets_path)
-        test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
+        test_tweets = self._load_test_tweets(self.config.test_tweets_path)
         test_token_ids, test_attention_mask = self.tokenizer.tokenize_tweets(
-            test_tweets_index_removed
+            test_tweets
         )
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
 
