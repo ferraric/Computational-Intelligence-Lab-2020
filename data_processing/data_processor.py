@@ -1,6 +1,6 @@
 import os
 from collections import OrderedDict
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 import torch
 from bunch import Bunch
@@ -11,25 +11,28 @@ from data_processing.data_loading import (
     save_labels,
     save_tweets_in_test_format,
 )
+from data_processing.tokenizer import Tokenizer
 from pytorch_lightning.loggers import CometLogger
 from torch.utils.data import ConcatDataset, Dataset, Subset, TensorDataset, random_split
-from transformers import BertTokenizerFast
-from transformers.tokenization_utils import PreTrainedTokenizerFast
 
 
 class DataProcessor:
     def __init__(
-        self, config: Bunch, tokenizer: PreTrainedTokenizerFast = None,
+        self, config: Bunch, tokenizer: Tokenizer,
     ):
         self.config = config
         self.tokenizer = tokenizer
 
     def _load_tweets(self, path: str) -> List[str]:
-        loaded_tweets = load_tweets(path)
-        self.logger.experiment.log_other(
-            key="n_tweets_from:" + path, value=len(loaded_tweets)
-        )
-        return loaded_tweets
+        def _replace_special_tokens(tweet: str) -> str:
+            return tweet.replace("<url>", "HTTPURL").replace("<user>", "@USER")
+
+        tweets = load_tweets(path)
+        self.logger.experiment.log_other(key="n_tweets_from:" + path, value=len(tweets))
+        if self.config.replace_special_tokens:
+            return [_replace_special_tokens(tweet) for tweet in tweets]
+        else:
+            return tweets
 
     def _load_unique_tweets(self, path: str) -> List[str]:
         def _remove_duplicate_tweets(tweets: List[str]) -> List[str]:
@@ -50,21 +53,6 @@ class DataProcessor:
                 torch.ones(n_positive_samples, dtype=torch.int64),
             )
         )
-
-    def _tokenize_tweets(
-        self, tokenizer: Optional[BertTokenizerFast], tweets: List[str]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
-        if tokenizer is not None:
-            tokenized_input = tokenizer.batch_encode_plus(
-                tweets,
-                max_length=self.config.max_tokens_per_tweet,
-                pad_to_max_length=True,
-                return_token_type_ids=False,
-                return_tensors="pt",
-            )
-            return tokenized_input["input_ids"], tokenized_input["attention_mask"]
-        else:
-            raise ValueError("Tokenizer is None")
 
     def _train_validation_split(
         self, validation_size: float, data: TensorDataset, random_seed: int
@@ -114,8 +102,8 @@ class DataProcessor:
             self.config.negative_tweets_path, self.config.positive_tweets_path
         )
 
-        train_token_ids, train_attention_mask = self._tokenize_tweets(
-            self.tokenizer, all_tweets
+        train_token_ids, train_attention_mask = self.tokenizer.tokenize_tweets(
+            all_tweets
         )
 
         self.train_data, self.validation_data = self._train_validation_split(
@@ -131,8 +119,8 @@ class DataProcessor:
 
         test_tweets = self._load_tweets(self.config.test_tweets_path)
         test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
-        test_token_ids, test_attention_mask = self._tokenize_tweets(
-            self.tokenizer, test_tweets_index_removed
+        test_token_ids, test_attention_mask = self.tokenizer.tokenize_tweets(
+            test_tweets_index_removed
         )
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
 
@@ -149,8 +137,8 @@ class DataProcessor:
             (
                 additional_train_token_ids,
                 additional_train_attention_mask,
-            ) = self._tokenize_tweets(
-                self.tokenizer, additional_negative_tweets + additional_positive_tweets
+            ) = self.tokenizer.tokenize_tweets(
+                additional_negative_tweets + additional_positive_tweets
             )
             additional_train_data = TensorDataset(
                 additional_train_token_ids,
