@@ -3,11 +3,15 @@ import time
 from comet_ml import Experiment
 
 import numpy as np
-from data_processing.data_loading import load_tweets, remove_indices_from_test_tweets
+from data_processing.data_loading_and_storing import load_tweets
 from google.cloud import language
 from google.cloud.language import enums, types
 from google.protobuf.json_format import MessageToDict
-from utilities.general_utilities import get_args, get_bunch_config_from_json
+from utilities.general_utilities import (
+    get_args,
+    get_bunch_config_from_json,
+    remove_indices_from_test_tweets,
+)
 
 
 def main() -> None:

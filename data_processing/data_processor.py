@@ -1,19 +1,19 @@
 import os
 from collections import OrderedDict
+from random import choices
 from typing import List, Tuple
 
 import torch
 from bunch import Bunch
-from data_processing.data_loading import (
-    generate_bootstrap_dataset,
+from data_processing.data_loading_and_storing import (
     load_tweets,
-    remove_indices_from_test_tweets,
     save_labels,
     save_tweets_in_test_format,
 )
 from data_processing.tokenizer import Tokenizer
 from pytorch_lightning.loggers import CometLogger
 from torch.utils.data import ConcatDataset, Dataset, Subset, TensorDataset, random_split
+from utilities.general_utilities import remove_indices_from_test_tweets
 
 
 class DataProcessor:
@@ -93,6 +93,11 @@ class DataProcessor:
             os.path.join(self.config.model_save_path, "validation_labels.txt"),
         )
 
+    def _generate_bootstrap_dataset(self, dataset: Dataset) -> Subset:
+        dataset_size = dataset.__len__()
+        sampled_indices = choices(range(dataset_size), k=dataset_size)
+        return Subset(dataset, sampled_indices)
+
     def prepare_data(
         self, testing: bool, logger: CometLogger
     ) -> Tuple[Dataset, Subset, Dataset]:
@@ -149,6 +154,6 @@ class DataProcessor:
             self.train_data = ConcatDataset([self.train_data, additional_train_data])  # type: ignore
 
         if self.config.do_bootstrap_sampling:
-            self.train_data = generate_bootstrap_dataset(self.train_data)
+            self.train_data = self._generate_bootstrap_dataset(self.train_data)
 
         return self.train_data, self.validation_data, self.test_data

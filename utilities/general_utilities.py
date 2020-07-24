@@ -1,8 +1,10 @@
 import argparse
 import json
 import os
+import re
 from datetime import datetime
 from glob import glob
+from typing import List
 
 import torch
 from bunch import Bunch
@@ -75,3 +77,15 @@ def initialize_trainer(save_path: str, config: Bunch, logger: CometLogger) -> Tr
         logger=logger,
         max_epochs=config.epochs,
     )
+
+
+def remove_indices_from_test_tweets(tweets: List[str]) -> List[str]:
+    def _remove_index_from_test_tweet(tweet: str) -> str:
+        test_tweet_format = re.compile("^[0-9]*,(.*)")
+        match = test_tweet_format.match(tweet)
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError("unexpected test data format")
+
+    return [_remove_index_from_test_tweet(tweet) for tweet in tweets]
