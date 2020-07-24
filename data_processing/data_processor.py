@@ -15,28 +15,19 @@ from torch.utils.data import ConcatDataset, Dataset, Subset, TensorDataset, rand
 
 
 class DataProcessor:
-    def __init__(self, config: Bunch, tokenizer: Tokenizer,) -> None:
+    def __init__(self, config: Bunch, tokenizer: Tokenizer) -> None:
         self.config = config
         self.tokenizer = tokenizer
-
-    def _replace_special_tokens(self, tweet: str) -> str:
-        return tweet.replace("<url>", "HTTPURL").replace("<user>", "@USER")
 
     def _load_tweets(self, path: str) -> List[str]:
         tweets = load_tweets(path)
         self.logger.experiment.log_other(key="n_tweets_from:" + path, value=len(tweets))
-        if self.config.replace_special_tokens:
-            return [self._replace_special_tokens(tweet) for tweet in tweets]
-        else:
-            return tweets
+        return tweets
 
     def _load_test_tweets(self, path: str) -> List[str]:
         tweets = load_test_tweets(path)
         self.logger.experiment.log_other(key="n_tweets_from:" + path, value=len(tweets))
-        if self.config.replace_special_tokens:
-            return [self._replace_special_tokens(tweet) for tweet in tweets]
-        else:
-            return tweets
+        return tweets
 
     def _load_unique_tweets(self, path: str) -> List[str]:
         def _remove_duplicate_tweets(tweets: List[str]) -> List[str]:
