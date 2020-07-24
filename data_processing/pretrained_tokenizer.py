@@ -9,7 +9,6 @@ class PreTrainedTokenizer(Tokenizer):
     def __init__(
         self, tokenizer: PreTrainedTokenizerFast, max_token_length: int
     ) -> None:
-        super().__init__()
         self.tokenizer = tokenizer
         self.max_token_length = max_token_length
 

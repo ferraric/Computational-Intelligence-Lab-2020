@@ -8,7 +8,6 @@ from fairseq.data.encoders.fastbpe import fastBPE
 
 class BertweetTokenizer(Tokenizer):
     def __init__(self, max_token_length: int, bpe: fastBPE, vocab: Dictionary) -> None:
-        super().__init__()
         self.max_token_length = max_token_length
         self.bpe = bpe
         self.vocab = vocab
