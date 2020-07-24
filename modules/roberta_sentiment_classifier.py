@@ -18,7 +18,7 @@ class RobertaSentimentClassifier(BertSentimentClassifier):
             self.config.pretrained_model
         )
         tokenizer = PreTrainedTokenizer(
-            self.config.max_tokens_per_tweet, roberta_tokenizer
+            roberta_tokenizer, self.config.max_tokens_per_tweet
         )
         self.data_processor = DataProcessor(config, tokenizer)
         self.loss = CrossEntropyLoss()
