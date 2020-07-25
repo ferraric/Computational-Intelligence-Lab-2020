@@ -11,6 +11,7 @@ from data_processing.data_loading_and_storing import (
 )
 from data_processing.tokenizer import Tokenizer
 from pytorch_lightning.loggers import CometLogger
+from rules.rule_classifier import RuleClassifier
 from torch.utils.data import ConcatDataset, Dataset, Subset, TensorDataset, random_split
 
 
@@ -86,6 +87,9 @@ class DataProcessor:
         all_tweets, labels = self._get_tweets_and_labels(
             self.config.negative_tweets_path, self.config.positive_tweets_path
         )
+
+        if self.config.remove_rule_patterns:
+            all_tweets = RuleClassifier().remove_rule_patterns_from(all_tweets)
 
         train_token_ids, train_attention_mask = self.tokenizer.tokenize_tweets(
             all_tweets
