@@ -7,7 +7,7 @@ from data_processing.data_loading_and_storing import (
     load_test_tweets,
     save_tweets_in_test_format,
 )
-from rule_classifier import RuleClassifier
+from rule.rule_classifier import RuleClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
 
 

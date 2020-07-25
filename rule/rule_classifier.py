@@ -1,7 +1,7 @@
 from typing import List
 
 import numpy as np
-from rules import ParenthesisRule, Rule
+from rule.rules import ParenthesisRule, Rule
 
 
 class RuleClassifier(Rule):
