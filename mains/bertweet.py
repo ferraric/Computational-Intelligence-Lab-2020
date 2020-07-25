@@ -2,7 +2,6 @@ import os
 
 import pytorch_lightning as pl
 from modules.bertweet import BERTweet
-from modules.bertweet_add_data import BERTweetAddData
 from utilities.general_utilities import (
     build_comet_logger,
     build_save_path,
@@ -27,22 +26,14 @@ def main() -> None:
     trainer = initialize_trainer(save_path, config, logger)
 
     if args.test_model_path is None:
-        if config.use_augmented_data:
-            model = BERTweetAddData(config)
-        else:
-            model = BERTweet(config)
+        model = BERTweet(config)
         trainer.fit(model)
 
         best_model_checkpoint_path = find_model_checkpoint_path_in(save_path)
     else:
         best_model_checkpoint_path = args.test_model_path
 
-    if config.use_augmented_data:
-        model = BERTweetAddData.load_from_checkpoint(
-            best_model_checkpoint_path, config=config
-        )
-    else:
-        model = BERTweet.load_from_checkpoint(best_model_checkpoint_path, config=config)
+    model = BERTweet.load_from_checkpoint(best_model_checkpoint_path, config=config)
     trainer.test(model=model)
 
 

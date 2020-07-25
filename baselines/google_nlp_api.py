@@ -3,10 +3,10 @@ import time
 from comet_ml import Experiment
 
 import numpy as np
+from data_processing.data_loading_and_storing import load_test_tweets
 from google.cloud import language
 from google.cloud.language import enums, types
 from google.protobuf.json_format import MessageToDict
-from utilities.data_loading import load_tweets, remove_indices_from_test_tweets
 from utilities.general_utilities import get_args, get_bunch_config_from_json
 
 
@@ -23,14 +23,13 @@ def main() -> None:
     comet_experiment.set_name(config.comet_experiment_name)
     comet_experiment.log_parameters(config)
 
-    test_tweets = load_tweets(config.test_data_path)
-    test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
+    test_tweets = load_test_tweets(config.test_data_path)
 
     client = language.LanguageServiceClient()
     result = []
-    predictions = np.zeros(len(test_tweets_index_removed), dtype=np.int32)
+    predictions = np.zeros(len(test_tweets), dtype=np.int32)
 
-    for i, tweet in enumerate(test_tweets_index_removed):
+    for i, tweet in enumerate(test_tweets):
         start_iter_timestamp = time.time()
         document = types.Document(
             type=enums.Document.Type.PLAIN_TEXT, content=tweet, language="en"
@@ -49,7 +48,7 @@ def main() -> None:
 
     comet_experiment.log_asset_data(result, name="google_nlp_api_response.json")
 
-    ids = np.arange(1, len(test_tweets_index_removed) + 1).astype(np.int32)
+    ids = np.arange(1, len(test_tweets) + 1).astype(np.int32)
     predictions_table = np.column_stack((ids, predictions))
     comet_experiment.log_table(
         filename="google_nlp_api_predictions.csv",

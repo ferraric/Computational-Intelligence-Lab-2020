@@ -2,7 +2,6 @@ import os
 
 import pytorch_lightning as pl
 from modules.bert_sentiment_classifier import BertSentimentClassifier
-from modules.bert_sentiment_classifier_add_data import BertSentimentClassifierAddData
 from utilities.general_utilities import (
     build_comet_logger,
     build_save_path,
@@ -27,24 +26,16 @@ def main() -> None:
     trainer = initialize_trainer(save_path, config, logger)
 
     if args.test_model_path is None:
-        if config.use_augmented_data:
-            model = BertSentimentClassifierAddData(config)
-        else:
-            model = BertSentimentClassifier(config)
+        model = BertSentimentClassifier(config)
         trainer.fit(model)
 
         best_model_checkpoint_path = find_model_checkpoint_path_in(save_path)
     else:
         best_model_checkpoint_path = args.test_model_path
 
-    if config.use_augmented_data:
-        model = BertSentimentClassifierAddData.load_from_checkpoint(
-            best_model_checkpoint_path, config=config
-        )
-    else:
-        model = BertSentimentClassifier.load_from_checkpoint(
-            best_model_checkpoint_path, config=config
-        )
+    model = BertSentimentClassifier.load_from_checkpoint(
+        best_model_checkpoint_path, config=config
+    )
     trainer.test(model=model)
 
 
