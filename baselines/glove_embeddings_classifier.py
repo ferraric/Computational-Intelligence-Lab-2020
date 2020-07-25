@@ -5,9 +5,9 @@ from typing import Dict, List, Tuple, Union
 
 import numpy as np
 from bunch import Bunch
+from data_processing.data_loading_and_storing import load_test_tweets, load_tweets
 from sklearn.base import BaseEstimator
 from sklearn.model_selection import GridSearchCV, KFold
-from utilities.data_loading import load_tweets, remove_indices_from_test_tweets
 
 
 class GloveEmbeddingsClassifier:
@@ -81,11 +81,8 @@ class GloveEmbeddingsClassifier:
         return features, labels
 
     def generate_test_data_features(self, config: Bunch) -> np.ndarray:
-        test_tweets = load_tweets(config.test_data_path)
-
-        test_tweets_index_removed = remove_indices_from_test_tweets(test_tweets)
-
-        return self.construct_features_parallel(config, test_tweets_index_removed)
+        test_tweets = load_test_tweets(config.test_data_path)
+        return self.construct_features_parallel(config, test_tweets)
 
     def run_grid_search(
         self,

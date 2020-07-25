@@ -3,13 +3,12 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-from rule_classifier import RuleClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix
-from utilities.data_loading import (
-    load_tweets,
-    remove_indices_from_test_tweets,
+from data_processing.data_loading_and_storing import (
+    load_test_tweets,
     save_tweets_in_test_format,
 )
+from rule.rule_classifier import RuleClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
 
 
 def get_args() -> argparse.Namespace:
@@ -52,15 +51,12 @@ def print_confusion_matrix(
 def main() -> None:
     args = get_args()
 
-    tweets = load_tweets(args.validation_data_path)
-    tweets_index_removed = remove_indices_from_test_tweets(tweets)
+    tweets = load_test_tweets(args.validation_data_path)
 
     rule_classifier = RuleClassifier()
 
     if args.save_path is not None:
-        tweets_without_rule_patterns = rule_classifier.remove_rule_patterns_from(
-            tweets_index_removed
-        )
+        tweets_without_rule_patterns = rule_classifier.remove_rule_patterns_from(tweets)
         save_tweets_in_test_format(tweets_without_rule_patterns, args.save_path)
         print("tweets saved")
 
@@ -75,7 +71,7 @@ def main() -> None:
             usecols=(1,),
         )
 
-        rule_predictions = rule_classifier.predict(tweets_index_removed)
+        rule_predictions = rule_classifier.predict(tweets)
 
         print_confusion_matrix(
             labels,
