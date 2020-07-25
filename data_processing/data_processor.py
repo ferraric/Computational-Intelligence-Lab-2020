@@ -11,7 +11,7 @@ from data_processing.data_loading_and_storing import (
 )
 from data_processing.tokenizer import Tokenizer
 from pytorch_lightning.loggers import CometLogger
-from rules.rule_classifier import RuleClassifier
+from rule.rule_classifier import RuleClassifier
 from torch.utils.data import ConcatDataset, Dataset, Subset, TensorDataset, random_split
 
 

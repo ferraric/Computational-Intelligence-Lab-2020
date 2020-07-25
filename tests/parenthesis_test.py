@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from rules.rules import ParenthesisRule
+from rule.rules import ParenthesisRule
 
 
 class RemoveMatchingParenthesisTest(TestCase):
