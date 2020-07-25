@@ -1,7 +1,7 @@
 import os
 
 import pytorch_lightning as pl
-from modules.bert_sentiment_classifier import BertSentimentClassifier
+from modules.bert import BertSentimentClassifier
 from utilities.general_utilities import (
     build_comet_logger,
     build_save_path,

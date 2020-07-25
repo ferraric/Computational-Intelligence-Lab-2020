@@ -112,7 +112,7 @@ class DataProcessor:
         )
         self.test_data = TensorDataset(test_token_ids, test_attention_mask)
 
-        if self.config.use_augmented_data:
+        if self.config.use_additional_data:
             additional_negative_tweets = self._load_unique_tweets(
                 self.config.additional_negative_tweets_path
             )
