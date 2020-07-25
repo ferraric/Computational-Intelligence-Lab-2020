@@ -7,7 +7,7 @@ from data_processing.bertweet_data_processor import BertweetDataProcessor
 from data_processing.bertweet_tokenizer import BertweetTokenizer
 from fairseq.data import Dictionary
 from fairseq.data.encoders.fastbpe import fastBPE
-from modules.bert_sentiment_classifier import BertSentimentClassifier
+from modules.bert import BertSentimentClassifier
 from torch.nn import CrossEntropyLoss
 from transformers import RobertaConfig, RobertaForSequenceClassification
 

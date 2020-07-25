@@ -1,7 +1,7 @@
 import os
 
 import pytorch_lightning as pl
-from modules.roberta_sentiment_classifier import RobertaSentimentClassifier
+from modules.roberta import RobertaSentimentClassifier
 from utilities.general_utilities import (
     build_comet_logger,
     build_save_path,
