@@ -4,8 +4,7 @@ from comet_ml import Experiment
 
 import numpy as np
 from data_processing.data_loading_and_storing import load_test_tweets
-from google.cloud import language
-from google.cloud.language import enums, types
+from google.cloud.language import LanguageServiceClient, enums, types
 from google.protobuf.json_format import MessageToDict
 from utilities.general_utilities import get_args, get_bunch_config_from_json
 
@@ -25,7 +24,7 @@ def main() -> None:
 
     test_tweets = load_test_tweets(config.test_data_path)
 
-    client = language.LanguageServiceClient()
+    client = LanguageServiceClient()
     result = []
     predictions = np.zeros(len(test_tweets), dtype=np.int32)
 
