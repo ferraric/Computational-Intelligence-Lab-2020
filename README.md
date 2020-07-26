@@ -88,7 +88,7 @@ To run a model, use the same command as described above and set the config optio
 
 #### Simple Model Averaging
 
-We used the 5 runs from the BERTweet section and gathered all class output probabilities (logged during prediciton of the test set). 
+We used the 5 runs from the BERTweet section and gathered all class output probabilities (logged during prediction of the test set). 
 Place the runs to ensemble (we sequentially averaged rs0 then rs0+rs1, then rs0+rs1+rs2, ...) inside a directory "input_directory". Run
 
 ```python ensemble/ensemble_probabilities.py -i input_directory -o output_directory```
@@ -100,11 +100,11 @@ Inside "output_directory" a file "ensemble_predictions.csv" will be generated.
 For bagging, one needs to train multiple models with the option "do_bootstrap_sampling" set to true. Then proceed as described in the simple model averaging section.
 
 ### [Section to be named]
-For this section we used either data with or without unmatched parenthesis. We differentiated what data we used for training and what for evaluation on the validation set. This in total results in 4 different possibilities.
+For this section we used either data with or without unmatched parentheses. We differentiated what data we used for training and what for evaluation on the validation set. This in total results in 4 different possibilities.
 
-In a first step we trained a model with unmatched parenthesis in the training data, meaning on the regular data. For this the procedure is described above. Then we trained a model without unmatched parenthesis in the training data. For that, set the config option "remove_rule_patterns" to true.
+In a first step we trained a model with unmatched parentheses in the training data, meaning on the original labeled dataset. For this the procedure is described above. Then we trained a model without unmatched parentheses in the training data. For that, set the config option "remove_rule_patterns" to true.
 
-Both those models should be evaluated on validation data with and without unmatched parenthesis. The validation data is saved in the corresponding model's checkpoint folder. Use the saved model to predict the tweets in this saved validation data, as is described at the beginning of the Reproduce Experiments section.
+Both those models should be evaluated on validation data with and without unmatched parentheses. The validation data is saved in the corresponding model's checkpoint folder. Use the saved model to predict the tweets in this saved validation data, as is described at the beginning of the Reproduce Experiments section.
 
 [] Nessi: ab da hesch alli predicted validation files, chasch echt instruction vo da namal wiiter schribe und am schluss sege dass s ganze einisch für bert und einisch für bertweet sött gmacht werde?
 
