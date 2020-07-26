@@ -1,6 +1,7 @@
+import os
+
 from comet_ml import Experiment
 
-import os
 import numpy as np
 import pandas as pd
 from baselines.glove_embeddings_classifier import GloveEmbeddingsClassifier
