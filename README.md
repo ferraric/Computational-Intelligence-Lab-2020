@@ -30,23 +30,85 @@ pip install -r requirements.txt
  ```  
 
 ## Reproduce Exerperiments
-To test the model on a trained checkpoint, run your main with the corresponding config file and add the -t flag which is the path to the checkpoint. 
+To log the experiment results we used Comet (https://www.comet.ml/docs/), a tensorboard like logger. Unfortunately we cannot make access to our experiment logs public. However, if access to the logs is needed, contact jeremyalain.scheurer@gmail.com.
+
+All experiments can be run with the config option "use_comet_experiments": false. In that case, the logs and saved predictions are found in the same directory where the model checkpoint is saved. That path is built by concatenating the config option "model_save_directory" to the config option "experiment_name" and to the timestamp of execution start time. 
+Ex: ```experiments/bert-baseline/20-07-25_12-25-02/```
+
+To calculate the accuracy of a prediction file, run the following command:
+```python ensemble/calculate_accuracy.py -p path-to-predictions.csv -l path-to-labels```
+
+The following holds for all models except google natural language api and glove:
+
+The hyperparameters "epochs", "max_tokens_per_tweet", "validation_size", "validation_split_random_seed", "batch_size", "n_data_loader_workers", "learning_rate" were unchanged for all runs with a particular model. How other hyperparameters were varied is described in the following sections.
+
+When running an experiment, at the end of training, the provided test data are automatically predicted with the best saved checkpoint. If one needs to predict a set of tweets from an existing checkpoint, one needs to point the config option "test_tweets_path" to the corresponding tweets and provide the model checkpoint via the argument -t. Ex:
+```python mains/bert.py -c configs/bert.json -t path-to-model-checkpoint.ckpt```
 
 ### Baselines
 
 #### Google Natural Language API
 
+Note that one needs a google cloud account and credits to use this service. Make sure you set the variable GOOGLE_ to point to the json file containing your account credentials.
+
+```export GOOGLE_APPLICATION_CREDENTIALS=path-to-your-account-credentials.json```
+```python baselines/google_nlp_api.py -c configs/google_nlp_api.json```
+
+
 #### GloVe
+
+[] TODO: Sinan
 
 #### BERT
 
+```python mains/bert.py -c configs/bert.json```
+
+The scores provided in the report were the average across runs with 5 different random seeds. The random seeds we used were [0, 1, 2, 3, 4], they were set via the config option "random_seed".
+
 ### BERTweet
+For the ablation study, we ran 3 models:
+
+```python mains/roberta.py -c configs/roberta.json```
+
+For this run the option "use_special_tokens" should be set to false
+```python mains/bertweet.py -c configs/bertweet.json```
+
+```python mains/bertweet.py -c configs/bertweet.json```
+
+All runs were repeated with "random_seed" in [0, 1, 2, 3, 4].
 
 ### Additional Data
 
+Download and extract the folder from http://cs.stanford.edu/people/alecmgo/trainingandtestdata.zip. Run the following preprocessing script:
+```python data_processing/preprocess_additional_data.py -i path-to-downloaded-folder/training.1600000.processed.noemoticon.csv -o output_folder ```
+
+To run a model, use the same command as described above and set the config options "use_additional_data" to true. Also set "additional_negative_tweets_path" and "additional_negative_tweets_path" to the respective files generated in the output folder from the preprocessing script.
+
 ### Ensemble Learning
 
+#### Simple Model Averaging
+
+We used the 5 runs from the BERTweet section and gathered all class output probabilities (logged during prediciton of the test set). 
+Place the runs to ensemble (we sequentially averaged rs0 then rs0+rs1, then rs0+rs1+rs2, ...) inside a directory "input_directory". Run
+
+```python ensemble/ensemble_probabilities.py -i input_directory -o output_directory```
+
+Inside "output_directory" a file "ensemble_predictions.csv" will be generated.
+
+#### Bagging
+
+For bagging, one needs to train multiple models with the option "do_bootstrap_sampling" set to true. Then proceed as described in the simple model averaging section.
+
 ### [Section to be named]
+For this section we used either data with or without unmatched parenthesis. We differentiated what data we used for training and what for evaluation on the validation set. This in total results in 4 different possibilities.
+
+In a first step we trained a model with unmatched parenthesis in the training data, meaning on the regular data. For this the procedure is described above. Then we trained a model without unmatched parenthesis in the training data. For that, set the config option "remove_rule_patterns" to true.
+
+Both those models should be evaluated on validation data with and without unmatched parenthesis. The validation data is saved in the corresponding model's checkpoint folder. Use the saved model to predict the tweets in this saved validation data, as is described at the beginning of the Reproduce Experiments section.
+
+[] Nessi: ab da hesch alli predicted validation files, chasch echt instruction vo da namal wiiter schribe und am schluss sege dass s ganze einisch für bert und einisch für bertweet sött gmacht werde?
+
+
 To reproduce the experiments, train a BERT baseline model. 
 
 First create the tweets which have patterns of the rules removed:
