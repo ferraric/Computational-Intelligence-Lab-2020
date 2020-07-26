@@ -49,7 +49,7 @@ When running an experiment, at the end of training, the provided test data are a
 
 #### Google Natural Language API
 
-Note that one needs a google cloud account and credits to use this service. Make sure you set the variable GOOGLE_ to point to the json file containing your account credentials.
+Note that one needs a Google cloud account and credits to use this service. Make sure you set the variable GOOGLE_APPLICATION_CREDENTIALS to point to the json file containing your account credentials.
 
 ```export GOOGLE_APPLICATION_CREDENTIALS=path-to-your-account-credentials.json```
 ```python baselines/google_nlp_api.py -c configs/google_nlp_api.json```
