@@ -43,7 +43,7 @@ The following holds for all models except Google Natural Language API and GloVe:
 The hyperparameters "epochs", "max_tokens_per_tweet", "validation_size", "validation_split_random_seed", "batch_size", "n_data_loader_workers", "learning_rate" were unchanged for all runs with a particular model. How other hyperparameters were varied is described in the following sections.
 
 When running an experiment, at the end of training, the provided test data are automatically predicted with the best saved checkpoint. If one needs to predict a set of tweets from an existing checkpoint, one needs to point the config option "test_tweets_path" to the corresponding tweets and provide the model checkpoint via the argument -t. Ex:
-```python mains/bert.py -c configs/bert.json -t path-to-model-checkpoint.ckpt```
+```python mains/bert.py -c configs/bert.json -t path-to-model-checkpoint/model_checkpoint.ckpt```
 
 ### Baselines
 
@@ -126,4 +126,3 @@ Test BERT on the newly saved tweets where patterns of the rules are present. To 
 Then run the main file with the corresponding predictions from BERT to get the accuracy and the confusion matrix of bert and the rule based predictions: 
 
 ```rules/main.py -d "validation_data_path" -l "validation_labels_path" -b "bert_predictions_path"```
-
