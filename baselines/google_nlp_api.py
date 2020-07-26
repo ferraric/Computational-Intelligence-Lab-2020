@@ -59,9 +59,13 @@ def main() -> None:
     if comet_experiment.disabled:
         save_path = build_save_path(config)
         os.makedirs(save_path)
-        pd.DataFrame(
+
+        formatted_predictions_table = pd.DataFrame(
             predictions_table, columns=["Id", "Prediction"], dtype=np.int32,
-        ).to_csv(os.path.join(save_path, "google_nlp_api_predictions.csv"), index=False)
+        )
+        formatted_predictions_table.to_csv(
+            os.path.join(save_path, "google_nlp_api_predictions.csv"), index=False
+        )
     else:
         comet_experiment.log_table(
             filename="google_nlp_api_predictions.csv",

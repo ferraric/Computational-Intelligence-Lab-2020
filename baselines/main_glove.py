@@ -7,7 +7,11 @@ from baselines.glove_embeddings_classifier import GloveEmbeddingsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
-from utilities.general_utilities import get_args, get_bunch_config_from_json, build_save_path
+from utilities.general_utilities import (
+    build_save_path,
+    get_args,
+    get_bunch_config_from_json,
+)
 
 
 def main() -> None:
@@ -54,9 +58,13 @@ def main() -> None:
     if comet_experiment.disabled:
         save_path = build_save_path(config)
         os.makedirs(save_path)
-        pd.DataFrame(
+
+        formatted_predictions_table = pd.DataFrame(
             predictions_table, columns=["Id", "Prediction"], dtype=np.int32,
-        ).to_csv(os.path.join(save_path, "test_predictions.csv"), index=False)
+        )
+        formatted_predictions_table.to_csv(
+            os.path.join(save_path, "test_predictions.csv"), index=False
+        )
     else:
         comet_experiment.log_table(
             filename="test_predictions.csv",
