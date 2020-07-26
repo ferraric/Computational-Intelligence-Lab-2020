@@ -36,7 +36,7 @@ All experiments can be run with the config option "use_comet_experiments": false
 Ex: ```experiments/bert-baseline/20-07-25_12-25-02/```
 
 To calculate the accuracy of a prediction file, run the following command:
-```python ensemble/calculate_accuracy.py -p path-to-predictions.csv -l path-to-labels```
+```python ensemble/calculate_accuracy.py -p path-to-predictions.csv -l path-to-labels.csv```
 
 The following holds for all models except Google Natural Language API and GloVe:
 
@@ -126,3 +126,8 @@ Test BERT on the newly saved tweets where patterns of the rules are present. To 
 Then run the main file with the corresponding predictions from BERT to get the accuracy and the confusion matrix of bert and the rule based predictions: 
 
 ```rules/main.py -d "validation_data_path" -l "validation_labels_path" -b "bert_predictions_path"```
+
+
+## Resource Requirements
+
+All experiments of BERT, Roberta and BERTweeet were run on ETH's Leonhard cluster using an Nvidia GeForceRTX2080Ti GPU. The runtimes per model were about 16 hours (26 hours with additional data) with 2 CPU cores and about 64 GBs of memory.
