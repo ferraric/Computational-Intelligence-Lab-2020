@@ -6,13 +6,7 @@ from rule.rules import ParenthesisRule, Rule
 
 class RuleClassifier(Rule):
     def __init__(self) -> None:
-        self.rules = [
-            ParenthesisRule(")", "("),
-            # PositiveNegativeRule("< 3 ", "< / 3"),
-            # HappySadHashtagRule("#happ", "#sad"),
-            # NegativeRule("#fml"),
-            # NegativeRule(": |"),
-        ]
+        self.rules = [ParenthesisRule(")", "(")]
 
     def predict(self, tweets: List[str]) -> np.ndarray:
         predictions_all_rules = [self._apply_rules(tweet) for tweet in tweets]
