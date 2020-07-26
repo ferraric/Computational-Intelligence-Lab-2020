@@ -4,10 +4,10 @@
 
 ## Description   
 This is a project that was done in the Computational Intelligence Lab 2020 at ETH Zurich (see [Course website](http://www.da.inf.ethz.ch/teaching/2020/CIL/)).
-Specifically we are doing a sentiment analysis of twitter data and classify them into positive and negative sentiments (see [Kaggle competition](https://www.kaggle.com/c/cil-text-classification-2020)). 
+Specifically we are doing a sentiment analysis of twitter data and classify them into positive and negative sentiments (see [Kaggle competition](https://www.kaggle.com/c/cil-text-classification-2020)). Our team name was FrontRowCrew.
 
 ## Setup 
-Download data from: https://polybox.ethz.ch/index.php/s/MxU3xzbLLKytwRT
+Download data from: http://www.da.inf.ethz.ch/teaching/2018/CIL/material/exercise/twitter-datasets.zip
 
 ```
 # clone project   
@@ -18,25 +18,35 @@ cd Computational-Intelligence-Lab-2020
 
 # move data into the data folder
 mkdir data
-mv .../downloaded-data-folder /data
+mv path-to-downloaded-folder/downloaded-data-folder data
 
 # --> if on Leonhard: install your python virtual environment into Computational-Intelligence-Lab-2020/venv
-python3 -m venv /cluster/home/.../Computational-Intelligence-Lab-2020/venv
+python3 -m venv ~/Computational-Intelligence-Lab-2020/venv
 source ./init_leonhard.sh
 
 # --> if local: 
 pip install -r requirements.txt
 
  ```  
-We use pre-commit hooks to format our code to comply with black and pep8. If you want to contribute execute: 
-```pre-commit install```
- 
 
-## Testing
+## Reproduce Exerperiments
 To test the model on a trained checkpoint, run your main with the corresponding config file and add the -t flag which is the path to the checkpoint. 
 
+### Baselines
 
-## Rule Approach 
+#### Google Natural Language API
+
+#### GloVe
+
+#### BERT
+
+### BERTweet
+
+### Additional Data
+
+### Ensemble Learning
+
+### [Section to be named]
 To reproduce the experiments, train a BERT baseline model. 
 
 First create the tweets which have patterns of the rules removed:
@@ -54,4 +64,5 @@ Test BERT on the newly saved tweets where patterns of the rules are present. To 
 Then run the main file with the corresponding predictions from BERT to get the accuracy and the confusion matrix of bert and the rule based predictions: 
 
 ```rules/main.py -d "validation_data_path" -l "validation_labels_path" -b "bert_predictions_path"```
+
 
