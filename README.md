@@ -38,7 +38,7 @@ Ex: ```experiments/bert-baseline/20-07-25_12-25-02/```
 To calculate the accuracy of a prediction file, run the following command:
 ```python ensemble/calculate_accuracy.py -p path-to-predictions.csv -l path-to-labels```
 
-The following holds for all models except google natural language api and glove:
+The following holds for all models except Google Natural Language API and GloVe:
 
 The hyperparameters "epochs", "max_tokens_per_tweet", "validation_size", "validation_split_random_seed", "batch_size", "n_data_loader_workers", "learning_rate" were unchanged for all runs with a particular model. How other hyperparameters were varied is described in the following sections.
 
@@ -126,5 +126,4 @@ Test BERT on the newly saved tweets where patterns of the rules are present. To 
 Then run the main file with the corresponding predictions from BERT to get the accuracy and the confusion matrix of bert and the rule based predictions: 
 
 ```rules/main.py -d "validation_data_path" -l "validation_labels_path" -b "bert_predictions_path"```
-
 
