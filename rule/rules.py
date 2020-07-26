@@ -43,6 +43,27 @@ class PositiveNegativeRule(Rule):
         return self.remove_double_whitespaces(tweet_without_rule_pattern)
 
 
+class NegativeRule(Rule):
+    def __init__(self, negative_pattern: str):
+        self.negative_pattern = negative_pattern
+
+    def apply(self, tweet: str) -> int:
+        if self.negative_pattern in tweet:
+            return -1
+        else:
+            return 0
+
+    def remove_rule_pattern_from(self, tweet: str) -> str:
+        if self.apply(tweet) == 0:
+            tweet_without_rule_pattern = tweet
+        elif self.apply(tweet) == -1:
+            tweet_without_rule_pattern = tweet.replace(self.negative_pattern, "")
+        else:
+            raise ValueError("rule application returned unexpected value")
+
+        return self.remove_double_whitespaces(tweet_without_rule_pattern)
+
+
 class ParenthesisRule(PositiveNegativeRule):
     def apply(self, tweet: str) -> int:
         return super().apply(self.remove_matching_parenthesis(tweet))
