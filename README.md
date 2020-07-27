@@ -81,7 +81,23 @@ python baselines/google_nlp_api.py -c configs/google_nlp_api.json
 
 #### GloVe
 
-[] TODO: Sinan
+To run the experiments for GloVe, one needs to download the code from [](https://github.com/dalab/lecture_cil_public/tree/master/exercises/2019/ex6) for generating the vocabulary and training the word embeddings.
+
+In the README of that page, the instructions are given to build the vocabulary and the co-occurrence matrix for training. **Note that modifications have to be made to `build_vocab.sh` and `cooc.py` to use the full dataset.**
+
+After building the co-occurrence matrix, one can run the training of the word embeddings by running
+
+`python glove_solution.py`
+
+In that script, the number of epochs can be specified.
+
+After this is done, both the generated `vocab.pkl` and the `embeddings.npz` files have to be moved to the data folder defined in the Setup section.
+
+To train a classifier using the GloVe embeddings, one has to run:
+
+`python baselines/main_glove.py -c configs/glove_embeddings_{logregression, decisiontree, randomforest}_classifier.json`
+
+The grid search parameters can be modified inside the respective config files.
 
 #### BERT
 
@@ -169,4 +185,4 @@ rules/main.py -d "validation_data_path" -l "validation_labels_path" -b "bert_pre
 
 ## Resource Requirements
 
-All experiments of BERT, Roberta and BERTweeet were run on ETH's Leonhard cluster using an Nvidia GeForceRTX2080Ti GPU. The runtimes per model were about 16 hours (26 hours with additional data) with 2 CPU cores and about 64 GBs of memory.
+All experiments of BERT, Roberta and BERTweet were run on ETH's Leonhard cluster using an Nvidia GeForce RTX 2080 Ti GPU. The runtimes per model were about 16 hours (26 hours with additional data) with 2 CPU cores and 64 GBs of memory for BERT and BERTweet and 96 GBs of memory for RoBERTa.
