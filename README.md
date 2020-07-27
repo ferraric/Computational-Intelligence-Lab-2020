@@ -57,6 +57,7 @@ Ex: ```experiments/bert-baseline/20-07-25_12-25-02/```
 
 To calculate the accuracy of a prediction file, run the following command:
 ```python ensemble/calculate_accuracy.py -p path-to-predictions.csv -l path-to-labels.csv```
+Note that the predictions should be formatted as specified in the `sample_submission.csv` file.
 
 The following holds for all models except Google Natural Language API and GloVe:
 
