@@ -187,3 +187,11 @@ rules/main.py -d "validation_data_path" -l "validation_labels_path" -b "bert_pre
 ## Resource Requirements
 
 All experiments of BERT, Roberta and BERTweet were run on ETH's Leonhard cluster using an Nvidia GeForce RTX 2080 Ti GPU. The runtimes per model were about 16 hours (26 hours with additional data) with 2 CPU cores and 64 GBs of memory for BERT and BERTweet and 96 GBs of memory for RoBERTa.
+
+## Acknowledgements
+We would like to give credit to the following tools, libraries and frameworks that helped us during this project:
+
+- We used the transformers library from huggingface (https://github.com/huggingface/transformers) for all of our transformer based models.
+- To structure our code and abstract from some pytorch details, we used the pytorch lightning framework (https://github.com/PyTorchLightning/pytorch-lightning).
+- For continuous integration we used travis-ci (https://travis-ci.com/)
+- For formatting, enforcing coding style and a weak form of type checking we used different pre-commit hooks (https://pre-commit.com)
