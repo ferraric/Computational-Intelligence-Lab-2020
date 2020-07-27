@@ -100,10 +100,10 @@ Inside "output_directory" a file "ensemble_predictions.csv" will be generated.
 
 For bagging, one needs to train multiple models with the option "do_bootstrap_sampling" set to true. Then proceed as described in the simple model averaging section.
 
-### [Section to be named]
-For this section we used either data with or without unmatched parentheses. We differentiated what data we used for training and what data for evaluation on the validation set. This in total results in 4 different possibilities.
+### [Section to be named] Parenthesis Rule
+For this section we used either data with or without unmatched parentheses. We differentiated what data we used for training and what data for evaluation on the validation set. This in total results in 4 different possibilities per classifier. We did the following procedure for BERT and BERTweet
 
-In a first step we trained a model with unmatched parentheses in the training data, meaning on the original labeled dataset. For this the procedure is described above. Then we trained a model without unmatched parentheses in the training data. For that, set the config option "remove_rule_patterns" to true.
+In a first step we trained a model with unmatched parentheses in the training data, meaning on the original labeled dataset. For this the procedure is described above. Then we trained a model without unmatched parentheses in the training data. To generate this dataset, concatenate the positive and negative tweet dataset and set the config option "remove_rule_patterns" to true. 
 
 Both those models should be evaluated on validation data with and without unmatched parentheses. The validation data is saved in the corresponding model's checkpoint folder. Use the saved model to predict the tweets in this saved validation data, as is described at the beginning of the Reproduce Experiments section.
 
