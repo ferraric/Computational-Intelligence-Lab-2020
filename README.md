@@ -19,7 +19,8 @@ cd Computational-Intelligence-Lab-2020
 # move data into the data folder
 mkdir data
 mv path-to-downloaded-folder/downloaded-data-folder data
-
+#before running make sure that the source directory is recognized by your PYTHONPATH, for example do:
+export PYTHONPATH=/path_to_source_directory/Computational-Intelligence-Lab-2020:$PYTHONPATH
 # --> if on Leonhard: install your python virtual environment into Computational-Intelligence-Lab-2020/venv
 python3 -m venv ~/Computational-Intelligence-Lab-2020/venv
 source ./init_leonhard.sh
@@ -40,7 +41,7 @@ To calculate the accuracy of a prediction file, run the following command:
 
 The following holds for all models except Google Natural Language API and GloVe:
 
-The hyperparameters "epochs", "max_tokens_per_tweet", "validation_size", "validation_split_random_seed", "batch_size", "n_data_loader_workers", "learning_rate" were unchanged for all runs with a particular model. How other hyperparameters were varied is described in the following sections.
+The hyperparameters `epochs`, `max_tokens_per_tweet`, `validation_size`, `validation_split_random_seed`, `batch_size`, `n_data_loader_workers`, `learning_rate` were unchanged for all runs with a particular model. How other hyperparameters were varied is described in the following sections.
 
 When running an experiment, at the end of training, the provided test data are automatically predicted with the best saved checkpoint. If one needs to predict a set of tweets from an existing checkpoint, one needs to point the config option "test_tweets_path" to the corresponding tweets and provide the model checkpoint via the argument -t. Ex:
 ```python mains/bert.py -c configs/bert.json -t path-to-model-checkpoint/model_checkpoint.ckpt```
@@ -50,7 +51,7 @@ When running an experiment, at the end of training, the provided test data are a
 #### Google Natural Language API
 
 Note that one needs a Google cloud account and credits to use this service. Make sure you set the variable GOOGLE_APPLICATION_CREDENTIALS to point to the json file containing your account credentials.
-
+Also as a disclaimer we want to note that the Google Natural Language API is a service that costs money. One usually has a certain amount of free calls to the API (which we used). But we want to remind you to first check out what your API call limitations are in order to prevent a big bill at the end of the month.
 ```export GOOGLE_APPLICATION_CREDENTIALS=path-to-your-account-credentials.json```
 ```python baselines/google_nlp_api.py -c configs/google_nlp_api.json```
 
@@ -70,7 +71,7 @@ For the ablation study, we ran 3 models:
 
 ```python mains/roberta.py -c configs/roberta.json```
 
-For this run the option "use_special_tokens" should be set to false
+For this run the option "use_special_tokens" should be set to false. You can then execute:
 ```python mains/bertweet.py -c configs/bertweet.json```
 
 ```python mains/bertweet.py -c configs/bertweet.json```
@@ -82,7 +83,7 @@ All runs were repeated with "random_seed" in [0, 1, 2, 3, 4].
 Download and extract the folder from http://cs.stanford.edu/people/alecmgo/trainingandtestdata.zip. Run the following preprocessing script:
 ```python data_processing/preprocess_additional_data.py -i path-to-downloaded-folder/training.1600000.processed.noemoticon.csv -o output_folder ```
 
-To run a model, use the same command as described above and set the config options "use_additional_data" to true. Also set "additional_negative_tweets_path" and "additional_negative_tweets_path" to the respective files generated in the output folder from the preprocessing script.
+To run a model, use the same command as described above and set the config options `use_additional_data` to true. Also set `additional_negative_tweets_path` and `additional_negative_tweets_path` to the respective files generated in the output folder from the preprocessing script.
 
 ### Ensemble Learning
 
@@ -100,7 +101,7 @@ Inside "output_directory" a file "ensemble_predictions.csv" will be generated.
 For bagging, one needs to train multiple models with the option "do_bootstrap_sampling" set to true. Then proceed as described in the simple model averaging section.
 
 ### [Section to be named]
-For this section we used either data with or without unmatched parentheses. We differentiated what data we used for training and what for evaluation on the validation set. This in total results in 4 different possibilities.
+For this section we used either data with or without unmatched parentheses. We differentiated what data we used for training and what data for evaluation on the validation set. This in total results in 4 different possibilities.
 
 In a first step we trained a model with unmatched parentheses in the training data, meaning on the original labeled dataset. For this the procedure is described above. Then we trained a model without unmatched parentheses in the training data. For that, set the config option "remove_rule_patterns" to true.
 
