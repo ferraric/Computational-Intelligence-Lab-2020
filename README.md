@@ -4,31 +4,50 @@
 
 ## Description   
 This is a project that was done in the Computational Intelligence Lab 2020 at ETH Zurich (see [Course website](http://www.da.inf.ethz.ch/teaching/2020/CIL/)).
-Specifically we are doing a sentiment analysis of twitter data and classify them into positive and negative sentiments (see [Kaggle competition](https://www.kaggle.com/c/cil-text-classification-2020)). Our team name was FrontRowCrew.
+Specifically we are doing sentiment analysis of tweets and classify them into positive and negative sentiments (see [Kaggle competition](https://www.kaggle.com/c/cil-text-classification-2020)). Our team name was `FrontRowCrew`.
 
 ## Setup 
+The experiments were run and tested with Python version 3.7.1.
+
 Download data from: http://www.da.inf.ethz.ch/teaching/2018/CIL/material/exercise/twitter-datasets.zip
 
+
+clone project  
 ```
-# clone project   
 git clone https://github.com/ferraric/Computational-Intelligence-Lab-2020   
+```
 
-# install project   
+install project 
+```
 cd Computational-Intelligence-Lab-2020    
+```
 
-# move data into the data folder
+move data into the data folder
+```
 mkdir data
 mv path-to-downloaded-folder/downloaded-data-folder data
-#before running make sure that the source directory is recognized by your PYTHONPATH, for example do:
+```
+before running make sure that the source directory is recognized by your PYTHONPATH, for example do:
+```
 export PYTHONPATH=/path_to_source_directory/Computational-Intelligence-Lab-2020:$PYTHONPATH
-# --> if on Leonhard: install your python virtual environment into Computational-Intelligence-Lab-2020/venv
+```
+If on Leonhard: install your python virtual environment into Computational-Intelligence-Lab-2020/venv
+```
 python3 -m venv ~/Computational-Intelligence-Lab-2020/venv
 source ./init_leonhard.sh
+```
 
-# --> if local: 
+If local:
+```
 pip install -r requirements.txt
-
  ```  
+ 
+ Note that the pytorch version we used (pre-compiled with a specific cuda version) is not available for macOS. If you want to run it locally on a mac, change the pytorch version in the requirement file to the following:
+ 
+ ```
+ torch==1.5.0
+ ```
+ 
 
 ## Reproduce Exerperiments
 To log the experiment results we used Comet (https://www.comet.ml/docs/), a tensorboard like logger. Unfortunately we cannot make access to our experiment logs public. However, if access to the logs is needed, contact jeremyalain.scheurer@gmail.com.
@@ -52,8 +71,12 @@ When running an experiment, at the end of training, the provided test data are a
 
 Note that one needs a Google cloud account and credits to use this service. Make sure you set the variable GOOGLE_APPLICATION_CREDENTIALS to point to the json file containing your account credentials.
 Also as a disclaimer we want to note that the Google Natural Language API is a service that costs money. One usually has a certain amount of free calls to the API (which we used). But we want to remind you to first check out what your API call limitations are in order to prevent a big bill at the end of the month.
-```export GOOGLE_APPLICATION_CREDENTIALS=path-to-your-account-credentials.json```
-```python baselines/google_nlp_api.py -c configs/google_nlp_api.json```
+```
+export GOOGLE_APPLICATION_CREDENTIALS=path-to-your-account-credentials.json
+```
+```
+python baselines/google_nlp_api.py -c configs/google_nlp_api.json
+```
 
 
 #### GloVe
@@ -62,26 +85,35 @@ Also as a disclaimer we want to note that the Google Natural Language API is a s
 
 #### BERT
 
-```python mains/bert.py -c configs/bert.json```
+```
+python mains/bert.py -c configs/bert.json
+```
 
 The scores provided in the report were the average across runs with 5 different random seeds. The random seeds we used were [0, 1, 2, 3, 4], they were set via the config option "random_seed".
 
 ### BERTweet
 For the ablation study, we ran 3 models:
 
-```python mains/roberta.py -c configs/roberta.json```
+```
+python mains/roberta.py -c configs/roberta.json
+```
 
 For this run the option "use_special_tokens" should be set to false. You can then execute:
-```python mains/bertweet.py -c configs/bertweet.json```
-
-```python mains/bertweet.py -c configs/bertweet.json```
+```
+python mains/bertweet.py -c configs/bertweet.json
+```
+```
+python mains/bertweet.py -c configs/bertweet.json
+```
 
 All runs were repeated with "random_seed" in [0, 1, 2, 3, 4].
 
 ### Additional Data
 
 Download and extract the folder from http://cs.stanford.edu/people/alecmgo/trainingandtestdata.zip. Run the following preprocessing script:
-```python data_processing/preprocess_additional_data.py -i path-to-downloaded-folder/training.1600000.processed.noemoticon.csv -o output_folder ```
+```
+python data_processing/preprocess_additional_data.py -i path-to-downloaded-folder/training.1600000.processed.noemoticon.csv -o output_folder
+```
 
 To run a model, use the same command as described above and set the config options `use_additional_data` to true. Also set `additional_negative_tweets_path` and `additional_negative_tweets_path` to the respective files generated in the output folder from the preprocessing script.
 
@@ -92,7 +124,9 @@ To run a model, use the same command as described above and set the config optio
 We used the 5 runs from the BERTweet section and gathered all class output probabilities (logged during prediction of the test set). 
 Place the runs to ensemble (we sequentially averaged rs0 then rs0+rs1, then rs0+rs1+rs2, ...) inside a directory "input_directory". Run
 
-```python ensemble/ensemble_probabilities.py -i input_directory -o output_directory```
+```
+python ensemble/ensemble_probabilities.py -i input_directory -o output_directory
+```
 
 Inside "output_directory" a file "ensemble_predictions.csv" will be generated.
 
@@ -114,7 +148,9 @@ To reproduce the experiments, train a BERT baseline model.
 
 First create the tweets which have patterns of the rules removed:
 
-```rules/main.py -d "validation_data_path" -l "validation_labels_path" -s "save_path"```
+```
+rules/main.py -d "validation_data_path" -l "validation_labels_path" -s "save_path"
+```
 
 
 To compare the performance of BERT:
@@ -126,7 +162,9 @@ Test BERT on the newly saved tweets where patterns of the rules are present. To 
 
 Then run the main file with the corresponding predictions from BERT to get the accuracy and the confusion matrix of bert and the rule based predictions: 
 
-```rules/main.py -d "validation_data_path" -l "validation_labels_path" -b "bert_predictions_path"```
+```
+rules/main.py -d "validation_data_path" -l "validation_labels_path" -b "bert_predictions_path"
+```
 
 
 ## Resource Requirements
