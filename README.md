@@ -25,7 +25,7 @@ cd Computational-Intelligence-Lab-2020
 move data into the data folder
 ```
 mkdir data
-mv path-to-downloaded-folder/downloaded-data-folder data
+mv path-to-downloaded-folder/twitter-datasets/* data
 ```
 before running make sure that the source directory is recognized by your PYTHONPATH, for example do:
 ```
