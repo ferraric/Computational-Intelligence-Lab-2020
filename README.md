@@ -50,9 +50,9 @@ pip install -r requirements.txt
  
 
 ## Reproduce Exerperiments
-To log the experiment results we used Comet (https://www.comet.ml/docs/), a tensorboard like logger. Unfortunately we cannot make access to our experiment logs public. However, if access to the logs is needed, contact jeremyalain.scheurer@gmail.com.
+To log the experiment results we used Comet (https://www.comet.ml/docs/), a tensorboard like logger. Unfortunately we cannot make access to our experiment logs public. However, if access to the logs is needed, contact jeremyalain.scheurer@gmail.com. If you would like to use your own comet account to run the experiments, fill the comet related config options with your account credentials.
 
-All experiments can be run with the config option "use_comet_experiments": false. In that case, the logs and saved predictions are found in the same directory where the model checkpoint is saved. That path is built by concatenating the config option "model_save_directory" to the config option "experiment_name" and to the timestamp of execution start time. 
+All experiments can be run with the config option "use_comet_experiments": false, which is the default option. In that case, the logs and saved predictions are found in the same directory where the model checkpoint is saved. That path is built by concatenating the config option "model_save_directory" to the config option "experiment_name" and to the timestamp of execution start time. 
 Ex: ```experiments/bert-baseline/20-07-25_12-25-02/```
 
 To calculate the accuracy of a prediction file, run the following command:
