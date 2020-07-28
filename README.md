@@ -151,7 +151,7 @@ Inside "output_directory" a file "ensemble_predictions.csv" will be generated.
 
 For bagging, one needs to train multiple models with the option "do_bootstrap_sampling" set to true. Then proceed as described in the simple model averaging section.
 
-### On Data Quality - Parenthesis Rule Analysis
+### On Data Quality and Model Robustness
 
 Repeat the following procedure for BERT and BERTweet:
 
