@@ -152,36 +152,32 @@ Inside "output_directory" a file "ensemble_predictions.csv" will be generated.
 For bagging, one needs to train multiple models with the option "do_bootstrap_sampling" set to true. Then proceed as described in the simple model averaging section.
 
 ### [Section to be named] Parenthesis Rule
-For this section we used either data with or without unmatched parentheses. We differentiated what data we used for training and what data for evaluation on the validation set. This in total results in 4 different possibilities per classifier. We did the following procedure for BERT and BERTweet
 
-In a first step we trained a model with unmatched parentheses in the training data, meaning on the original labeled dataset. For this the procedure is described above. Then we trained a model without unmatched parentheses in the training data. To generate this dataset, concatenate the positive and negative tweet dataset and set the config option "remove_rule_patterns" to true. 
+For this section we used either data with or without unmatched parentheses. We differentiated what data we used for training and what data for evaluation on the validation set. This in total results in 4 different possibilities per classifier. We did the following procedure for BERT and BERTweet.
 
-Both those models should be evaluated on validation data with and without unmatched parentheses. The validation data is saved in the corresponding model's checkpoint folder. Use the saved model to predict the tweets in this saved validation data, as is described at the beginning of the Reproduce Experiments section.
-
-[] Nessi: ab da hesch alli predicted validation files, chasch echt instruction vo da namal wiiter schribe und am schluss sege dass s ganze einisch für bert und einisch für bertweet sött gmacht werde?
-
-
-To reproduce the experiments, train a BERT baseline model. 
-
-First create the tweets which have patterns of the rules removed:
+1. train the model with unmatched parentheses in the training data, i.e. on the original labeled dataset. For this the procedure is described above.
+2. generate the dataset without unmatched parentheses:
+  2.1. concatenate the positive and negative tweet dataset and save the approrpiate labels. 
+  2.2 run:
+```
+rule/main.py -d "data_path" -l "labels_path" -s "save_path"
 
 ```
-rules/main.py -d "validation_data_path" -l "validation_labels_path" -s "save_path"
-```
+3. train the model without unmatched parentheses in the training data, i.e. on the dataset generated in step 2.
 
+4. evaluate each model on the validation data with and without unmatched parentheses:
+- The validation data is saved in the corresponding model's checkpoint folder. 
+- Use the saved model to predict the tweets on this saved validation data, as is described at the beginning of the Reproduce Experiments section.
+- To generate the validation dataset without unmatched parentheses, run the command above again with the validation data and validation labels.
+- Download the predictions (predictions are stored on comet.ml, access can be given on request).
 
-To compare the performance of BERT:
-
-Test BERT on the validation_data.txt. To do this, change the test_path in the config file to path to the validation_data.txt file. Download the predictions (predictions are stored on comet.ml, access can be given on request). The checkpoint to test on should be the BERT baseline model you trained on before. This are the predictions on the unmodified tweets. 
-
-Test BERT on the newly saved tweets where patterns of the rules are present. To do this, change the test_path in the config file to the tweet txt file you created. Download the predictions (predictions are stored on comet.ml, access can be given on request). The checkpoint to test on should be the BERT baseline model you trained on before. This are the predictions on the unmodified tweets. 
-
-
-Then run the main file with the corresponding predictions from BERT to get the accuracy and the confusion matrix of bert and the rule based predictions: 
+5. Analyze the performance of the classifier: Run the main file with the corresponding predictions from the classifier to get the accuracy and the confusion matrix of the classifier and the rule based predictions: 
 
 ```
-rules/main.py -d "validation_data_path" -l "validation_labels_path" -b "bert_predictions_path"
+rules/main.py -d "data_path" -l "labels_path" -b "predictions_path"
 ```
+
+Note: make sure in this step to use the right validation data path and validation labels path with the predictions path (i.e. don't mix BERT with BERTweet).
 
 
 ## Resource Requirements
