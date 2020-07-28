@@ -155,29 +155,26 @@ For bagging, one needs to train multiple models with the option "do_bootstrap_sa
 
 For this section we used either data with or without unmatched parentheses. We differentiated what data we used for training and what data for evaluation on the validation set. This in total results in 4 different possibilities per classifier. We did the following procedure for BERT and BERTweet.
 
-1. train the model with unmatched parentheses in the training data, i.e. on the original labeled dataset. For this the procedure is described above.
-2. generate the dataset without unmatched parentheses:
-  2.1. concatenate the positive and negative tweet dataset and save the approrpiate labels. 
-  2.2 run:
+1. Train the model with unmatched parentheses in the training data, i.e. on the original labeled dataset. For this the procedure is described above.
+2. Generate the dataset without unmatched parentheses: Concatenate the positive and negative tweet dataset and save the approrpiate labels. Then run:
 ```
 rule/main.py -d "data_path" -l "labels_path" -s "save_path"
-
 ```
-3. train the model without unmatched parentheses in the training data, i.e. on the dataset generated in step 2.
 
-4. evaluate each model on the validation data with and without unmatched parentheses:
+3. Train the model without unmatched parentheses in the training data, i.e. on the dataset generated in step 2.
+
+4. Evaluate each model on the validation data with and without unmatched parentheses:
 - The validation data is saved in the corresponding model's checkpoint folder. 
 - Use the saved model to predict the tweets on this saved validation data, as is described at the beginning of the Reproduce Experiments section.
 - To generate the validation dataset without unmatched parentheses, run the command above again with the validation data and validation labels.
 - Download the predictions (predictions are stored on comet.ml, access can be given on request).
 
 5. Analyze the performance of the classifier: Run the main file with the corresponding predictions from the classifier to get the accuracy and the confusion matrix of the classifier and the rule based predictions: 
-
 ```
 rules/main.py -d "data_path" -l "labels_path" -b "predictions_path"
 ```
 
-Note: make sure in this step to use the right validation data path and validation labels path with the predictions path (i.e. don't mix BERT with BERTweet).
+Note: Make sure in this last step to use the right validation data path and validation labels path with the predictions path (i.e. don't mix BERT with BERTweet).
 
 
 ## Resource Requirements
