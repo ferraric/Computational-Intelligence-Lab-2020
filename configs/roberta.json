@@ -20,7 +20,7 @@
   "learning_rate": 2e-05,
   "experiment_name": "roberta-baseline",
   "use_comet_experiments": false,
-  "comet_api_key": "NVyYXH1De9UgyELocupO1Lge9",
-  "comet_project_name": "sentiment-analysis",
-  "comet_workspace": "jerry-crea"
+  "comet_api_key": "-",
+  "comet_project_name": "-",
+  "comet_workspace": "-"
 }
