@@ -151,12 +151,12 @@ Inside "output_directory" a file "ensemble_predictions.csv" will be generated.
 
 For bagging, one needs to train multiple models with the option "do_bootstrap_sampling" set to true. Then proceed as described in the simple model averaging section.
 
-### [Section to be named] Parenthesis Rule
+### On Data Quality - Parenthesis Rule Analysis
 
 For this section we used either data with or without unmatched parentheses. We differentiated what data we used for training and what data for evaluation on the validation set. This in total results in 4 different possibilities per classifier. We did the following procedure for BERT and BERTweet.
 
 1. Train the model with unmatched parentheses in the training data, i.e. on the original labeled dataset. For this the procedure is described above.
-2. Generate the dataset without unmatched parentheses: Concatenate the positive and negative tweet dataset and save the approrpiate labels. Then run:
+2. Generate the dataset without unmatched parentheses. For this concatenate the original positive and negative tweet datasets and save the approrpiate labels. Then run:
 ```
 rule/main.py -d "data_path" -l "labels_path" -s "save_path"
 ```
