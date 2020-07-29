@@ -106,7 +106,7 @@ The grid search parameters can be modified inside the respective config files.
 python mains/bert.py -c configs/bert.json
 ```
 
-The scores provided in the report were the average across runs with 5 different random seeds. The random seeds we used were [0, 1, 2, 3, 4], they were set via the config option "random_seed".
+The scores provided in the report were the average across runs with 5 different random seeds. The random seeds we used were [0, 1, 2, 3, 4], they were set via the config option `random_seed`.
 
 ### BERTweet
 For the ablation study, we ran 3 models:
@@ -115,15 +115,16 @@ For the ablation study, we ran 3 models:
 python mains/roberta.py -c configs/roberta.json
 ```
 
-For this run the option "use_special_tokens" should be set to false. You can then execute:
+For this run, the option `use_special_tokens` should be set to false. You can then execute:
 ```
 python mains/bertweet.py -c configs/bertweet.json
 ```
+Set the option `use_special_tokens` to true again, then do:
 ```
 python mains/bertweet.py -c configs/bertweet.json
 ```
 
-All runs were repeated with "random_seed" in [0, 1, 2, 3, 4].
+All runs were repeated with `random_seed` in [0, 1, 2, 3, 4].
 
 ### Additional Data
 
