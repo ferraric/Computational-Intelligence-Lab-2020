@@ -3,10 +3,7 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-from data_processing.data_loading_and_storing import (
-    load_test_tweets,
-    save_tweets_in_test_format,
-)
+from data_processing.data_loading_and_storing import load_test_tweets
 from rule.rule_classifier import RuleClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
 
@@ -26,12 +23,10 @@ def get_args() -> argparse.Namespace:
         help="Path to the validation labels",
     )
     argparser.add_argument(
-        "-b", "--bert_predictions_path", help="Path to the BERT predictions (csv)",
-    )
-    argparser.add_argument(
-        "-s",
-        "--tweets_save_path",
-        help="Path where to save the tweets without the rule patterns",
+        "-b",
+        "--bert_predictions_path",
+        required=True,
+        help="Path to the BERT predictions (csv)",
     )
     argparser.add_argument(
         "-i",
@@ -77,84 +72,74 @@ def main() -> None:
 
     rule_classifier = RuleClassifier()
 
-    if args.tweets_save_path is not None:
-        tweets_without_rule_patterns = rule_classifier.remove_rule_patterns_from(tweets)
-        save_tweets_in_test_format(tweets_without_rule_patterns, args.tweets_save_path)
-        print("tweets saved")
+    labels = np.loadtxt(args.validation_labels_path, dtype=np.int64)
 
-    elif args.bert_predictions_path is not None:
-        labels = np.loadtxt(args.validation_labels_path, dtype=np.int64)
+    bert_predictions = np.loadtxt(
+        args.bert_predictions_path,
+        delimiter=",",
+        dtype=np.int64,
+        skiprows=1,
+        usecols=(1,),
+    )
 
-        bert_predictions = np.loadtxt(
-            args.bert_predictions_path,
-            delimiter=",",
-            dtype=np.int64,
-            skiprows=1,
-            usecols=(1,),
+    rule_predictions = rule_classifier.predict(tweets)
+
+    print_confusion_matrix(
+        labels,
+        rule_predictions,
+        label_names=["negative", "unknown", "positive"],
+        title="rule on full validation set",
+    )
+    accuracy_bert = accuracy_score(labels, bert_predictions)
+    print("accuracy bert on full validation set: ", accuracy_bert)
+    print_confusion_matrix(
+        labels,
+        bert_predictions,
+        label_names=["negative", "positive"],
+        title="bert on full validation set",
+    )
+
+    if args.load_rule_subset_indices is not None:
+        rule_subset_indices = np.loadtxt(
+            args.rule_subset_indices_save_path, dtype=np.int64
         )
+        bert_predictions_rule_matched = np.take(bert_predictions, rule_subset_indices)
+        labels_rule_matched = np.take(labels, rule_subset_indices)
 
-        rule_predictions = rule_classifier.predict(tweets)
+    else:
+        save_rule_subset_indices(args.rule_subset_indices_save_path, rule_predictions)
 
-        print_confusion_matrix(
-            labels,
-            rule_predictions,
-            label_names=["negative", "unknown", "positive"],
-            title="rule on full validation set",
+        rule_predictions_rule_matched = rule_predictions[rule_predictions != 0]
+        bert_predictions_rule_matched = bert_predictions[rule_predictions != 0]
+        labels_rule_matched = labels[rule_predictions != 0]
+
+        print(
+            "percentage of rule matches:",
+            len(rule_predictions_rule_matched) / len(rule_predictions),
         )
-        accuracy_bert = accuracy_score(labels, bert_predictions)
-        print("accuracy bert on full validation set: ", accuracy_bert)
-        print_confusion_matrix(
-            labels,
-            bert_predictions,
-            label_names=["negative", "positive"],
-            title="bert on full validation set",
+        accuracy_rules = accuracy_score(
+            labels_rule_matched, rule_predictions_rule_matched
         )
-
-        if args.load_rule_subset_indices is not None:
-            rule_subset_indices = np.loadtxt(
-                args.rule_subset_indices_save_path, dtype=np.int64
-            )
-            print(rule_subset_indices)
-
-        else:
-            save_rule_subset_indices(
-                args.rule_subset_indices_save_path, rule_predictions
-            )
-
-            rule_predictions_rule_matched = rule_predictions[rule_predictions != 0]
-            bert_predictions_rule_matched = bert_predictions[rule_predictions != 0]
-            labels_rule_matched = labels[rule_predictions != 0]
-
-            print(
-                "percentage of rule matches:",
-                len(rule_predictions_rule_matched) / len(rule_predictions),
-            )
-            accuracy_rules = accuracy_score(
-                labels_rule_matched, rule_predictions_rule_matched
-            )
-            print("accuracy rule: ", accuracy_rules)
-            accuracy_bert = accuracy_score(
-                labels_rule_matched, bert_predictions_rule_matched
-            )
-
-            print_confusion_matrix(
-                labels_rule_matched,
-                rule_predictions_rule_matched,
-                label_names=["negative", "positive"],
-                title="rules on rule subset",
-            )
-
-        print("accuracy bert: ", accuracy_bert)
+        print("accuracy rule: ", accuracy_rules)
+        accuracy_bert = accuracy_score(
+            labels_rule_matched, bert_predictions_rule_matched
+        )
 
         print_confusion_matrix(
             labels_rule_matched,
-            bert_predictions_rule_matched,
+            rule_predictions_rule_matched,
             label_names=["negative", "positive"],
-            title="bert on rule subset",
+            title="rules on rule subset",
         )
 
-    else:
-        raise ValueError("-b and -s flag not specified")
+    print("accuracy bert: ", accuracy_bert)
+
+    print_confusion_matrix(
+        labels_rule_matched,
+        bert_predictions_rule_matched,
+        label_names=["negative", "positive"],
+        title="bert on rule subset",
+    )
 
 
 if __name__ == "__main__":
