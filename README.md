@@ -14,7 +14,7 @@ Download data from: http://www.da.inf.ethz.ch/teaching/2018/CIL/material/exercis
 
 clone project  
 ```
-git clone https://github.com/ferraric/Computational-Intelligence-Lab-2020   
+git clone https://github.com/ferraric/Computational-Intelligence-Lab-2020.git   
 ```
 
 install project 
@@ -56,7 +56,7 @@ All experiments can be run with the config option "use_comet_experiments": false
 Ex: ```experiments/bert-baseline/20-07-25_12-25-02/```
 
 To calculate the accuracy of a prediction file, run the following command:
-```python ensemble/calculate_accuracy.py -p path-to-predictions.csv -l path-to-labels.csv```
+```python utilities/calculate_accuracy.py -p path-to-predictions.csv -l path-to-labels.csv```
 Note that the predictions should be formatted as specified in the `sample_submission.csv` file.
 
 The following holds for all models except Google Natural Language API and GloVe:
@@ -82,7 +82,7 @@ python baselines/google_nlp_api.py -c configs/google_nlp_api.json
 
 #### GloVe
 
-To run the experiments for GloVe, one needs to download the code from [](https://github.com/dalab/lecture_cil_public/tree/master/exercises/2019/ex6) for generating the vocabulary and training the word embeddings.
+To run the experiments for GloVe, one needs to download the code from https://github.com/dalab/lecture_cil_public/tree/master/exercises/2019/ex6 for generating the vocabulary and training the word embeddings.
 
 In the README of that page, the instructions are given to build the vocabulary and the co-occurrence matrix for training. **Note that modifications have to be made to `build_vocab.sh` and `cooc.py` to use the full dataset.**
 
@@ -166,7 +166,7 @@ Each model will save the validation data and labels in the model checkpoint dire
 
 4. Evaluate the saved model from step 2 first on the validation data saved in step 1 and then on the validation data saved in step 2.
 
-This will leave you with 4 prediction files of the validation split. For each of these, perform step 5:
+This will leave you with 4 prediction files. For each of these, perform step 5:
 
 5. This will output confusion matrices and accuracies for both the Parentheses Rule and the given validation predictions.
 ```
