@@ -1,11 +1,18 @@
+import os
+
 from comet_ml import Experiment
 
 import numpy as np
+import pandas as pd
 from baselines.glove_embeddings_classifier import GloveEmbeddingsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
-from utilities.general_utilities import get_args, get_bunch_config_from_json
+from utilities.general_utilities import (
+    build_save_path,
+    get_args,
+    get_bunch_config_from_json,
+)
 
 
 def main() -> None:
@@ -18,7 +25,7 @@ def main() -> None:
         workspace=config.comet_workspace,
         disabled=not config.use_comet_experiments,
     )
-    comet_experiment.set_name(config.comet_experiment_name)
+    comet_experiment.set_name(config.experiment_name)
     comet_experiment.log_parameters(config)
 
     if config.model == "randomforest":
@@ -49,11 +56,22 @@ def main() -> None:
     predictions = best_model.predict(test_data_features)
     predictions_table = np.stack([ids, predictions], axis=-1).astype(int)
 
-    comet_experiment.log_table(
-        filename="test_predictions.csv",
-        tabular_data=predictions_table,
-        headers=["Id", "Prediction"],
-    )
+    if comet_experiment.disabled:
+        save_path = build_save_path(config)
+        os.makedirs(save_path)
+
+        formatted_predictions_table = pd.DataFrame(
+            predictions_table, columns=["Id", "Prediction"], dtype=np.int32,
+        )
+        formatted_predictions_table.to_csv(
+            os.path.join(save_path, "test_predictions.csv"), index=False
+        )
+    else:
+        comet_experiment.log_table(
+            filename="test_predictions.csv",
+            tabular_data=predictions_table,
+            headers=["Id", "Prediction"],
+        )
 
 
 if __name__ == "__main__":

@@ -61,12 +61,12 @@ def main() -> None:
         print("tweets saved")
 
     elif args.bert_predictions_path is not None:
-        labels = np.loadtxt(args.validation_labels_path, dtype=np.int)
+        labels = np.loadtxt(args.validation_labels_path, dtype=np.int64)
 
         bert_predictions = np.loadtxt(
             args.bert_predictions_path,
             delimiter=",",
-            dtype=np.int,
+            dtype=np.int64,
             skiprows=1,
             usecols=(1,),
         )
