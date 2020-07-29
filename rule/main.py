@@ -52,6 +52,8 @@ def main() -> None:
     rule_classifier = RuleClassifier()
     rule_predictions = rule_classifier.predict(tweets)
 
+    print("--- on full validation set ---")
+
     print_confusion_matrix(
         labels,
         rule_predictions,
@@ -59,7 +61,7 @@ def main() -> None:
         title="Rule Classifier",
     )
     accuracy_model_predictions_full_data = accuracy_score(labels, model_predictions)
-    print("Accuracy model on validation set: ", accuracy_model_predictions_full_data)
+    print("Accuracy model predictions: ", accuracy_model_predictions_full_data)
     print_confusion_matrix(
         labels,
         model_predictions,
@@ -71,6 +73,7 @@ def main() -> None:
     model_predictions_rule_matched = model_predictions[rule_predictions != 0]
     labels_rule_matched = labels[rule_predictions != 0]
 
+    print("--- On Rule Subset ---")
     print(
         "Percentage of rule matches:",
         len(rule_predictions_rule_matched) / len(rule_predictions),
@@ -78,22 +81,22 @@ def main() -> None:
     print()
 
     accuracy_rules = accuracy_score(labels_rule_matched, rule_predictions_rule_matched)
-    print("Accuracy Rule Classifier on Rule Subset: ", accuracy_rules)
+    print("Accuracy Rule Classifier: ", accuracy_rules)
     print_confusion_matrix(
         labels_rule_matched,
         rule_predictions_rule_matched,
         label_names=["Negative", "Positive"],
-        title="Rule Classifier on Rule Subset",
+        title="Rule Classifier",
     )
     accuracy_model_predictions = accuracy_score(
         labels_rule_matched, model_predictions_rule_matched
     )
-    print("Accuracy model predictions on Rule Subset: ", accuracy_model_predictions)
+    print("Accuracy model predictions: ", accuracy_model_predictions)
     print_confusion_matrix(
         labels_rule_matched,
         model_predictions_rule_matched,
         label_names=["Negative", "Positive"],
-        title="Model predictions on Rule Subset",
+        title="Model predictions",
     )
 
 
