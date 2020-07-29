@@ -170,7 +170,7 @@ This will leave you with 4 prediction files. For each of these, perform step 5:
 
 5. This will output confusion matrices and accuracies for both the Parentheses Rule and the given validation predictions.
 ```
-rules/main.py -d "path_to_saved_valiation_tweets_saved_in_step_1" -l "path_to_saved_valiation_labels_saved_in_step_1" -b "path_to_saved_valiation_predictions"
+rules/main.py -d "path_to_saved_valiation_tweets_saved_in_step_1" -l "path_to_saved_valiation_labels_saved_in_step_1" -p "path_to_saved_valiation_predictions"
 ```
 
 ## Resource Requirements
