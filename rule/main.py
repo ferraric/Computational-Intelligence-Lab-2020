@@ -23,7 +23,7 @@ def get_args() -> argparse.Namespace:
         help="Path to the validation labels",
     )
     argparser.add_argument(
-        "-b", "--bert_predictions_path", help="Path to the BERT predictions (csv)",
+        "-p", "--predictions_path", help="Path to the predictions (csv)",
     )
     return argparser.parse_args()
 
@@ -49,12 +49,8 @@ def main() -> None:
 
     labels = np.loadtxt(args.validation_labels_path, dtype=np.int64)
 
-    bert_predictions = np.loadtxt(
-        args.bert_predictions_path,
-        delimiter=",",
-        dtype=np.int64,
-        skiprows=1,
-        usecols=(1,),
+    model_predictions = np.loadtxt(
+        args.predictions_path, delimiter=",", dtype=np.int64, skiprows=1, usecols=(1,),
     )
 
     rule_predictions = rule_classifier.predict(tweets)
@@ -66,11 +62,14 @@ def main() -> None:
         title="rule based",
     )
     print_confusion_matrix(
-        labels, bert_predictions, label_names=["negative", "positive"], title="bert"
+        labels,
+        model_predictions,
+        label_names=["negative", "positive"],
+        title="model predictions",
     )
 
     rule_predictions_rule_matched = rule_predictions[rule_predictions != 0]
-    bert_predictions_rule_matched = bert_predictions[rule_predictions != 0]
+    model_predictions_rule_matched = model_predictions[rule_predictions != 0]
     labels_rule_matched = labels[rule_predictions != 0]
 
     print(
@@ -79,8 +78,10 @@ def main() -> None:
     )
     accuracy_rules = accuracy_score(labels_rule_matched, rule_predictions_rule_matched)
     print("accuracy rules: ", accuracy_rules)
-    accuracy_bert = accuracy_score(labels_rule_matched, bert_predictions_rule_matched)
-    print("accuracy bert: ", accuracy_bert)
+    accuracy_model_predictions = accuracy_score(
+        labels_rule_matched, model_predictions_rule_matched
+    )
+    print("accuracy model predictions: ", accuracy_model_predictions)
 
     print_confusion_matrix(
         labels_rule_matched,
@@ -90,9 +91,9 @@ def main() -> None:
     )
     print_confusion_matrix(
         labels_rule_matched,
-        bert_predictions_rule_matched,
+        model_predictions_rule_matched,
         label_names=["negative", "positive"],
-        title="bert on rule match",
+        title="model predictions on rule match",
     )
 
 
