@@ -49,29 +49,33 @@ pip install -r requirements.txt
  ```
  
 
-## Reproduce Exerperiments
+## Reproduce Experiments
 To log the experiment results we used Comet (https://www.comet.ml/docs/), a tensorboard like logger. Unfortunately we cannot make access to our experiment logs public. However, if access to the logs is needed, contact jeremyalain.scheurer@gmail.com. If you would like to use your own comet account to run the experiments, fill the comet related config options with your account credentials.
 
 All experiments can be run with the config option "use_comet_experiments": false, which is the default option. In that case, the logs and saved predictions are found in the same directory where the model checkpoint is saved. That path is built by concatenating the config option "model_save_directory" to the config option "experiment_name" and to the timestamp of execution start time. 
-Ex: ```experiments/bert-baseline/20-07-25_12-25-02/```
+Example: ```experiments/bert-baseline/20-07-25_12-25-02/```
 
 To calculate the accuracy of a prediction file, run the following command:
-```python utilities/calculate_accuracy.py -p path-to-predictions.csv -l path-to-labels.csv```
+```
+python utilities/calculate_accuracy.py -p path-to-predictions.csv -l path-to-labels.csv
+```
 Note that the predictions should be formatted as specified in the `sample_submission.csv` file.
 
 The following holds for all models except Google Natural Language API and GloVe:
 
 The hyperparameters `epochs`, `max_tokens_per_tweet`, `validation_size`, `validation_split_random_seed`, `batch_size`, `n_data_loader_workers`, `learning_rate` were unchanged for all runs with a particular model. How other hyperparameters were varied is described in the following sections.
 
-When running an experiment, at the end of training, the provided test data are automatically predicted with the best saved checkpoint. If one needs to predict a set of tweets from an existing checkpoint, one needs to point the config option "test_tweets_path" to the corresponding tweets and provide the model checkpoint via the argument -t. Ex:
-```python mains/bert.py -c configs/bert.json -t path-to-model-checkpoint/model_checkpoint.ckpt```
+When running an experiment, at the end of training, the provided test data are automatically predicted with the best saved checkpoint. If one needs to predict a set of tweets from an existing checkpoint, one needs to point the config option "test_tweets_path" to the corresponding tweets and provide the model checkpoint via the argument -t. Example:
+```
+python mains/bert.py -c configs/bert.json -t path-to-model-checkpoint/model_checkpoint.ckpt
+```
 
 ### Baselines
 
 #### Google Natural Language API
 
 Note that one needs a Google cloud account and credits to use this service. Make sure you set the variable GOOGLE_APPLICATION_CREDENTIALS to point to the json file containing your account credentials.
-Also as a disclaimer we want to note that the Google Natural Language API is a service that costs money. One usually has a certain amount of free calls to the API (which we used). But we want to remind you to first check out what your API call limitations are in order to prevent a big bill at the end of the month.
+Also as a disclaimer we want to note that the Google Natural Language API is a service that costs money. One usually has a certain amount of free calls to the API (which we used). But we want to remind you to first check out what your free API call limitations are.
 ```
 export GOOGLE_APPLICATION_CREDENTIALS=path-to-your-account-credentials.json
 ```
@@ -158,7 +162,7 @@ Repeat the following procedure for BERT and BERTweet:
 
 1. Train the model as described in the corresponding model's section.
 
-2. Train the model with the unmatched parentheses relevant to the Parentheses Rule removed. This is done by setting the config option `remove_rule_patterns` to true while keeping all other options the same.
+2. Train the model on tweets with the unmatched parentheses relevant to the Parentheses Rule removed. This is done by setting the config option `remove_rule_patterns` to true while keeping all other options the same.
 
 Each model will save the validation data and labels in the model checkpoint directory (see beginning of Reproduce Results section)
 
