@@ -44,15 +44,12 @@ def main() -> None:
     args = get_args()
 
     tweets = load_test_tweets(args.validation_data_path)
-
-    rule_classifier = RuleClassifier()
-
     labels = np.loadtxt(args.validation_labels_path, dtype=np.int64)
-
     model_predictions = np.loadtxt(
         args.predictions_path, delimiter=",", dtype=np.int64, skiprows=1, usecols=(1,),
     )
 
+    rule_classifier = RuleClassifier()
     rule_predictions = rule_classifier.predict(tweets)
 
     print_confusion_matrix(
