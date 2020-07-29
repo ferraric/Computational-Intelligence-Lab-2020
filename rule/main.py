@@ -3,10 +3,7 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-from data_processing.data_loading_and_storing import (
-    load_test_tweets,
-    save_tweets_in_test_format,
-)
+from data_processing.data_loading_and_storing import load_test_tweets
 from rule.rule_classifier import RuleClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
 
@@ -26,12 +23,7 @@ def get_args() -> argparse.Namespace:
         help="Path to the validation labels",
     )
     argparser.add_argument(
-        "-b", "--bert_predictions_path", help="Path to the BERT predictions (csv)",
-    )
-    argparser.add_argument(
-        "-s",
-        "--save_path",
-        help="Path where to save the tweets without the rule patterns",
+        "-p", "--predictions_path", help="Path to the predictions (csv)",
     )
     return argparser.parse_args()
 
@@ -52,69 +44,60 @@ def main() -> None:
     args = get_args()
 
     tweets = load_test_tweets(args.validation_data_path)
+    labels = np.loadtxt(args.validation_labels_path, dtype=np.int64)
+    model_predictions = np.loadtxt(
+        args.predictions_path, delimiter=",", dtype=np.int64, skiprows=1, usecols=(1,),
+    )
 
     rule_classifier = RuleClassifier()
+    rule_predictions = rule_classifier.predict(tweets)
 
-    if args.save_path is not None:
-        tweets_without_rule_patterns = rule_classifier.remove_rule_patterns_from(tweets)
-        save_tweets_in_test_format(tweets_without_rule_patterns, args.save_path)
-        print("tweets saved")
+    print("--- on full validation set ---")
 
-    elif args.bert_predictions_path is not None:
-        labels = np.loadtxt(args.validation_labels_path, dtype=np.int64)
+    print_confusion_matrix(
+        labels,
+        rule_predictions,
+        label_names=["Negative", "Unknown", "Positive"],
+        title="Rule Classifier",
+    )
+    accuracy_model_predictions_full_data = accuracy_score(labels, model_predictions)
+    print("Accuracy model predictions: ", accuracy_model_predictions_full_data)
+    print_confusion_matrix(
+        labels,
+        model_predictions,
+        label_names=["Negative", "Positive"],
+        title="Model predictions",
+    )
 
-        bert_predictions = np.loadtxt(
-            args.bert_predictions_path,
-            delimiter=",",
-            dtype=np.int64,
-            skiprows=1,
-            usecols=(1,),
-        )
+    rule_predictions_rule_matched = rule_predictions[rule_predictions != 0]
+    model_predictions_rule_matched = model_predictions[rule_predictions != 0]
+    labels_rule_matched = labels[rule_predictions != 0]
 
-        rule_predictions = rule_classifier.predict(tweets)
+    print("--- On Rule Subset ---")
+    print(
+        "Percentage of rule matches:",
+        len(rule_predictions_rule_matched) / len(rule_predictions),
+    )
+    print()
 
-        print_confusion_matrix(
-            labels,
-            rule_predictions,
-            label_names=["negative", "unknown", "positive"],
-            title="rule based",
-        )
-        print_confusion_matrix(
-            labels, bert_predictions, label_names=["negative", "positive"], title="bert"
-        )
-
-        rule_predictions_rule_matched = rule_predictions[rule_predictions != 0]
-        bert_predictions_rule_matched = bert_predictions[rule_predictions != 0]
-        labels_rule_matched = labels[rule_predictions != 0]
-
-        print(
-            "Percentage of rule matches:",
-            len(rule_predictions_rule_matched) / len(rule_predictions),
-        )
-        accuracy_rules = accuracy_score(
-            labels_rule_matched, rule_predictions_rule_matched
-        )
-        print("accuracy rules: ", accuracy_rules)
-        accuracy_bert = accuracy_score(
-            labels_rule_matched, bert_predictions_rule_matched
-        )
-        print("accuracy bert: ", accuracy_bert)
-
-        print_confusion_matrix(
-            labels_rule_matched,
-            rule_predictions_rule_matched,
-            label_names=["negative", "positive"],
-            title="rule based on rule match",
-        )
-        print_confusion_matrix(
-            labels_rule_matched,
-            bert_predictions_rule_matched,
-            label_names=["negative", "positive"],
-            title="bert on rule match",
-        )
-
-    else:
-        raise ValueError("-b and -s flag not specified")
+    accuracy_rules = accuracy_score(labels_rule_matched, rule_predictions_rule_matched)
+    print("Accuracy Rule Classifier: ", accuracy_rules)
+    print_confusion_matrix(
+        labels_rule_matched,
+        rule_predictions_rule_matched,
+        label_names=["Negative", "Positive"],
+        title="Rule Classifier",
+    )
+    accuracy_model_predictions = accuracy_score(
+        labels_rule_matched, model_predictions_rule_matched
+    )
+    print("Accuracy model predictions: ", accuracy_model_predictions)
+    print_confusion_matrix(
+        labels_rule_matched,
+        model_predictions_rule_matched,
+        label_names=["Negative", "Positive"],
+        title="Model predictions",
+    )
 
 
 if __name__ == "__main__":
