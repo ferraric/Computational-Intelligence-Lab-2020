@@ -82,11 +82,11 @@ python baselines/google_nlp_api.py -c configs/google_nlp_api.json
 
 #### GloVe
 
-To run the experiments for GloVe, one needs to download the code from https://github.com/dalab/lecture_cil_public/tree/master/exercises/2019/ex6 for generating the vocabulary and training the word embeddings.
+To run the experiments for GloVe, download the code from https://github.com/dalab/lecture_cil_public/tree/master/exercises/2019/ex6 to generate the vocabulary and training the word embeddings.
 
 In the README of that page, the instructions are given to build the vocabulary and the co-occurrence matrix for training. **Note that modifications have to be made to `build_vocab.sh` and `cooc.py` to use the full dataset.**
 
-After building the co-occurrence matrix, one can run the training of the word embeddings by running
+After building the co-occurrence matrix, run the training of the word embeddings by executing
 
 `python glove_solution.py`
 
