@@ -172,11 +172,6 @@ This will leave you with 4 prediction files of the validation split. For each of
 rules/main.py -d "path_to_saved_valiation_tweets_saved_in_step_1" -l "path_to_saved_valiation_labels_saved_in_step_1" -b "path_to_saved_valiation_predictions"
 ```
 
-
-
-Note: Make sure in this last step to use the right validation data path and validation labels path with the predictions path (i.e. don't mix BERT with BERTweet).
-
-
 ## Resource Requirements
 
 All experiments of BERT, Roberta and BERTweet were run on ETH's Leonhard cluster using an Nvidia GeForce RTX 2080 Ti GPU. The runtimes per model were about 16 hours (26 hours with additional data) with 2 CPU cores and 64 GBs of memory for BERT and BERTweet and 96 GBs of memory for RoBERTa.
