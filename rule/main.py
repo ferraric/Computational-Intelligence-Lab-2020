@@ -48,6 +48,17 @@ def print_confusion_matrix(
     print()
 
 
+def save_rule_subset_indices(save_path: str, rule_predictions: List[int]) -> None:
+    indices = []
+    for index, prediction in enumerate(rule_predictions):
+        if prediction != 0:
+            indices.append(index)
+
+    with open(save_path, "w") as out:
+        for index in indices:
+            out.write(str(index) + "\n")
+
+
 def main() -> None:
     args = get_args()
 
