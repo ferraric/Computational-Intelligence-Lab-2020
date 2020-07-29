@@ -92,9 +92,9 @@ After building the co-occurrence matrix, run the training of the word embeddings
 
 In that script, the number of epochs can be specified.
 
-After this is done, both the generated `vocab.pkl` and the `embeddings.npz` files have to be moved to the data folder defined in the Setup section.
+After this is done, move both the generated `vocab.pkl` and the `embeddings.npz` files to the data folder defined in the Setup section.
 
-To train a classifier using the GloVe embeddings, one has to run:
+To train a classifier using the GloVe embeddings, run:
 
 `python baselines/main_glove.py -c configs/glove_embeddings_{logregression, decisiontree, randomforest}_classifier.json`
 
