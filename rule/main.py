@@ -58,14 +58,14 @@ def main() -> None:
     print_confusion_matrix(
         labels,
         rule_predictions,
-        label_names=["negative", "unknown", "positive"],
-        title="rule based",
+        label_names=["Negative", "Unknown", "Positive"],
+        title="Rule Classifier",
     )
     print_confusion_matrix(
         labels,
         model_predictions,
-        label_names=["negative", "positive"],
-        title="model predictions",
+        label_names=["Negative", "Positive"],
+        title="Model predictions",
     )
 
     rule_predictions_rule_matched = rule_predictions[rule_predictions != 0]
@@ -77,23 +77,23 @@ def main() -> None:
         len(rule_predictions_rule_matched) / len(rule_predictions),
     )
     accuracy_rules = accuracy_score(labels_rule_matched, rule_predictions_rule_matched)
-    print("accuracy rules: ", accuracy_rules)
+    print("Accuracy Rule Classifier: ", accuracy_rules)
     accuracy_model_predictions = accuracy_score(
         labels_rule_matched, model_predictions_rule_matched
     )
-    print("accuracy model predictions: ", accuracy_model_predictions)
+    print("Accuracy model predictions: ", accuracy_model_predictions)
 
     print_confusion_matrix(
         labels_rule_matched,
         rule_predictions_rule_matched,
-        label_names=["negative", "positive"],
-        title="rule based on rule match",
+        label_names=["Negative", "Positive"],
+        title="Rule Classifier on Rule Subset",
     )
     print_confusion_matrix(
         labels_rule_matched,
         model_predictions_rule_matched,
-        label_names=["negative", "positive"],
-        title="model predictions on rule match",
+        label_names=["Negative", "Positive"],
+        title="Model predictions on Rule Subset",
     )
 
 
