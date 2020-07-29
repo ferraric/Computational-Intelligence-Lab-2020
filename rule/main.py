@@ -30,8 +30,19 @@ def get_args() -> argparse.Namespace:
     )
     argparser.add_argument(
         "-s",
-        "--save_path",
+        "--tweets_save_path",
         help="Path where to save the tweets without the rule patterns",
+    )
+    argparser.add_argument(
+        "-i",
+        "--rule_subset_indices_save_path",
+        required=True,
+        help="path where wo save the rule subset indices",
+    )
+    argparser.add_argument(
+        "-load",
+        "--load_rule_subset_indices",
+        help="1 if rules subset indices should be loaded",
     )
     return argparser.parse_args()
 
@@ -66,9 +77,9 @@ def main() -> None:
 
     rule_classifier = RuleClassifier()
 
-    if args.save_path is not None:
+    if args.tweets_save_path is not None:
         tweets_without_rule_patterns = rule_classifier.remove_rule_patterns_from(tweets)
-        save_tweets_in_test_format(tweets_without_rule_patterns, args.save_path)
+        save_tweets_in_test_format(tweets_without_rule_patterns, args.tweets_save_path)
         print("tweets saved")
 
     elif args.bert_predictions_path is not None:
@@ -99,35 +110,46 @@ def main() -> None:
             title="bert on full validation set",
         )
 
-        rule_predictions_rule_matched = rule_predictions[rule_predictions != 0]
-        bert_predictions_rule_matched = bert_predictions[rule_predictions != 0]
-        labels_rule_matched = labels[rule_predictions != 0]
+        if args.load_rule_subset_indices is not None:
+            rule_subset_indices = np.loadtxt(
+                args.rule_subset_indices_save_path, dtype=np.int64
+            )
+            print(rule_subset_indices)
 
-        print(
-            "Percentage of rule matches:",
-            len(rule_predictions_rule_matched) / len(rule_predictions),
-        )
-        accuracy_rules = accuracy_score(
-            labels_rule_matched, rule_predictions_rule_matched
-        )
-        print("accuracy rules: ", accuracy_rules)
-        accuracy_bert = accuracy_score(
-            labels_rule_matched, bert_predictions_rule_matched
-        )
-        print("accuracy bert: ", accuracy_bert)
+        else:
+            save_rule_subset_indices(
+                args.rule_subset_indices_save_path, rule_predictions
+            )
 
-        print_confusion_matrix(
-            labels_rule_matched,
-            rule_predictions_rule_matched,
-            label_names=["negative", "positive"],
-            title="rule based on rule match",
-        )
-        print_confusion_matrix(
-            labels_rule_matched,
-            bert_predictions_rule_matched,
-            label_names=["negative", "positive"],
-            title="bert on rule match",
-        )
+            rule_predictions_rule_matched = rule_predictions[rule_predictions != 0]
+            bert_predictions_rule_matched = bert_predictions[rule_predictions != 0]
+            labels_rule_matched = labels[rule_predictions != 0]
+
+            print(
+                "Percentage of rule matches:",
+                len(rule_predictions_rule_matched) / len(rule_predictions),
+            )
+            accuracy_rules = accuracy_score(
+                labels_rule_matched, rule_predictions_rule_matched
+            )
+            print("accuracy rules: ", accuracy_rules)
+            accuracy_bert = accuracy_score(
+                labels_rule_matched, bert_predictions_rule_matched
+            )
+            print("accuracy bert: ", accuracy_bert)
+
+            print_confusion_matrix(
+                labels_rule_matched,
+                rule_predictions_rule_matched,
+                label_names=["negative", "positive"],
+                title="rule based on rule match",
+            )
+            print_confusion_matrix(
+                labels_rule_matched,
+                bert_predictions_rule_matched,
+                label_names=["negative", "positive"],
+                title="bert on rule match",
+            )
 
     else:
         raise ValueError("-b and -s flag not specified")
