@@ -88,10 +88,15 @@ def main() -> None:
             labels,
             rule_predictions,
             label_names=["negative", "unknown", "positive"],
-            title="rule based",
+            title="rule on full validation set",
         )
+        accuracy_bert = accuracy_score(labels, bert_predictions)
+        print("accuracy bert on full validation set: ", accuracy_bert)
         print_confusion_matrix(
-            labels, bert_predictions, label_names=["negative", "positive"], title="bert"
+            labels,
+            bert_predictions,
+            label_names=["negative", "positive"],
+            title="bert on full validation set",
         )
 
         rule_predictions_rule_matched = rule_predictions[rule_predictions != 0]
