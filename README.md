@@ -4,7 +4,7 @@
 
 ## Description   
 This is a project that was done in the Computational Intelligence Lab 2020 at ETH Zurich (see [Course website](http://www.da.inf.ethz.ch/teaching/2020/CIL/)).
-Specifically we are doing sentiment analysis of tweets and classify them into positive and negative sentiments (see [Kaggle competition](https://www.kaggle.com/c/cil-text-classification-2020)). Our team name was `FrontRowCrew`.
+Specifically we are doing sentiment analysis of tweets and classify them into positive and negative sentiments (see [Kaggle competition](https://www.kaggle.com/c/cil-text-classification-2020)). Our team name was `FrontRowCrew` and we were eventually ranked first out of 35 teams on the private test set. 
 
 ## Setup 
 The experiments were run and tested with Python version 3.7.1.
