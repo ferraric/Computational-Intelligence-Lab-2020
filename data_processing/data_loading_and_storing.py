@@ -8,7 +8,7 @@ from torch.utils.data import Subset
 
 def load_tweets(tweets_path: str) -> List[str]:
     with open(tweets_path, encoding="utf-8") as f:
-        return f.read().splitlines()
+        return f.read().splitlines()[:10000]
 
 
 def load_test_tweets(tweets_path: str) -> List[str]:
