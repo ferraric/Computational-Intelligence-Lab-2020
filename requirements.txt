@@ -9,7 +9,7 @@ numpy==1.19.0
 pandas==1.0.5
 pipreqs==0.4.10
 pre-commit==2.4.0
-protobuf==3.12.4
+protobuf==3.15.0
 pytest==5.4.3
 pytorch_lightning==0.7.6
 scikit_learn==0.23.1
