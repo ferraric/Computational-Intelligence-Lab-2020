@@ -7,7 +7,7 @@ google-cloud-language==1.3.0
 mypy==0.780
 numpy==1.19.0
 pandas==1.0.5
-pipreqs==0.4.10
+pipreqs==0.4.12
 pre-commit==2.4.0
 protobuf==3.12.4
 pytest==5.4.3
